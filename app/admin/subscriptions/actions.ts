@@ -32,7 +32,7 @@ export async function approveSubscription(formData: FormData) {
   }
 
   try {
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: TransactionClient) => {
       const subscription = await tx.subscription.findUnique({
         where: { id: result.data.subscriptionId },
         include: {
