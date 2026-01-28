@@ -5,6 +5,15 @@ import { prisma } from "@/lib/db";
 
 import UsersTable from "./_components/UsersTable";
 
+type UserRow = {
+  id: string;
+  email: string;
+  name: string | null;
+  role: string;
+  currentPlan: string | null;
+  createdAt: Date;
+};
+
 async function requireAdmin() {
   const session = await getAuthSession();
   if (!session?.user || session.user.role !== "admin") {
@@ -27,7 +36,7 @@ export default async function AdminUsersPage() {
     orderBy: { createdAt: "desc" },
   });
 
-  const formattedUsers = users.map((user) => ({
+  const formattedUsers = users.map((user: UserRow) => ({
     id: user.id,
     email: user.email,
     name: user.name ?? undefined,
