@@ -2,11 +2,12 @@
 
 import { z } from "zod";
 import { redirect } from "next/navigation";
-import type { Prisma } from "@prisma/client";
 
 import { getAuthSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { getPlanById } from "@/lib/plans";
+
+type TransactionClient = Parameters<Parameters<typeof prisma.$transaction>[0]>[0];
 
 const formSchema = z.object({
   subscriptionId: z.string().min(1),
@@ -131,7 +132,7 @@ export async function rejectSubscription(formData: FormData) {
   }
 
   try {
-    await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+    await prisma.$transaction(async (tx: TransactionClient) => {
       const subscription = await tx.subscription.findUnique({
         where: { id: result.data.subscriptionId },
         include: {

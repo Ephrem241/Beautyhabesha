@@ -2,11 +2,12 @@
 
 import { z } from "zod";
 import { redirect } from "next/navigation";
-import type { Prisma } from "@prisma/client";
 
 import { getAuthSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { getPlanById } from "@/lib/plans";
+
+type TransactionClient = Parameters<Parameters<typeof prisma.$transaction>[0]>[0];
 
 export type PaymentActionResult = {
   ok: boolean;
@@ -44,7 +45,7 @@ export async function approvePayment(
   }
 
   // Use Prisma transaction for atomic updates
-  await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+    await prisma.$transaction(async (tx: TransactionClient) => {
     const subscription = await tx.subscription.findUnique({
       where: { id: parsed.data.subscriptionId },
       include: {
@@ -144,7 +145,7 @@ export async function rejectPayment(
     return { ok: false, error: "Invalid request." };
   }
 
-  await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+    await prisma.$transaction(async (tx: TransactionClient) => {
     const subscription = await tx.subscription.findUnique({
       where: { id: parsed.data.subscriptionId },
       include: {

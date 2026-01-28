@@ -1,5 +1,6 @@
-import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
+
+type TransactionClient = Parameters<Parameters<typeof prisma.$transaction>[0]>[0];
 
 export type ExpirationResult = {
   expiredCount: number;
@@ -28,7 +29,7 @@ export async function expireSubscriptions(): Promise<ExpirationResult> {
 
   // Update subscriptions and users in transaction
   for (const sub of expiredSubs) {
-    await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+    await prisma.$transaction(async (tx: TransactionClient) => {
       // Update subscription
       await tx.subscription.update({
         where: { id: sub.id },
