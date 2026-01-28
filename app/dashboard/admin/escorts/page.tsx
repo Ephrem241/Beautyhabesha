@@ -41,7 +41,7 @@ export default async function AdminEscortsPage() {
     orderBy: { createdAt: "desc" },
   });
 
-  const formattedEscorts = escorts.map((escort) => ({
+  const formattedEscorts = escorts.map((escort: any) => ({
     id: escort.id,
     displayName: escort.displayName,
     city: escort.city ?? undefined,
