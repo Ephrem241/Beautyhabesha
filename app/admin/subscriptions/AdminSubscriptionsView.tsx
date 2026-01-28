@@ -1,3 +1,4 @@
+import type { Plan } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { PLAN_CATALOG } from "@/lib/plans";
 
@@ -40,7 +41,7 @@ export default async function AdminSubscriptionsView({
 
   const planDocs = await prisma.plan.findMany();
   const planMap = new Map(
-    planDocs.map((plan) => [
+    planDocs.map((plan: Plan) => [
       plan.name,
       { price: plan.price, durationDays: plan.durationDays },
     ])
