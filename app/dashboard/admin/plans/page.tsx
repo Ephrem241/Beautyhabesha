@@ -5,6 +5,14 @@ import { prisma } from "@/lib/db";
 
 import { createOrUpdatePlan, deletePlan } from "./actions";
 
+type PlanDoc = {
+  id: string;
+  name: string;
+  price: number;
+  durationDays: number;
+  priority: number;
+};
+
 async function requireAdmin() {
   const session = await getAuthSession();
   if (!session?.user || session.user.role !== "admin") {
@@ -117,7 +125,7 @@ export default async function AdminPlansPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-800">
-                {plans.map((plan) => {
+                {plans.map((plan: PlanDoc) => {
                   const isCore = ["Normal", "VIP", "Platinum"].includes(plan.name);
                   return (
                     <tr key={plan.id}>
