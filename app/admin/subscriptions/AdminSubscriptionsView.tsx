@@ -9,6 +9,11 @@ type PlanDoc = {
   durationDays: number;
 };
 
+type PlanInfo = {
+  price: number;
+  durationDays: number;
+};
+
 type SubscriptionWithUser = {
   id: string;
   userId: string;
@@ -56,13 +61,13 @@ export default async function AdminSubscriptionsView({
   });
 
   const planDocs = await prisma.plan.findMany();
-  const planMap = new Map(
+  const planMap = new Map<string, PlanInfo>(
     planDocs.map((plan: PlanDoc) => [
       plan.name,
       { price: plan.price, durationDays: plan.durationDays },
     ])
   );
-  const fallbackMap = new Map(
+  const fallbackMap = new Map<string, PlanInfo>(
     PLAN_CATALOG.map((plan) => [
       plan.name,
       { price: plan.priceEtb, durationDays: plan.durationDays },
