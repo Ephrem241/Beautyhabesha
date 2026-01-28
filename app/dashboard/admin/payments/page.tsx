@@ -15,6 +15,15 @@ type PendingPayment = {
   proofUrl: string;
 };
 
+type SubscriptionWithUser = {
+  id: string;
+  planId: string;
+  paymentMethod: string;
+  paymentProofUrl: string;
+  createdAt: Date;
+  user: { name: string | null; email: string };
+};
+
 async function requireAdmin() {
   const session = await getAuthSession();
   if (!session?.user || session.user.role !== "admin") {
@@ -35,7 +44,7 @@ export default async function AdminPaymentsPage() {
     },
   });
 
-  const payments: PendingPayment[] = pendingPayments.map((payment) => ({
+  const payments: PendingPayment[] = pendingPayments.map((payment: SubscriptionWithUser) => ({
     id: payment.id,
     userName: payment.user.name ?? undefined,
     userEmail: payment.user.email,
