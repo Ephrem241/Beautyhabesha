@@ -1,0 +1,30 @@
+[
+  {
+    "_id": "user_admin",
+    "email": "admin@example.com",
+    "name": "Admin One",
+    "role": "admin",
+    "currentPlan": "Platinum"
+  },
+  {
+    "_id": "user_escort",
+    "email": "mimi@example.com",
+    "name": "Mimi",
+    "role": "escort",
+    "currentPlan": "VIP"
+  },
+  {
+    "_id": "user_escort2",
+    "email": "hana@example.com",
+    "name": "Hana",
+    "role": "escort",
+    "currentPlan": "VIP"
+  },
+  {
+    "_id": "user_basic",
+    "email": "user1@example.com",
+    "name": "Basic User",
+    "role": "user",
+    "currentPlan": "Normal"
+  }
+]

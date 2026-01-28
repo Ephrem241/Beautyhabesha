@@ -1,0 +1,26 @@
+[
+  {
+    "_id": "plan_normal",
+    "name": "Normal",
+    "price": 0,
+    "durationDays": 30,
+    "features": ["Basic listing", "Standard support"],
+    "priority": 1
+  },
+  {
+    "_id": "plan_vip",
+    "name": "VIP",
+    "price": 49,
+    "durationDays": 30,
+    "features": ["Featured listing", "Priority support", "More images"],
+    "priority": 2
+  },
+  {
+    "_id": "plan_platinum",
+    "name": "Platinum",
+    "price": 99,
+    "durationDays": 30,
+    "features": ["Top placement", "Dedicated support", "Unlimited images"],
+    "priority": 3
+  }
+]

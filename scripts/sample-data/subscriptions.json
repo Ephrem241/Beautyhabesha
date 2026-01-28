@@ -1,0 +1,24 @@
+[
+  {
+    "userId": "user_escort",
+    "planId": "plan_vip",
+    "status": "active",
+    "paymentMethod": "bank_transfer",
+    "paymentProof": {
+      "url": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800",
+      "publicId": "payments/proof-001"
+    },
+    "startDate": "2026-01-01T00:00:00.000Z",
+    "endDate": "2026-01-31T23:59:59.000Z"
+  },
+  {
+    "userId": "user_basic",
+    "planId": "plan_normal",
+    "status": "pending",
+    "paymentMethod": "cash",
+    "paymentProof": {
+      "url": "https://images.unsplash.com/photo-1523287562758-66c7fc58967a?w=800",
+      "publicId": "payments/proof-002"
+    }
+  }
+]

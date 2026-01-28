@@ -1,0 +1,65 @@
+import { redirect } from "next/navigation";
+
+import { getAuthSession } from "@/lib/auth";
+import { prisma } from "@/lib/db";
+
+import PaymentsTable from "./_components/PaymentsTable";
+
+type PendingPayment = {
+  id: string;
+  userName?: string;
+  userEmail?: string;
+  planName: string;
+  paymentMethod: string;
+  submittedAt: string;
+  proofUrl: string;
+};
+
+async function requireAdmin() {
+  const session = await getAuthSession();
+  if (!session?.user || session.user.role !== "admin") {
+    redirect("/");
+  }
+}
+
+export default async function AdminPaymentsPage() {
+  await requireAdmin();
+
+  const pendingPayments = await prisma.subscription.findMany({
+    where: { status: "pending" },
+    orderBy: { createdAt: "desc" },
+    include: {
+      user: {
+        select: { name: true, email: true },
+      },
+    },
+  });
+
+  const payments: PendingPayment[] = pendingPayments.map((payment) => ({
+    id: payment.id,
+    userName: payment.user.name ?? undefined,
+    userEmail: payment.user.email,
+    planName: payment.planId,
+    paymentMethod: payment.paymentMethod,
+    submittedAt: payment.createdAt.toLocaleString(),
+    proofUrl: payment.paymentProofUrl,
+  }));
+
+  return (
+    <main className="min-h-screen bg-black px-6 pb-20 pt-16 text-white sm:pt-20">
+      <div className="mx-auto max-w-6xl">
+        <header className="flex flex-col gap-3">
+          <p className="text-xs font-semibold uppercase tracking-[0.4em] text-emerald-300">
+            Admin dashboard
+          </p>
+          <h1 className="text-3xl font-semibold">Pending payments</h1>
+          <p className="text-sm text-zinc-400">
+            Review payment proofs and approve or reject subscription upgrades.
+          </p>
+        </header>
+
+        <PaymentsTable payments={payments} />
+      </div>
+    </main>
+  );
+}

@@ -1,0 +1,34 @@
+[
+  {
+    "userId": "user_escort",
+    "displayName": "Mimi Love",
+    "bio": "Friendly and professional.",
+    "city": "Addis Ababa",
+    "images": [
+      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400",
+      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400"
+    ],
+    "contact": {
+      "phone": "+251911111111",
+      "telegram": "mimi_escort",
+      "whatsapp": "+251911111111"
+    },
+    "isPublished": true
+  },
+  {
+    "userId": "user_escort2",
+    "displayName": "Hana Rose",
+    "bio": "Discreet, respectful, and easygoing.",
+    "city": "Bahir Dar",
+    "images": [
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400",
+      "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=400"
+    ],
+    "contact": {
+      "phone": "+251922222222",
+      "telegram": "hana_rose",
+      "whatsapp": "+251922222222"
+    },
+    "isPublished": true
+  }
+]
