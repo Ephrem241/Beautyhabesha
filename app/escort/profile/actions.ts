@@ -3,7 +3,6 @@
 import { z } from "zod";
 import { redirect } from "next/navigation";
 
-import { Prisma } from "@prisma/client";
 import { getAuthSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { getUserPlan } from "@/lib/plan-access";
@@ -165,7 +164,7 @@ export async function upsertEscortProfile(
       displayName: parsed.data.displayName,
       bio: parsed.data.bio || null,
       city: parsed.data.city || null,
-      images: allImages as Prisma.InputJsonValue,
+      images: allImages as unknown as any,
       phone: parsed.data.phone || null,
       telegram: parsed.data.telegram || null,
       whatsapp: parsed.data.whatsapp || null,
@@ -175,7 +174,7 @@ export async function upsertEscortProfile(
       displayName: parsed.data.displayName,
       bio: parsed.data.bio || null,
       city: parsed.data.city || null,
-      images: allImages as Prisma.InputJsonValue,
+      images: allImages as unknown as any,
       phone: parsed.data.phone || null,
       telegram: parsed.data.telegram || null,
       whatsapp: parsed.data.whatsapp || null,
