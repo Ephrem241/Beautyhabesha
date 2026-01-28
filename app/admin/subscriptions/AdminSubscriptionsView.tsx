@@ -9,6 +9,17 @@ type PlanDoc = {
   durationDays: number;
 };
 
+type SubscriptionWithUser = {
+  id: string;
+  userId: string;
+  planId: string;
+  paymentMethod: string;
+  paymentProofUrl: string;
+  paymentProofPublicId: string;
+  createdAt: Date;
+  user: { name: string | null; email: string };
+};
+
 type AdminSubscriptionsViewProps = {
   status?: string;
   error?: string;
@@ -73,7 +84,7 @@ export default async function AdminSubscriptionsView({
 
       <div className="mt-8">
         <PendingSubscriptionsTable
-          subscriptions={subscriptions.map((subscription) => ({
+          subscriptions={subscriptions.map((subscription: SubscriptionWithUser) => ({
             _id: subscription.id,
             userId: subscription.userId,
             userName: subscription.user.name ?? undefined,
