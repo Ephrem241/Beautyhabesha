@@ -47,11 +47,10 @@ export function getEscortImageUrl(
   const watermarkText = [siteName, displayName || escortId || "Profile"].filter(Boolean).join(" | ");
   const encoded = encodeURIComponent(watermarkText);
 
-  // Cloudinary text overlay: l_text:font_size:content, style, then fl_layer_apply with position
-  // Semi-transparent (o_50), white text, bottom-right (g_south_east)
+  // Cloudinary text overlay: l_text:font_size_style:content,co_white,o_50 then fl_layer_apply with position
   const fontSize = 42;
   const opacity = 50;
-  const textLayer = `l_text:Arial_${fontSize}_bold:${encoded},co_white,g_south_east,x_24,y_24,o_${opacity}`;
+  const textLayer = `l_text:arial_${fontSize}_bold:${encoded},co_white,o_${opacity}`;
   const applyLayer = "fl_layer_apply,g_south_east,x_24,y_24";
 
   const transformation = `${textLayer}/${applyLayer}`;

@@ -13,9 +13,6 @@ const profileSchema = z.object({
   displayName: z.string().min(1, "Display name is required").max(50, "Too long"),
   bio: z.string().max(500, "Bio too long").optional(),
   city: z.string().max(100, "City too long").optional(),
-  phone: z.string().max(20, "Phone too long").optional(),
-  telegram: z.string().max(50, "Telegram too long").optional(),
-  whatsapp: z.string().max(20, "WhatsApp too long").optional(),
 });
 
 type ProfileFormData = z.infer<typeof profileSchema>;
@@ -62,9 +59,6 @@ export default function ProfileForm({
       displayName: initialDisplayName || "",
       bio: initialBio || "",
       city: initialCity || "",
-      phone: initialPhone || "",
-      telegram: initialTelegram || "",
-      whatsapp: initialWhatsapp || "",
     },
   });
 
@@ -73,9 +67,6 @@ export default function ProfileForm({
     formData.append("displayName", data.displayName);
     if (data.bio) formData.append("bio", data.bio);
     if (data.city) formData.append("city", data.city);
-    if (data.phone) formData.append("phone", data.phone);
-    if (data.telegram) formData.append("telegram", data.telegram);
-    if (data.whatsapp) formData.append("whatsapp", data.whatsapp);
     // Convert string[] to CloudinaryImage[] format for server
     const imagesAsCloudinaryFormat = existingImages.map(url => ({ url, publicId: `legacy_${url.split("/").pop()?.split(".")[0] || "unknown"}` }));
     formData.append("existingImages", JSON.stringify(imagesAsCloudinaryFormat));
@@ -114,37 +105,17 @@ export default function ProfileForm({
         </label>
       </div>
 
-      <div className="mt-6 grid gap-4 sm:gap-6 md:grid-cols-3">
-        <label className="flex flex-col gap-2 text-sm text-zinc-200">
-          Phone
-          <input
-            {...register("phone")}
-            className="rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-sm text-white"
-          />
-          {errors.phone && (
-            <span className="text-sm text-red-400">{errors.phone.message}</span>
-          )}
-        </label>
-        <label className="flex flex-col gap-2 text-sm text-zinc-200">
-          Telegram
-          <input
-            {...register("telegram")}
-            className="rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-sm text-white"
-          />
-          {errors.telegram && (
-            <span className="text-sm text-red-400">{errors.telegram.message}</span>
-          )}
-        </label>
-        <label className="flex flex-col gap-2 text-sm text-zinc-200">
-          WhatsApp
-          <input
-            {...register("whatsapp")}
-            className="rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-sm text-white"
-          />
-          {errors.whatsapp && (
-            <span className="text-sm text-red-400">{errors.whatsapp.message}</span>
-          )}
-        </label>
+      <div className="mt-6 rounded-2xl border border-zinc-800 bg-black/50 px-4 py-3 sm:px-5 sm:py-4">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">
+          Contact (read-only)
+        </p>
+        <p className="mt-2 text-sm text-zinc-400">
+          Telegram: {initialTelegram || "—"} · WhatsApp: {initialWhatsapp || "—"}
+          {initialPhone ? ` · Phone: ${initialPhone}` : ""}
+        </p>
+        <p className="mt-1 text-xs text-zinc-500">
+          Contact is set by the platform and cannot be edited.
+        </p>
       </div>
 
       <label className="mt-6 flex flex-col gap-2 text-sm text-zinc-200">

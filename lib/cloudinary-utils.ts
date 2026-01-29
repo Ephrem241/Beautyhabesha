@@ -168,18 +168,17 @@ export async function deleteImages(
 }
 
 /**
- * Extracts public_id from a Cloudinary URL
- * Returns null if the URL is not a valid Cloudinary URL
+ * Extracts public_id from a Cloudinary URL.
+ * Strips only version prefix (v123/); keeps folder path. Returns null if not a Cloudinary URL.
  */
 export function extractPublicIdFromUrl(url: string): string | null {
   try {
-    // Cloudinary URLs have format: https://res.cloudinary.com/{cloud_name}/image/upload/{public_id}.{ext}
+    // .../upload/ or .../upload/v123/ then public_id (optional .ext)
     const match = url.match(/\/upload\/(?:v\d+\/)?(.+?)(?:\.[^.]+)?$/);
-    if (match && match[1]) {
-      // Remove folder prefix if present
-      return match[1].replace(/^[^/]+\//, "");
-    }
-    return null;
+    if (!match?.[1]) return null;
+    let id = match[1];
+    if (/^v\d+\//.test(id)) id = id.replace(/^v\d+\//, "");
+    return id || null;
   } catch {
     return null;
   }

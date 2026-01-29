@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 
 import { getAuthSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { DEFAULT_ESCORT_TELEGRAM, DEFAULT_ESCORT_WHATSAPP } from "@/lib/escort-defaults";
 
 const createSchema = z.object({
   email: z.string().email(),
@@ -72,8 +73,11 @@ export async function createEscortByAdmin(
         status: "approved",
         approvedAt: new Date(),
         approvedBy: adminId,
+        telegram: DEFAULT_ESCORT_TELEGRAM,
+        whatsapp: DEFAULT_ESCORT_WHATSAPP,
       },
     });
+    // Contact uses admin/platform defaults (@abeni_agent, +251912696090); escort cannot edit.
   });
 
   redirect("/dashboard/admin/escorts?created=1");

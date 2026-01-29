@@ -13,6 +13,7 @@ import {
   convertLegacyImage,
   type CloudinaryImage,
 } from "@/lib/cloudinary-utils";
+import { DEFAULT_ESCORT_TELEGRAM, DEFAULT_ESCORT_WHATSAPP } from "@/lib/escort-defaults";
 
 const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
 
@@ -20,9 +21,6 @@ const profileSchema = z.object({
   displayName: z.string().min(2).max(60),
   bio: z.string().max(500).optional().or(z.literal("")),
   city: z.string().max(60).optional().or(z.literal("")),
-  phone: z.string().max(40).optional().or(z.literal("")),
-  telegram: z.string().max(40).optional().or(z.literal("")),
-  whatsapp: z.string().max(40).optional().or(z.literal("")),
   existingImages: z
     .string()
     .optional()
@@ -55,9 +53,6 @@ export async function upsertEscortProfile(
     displayName: formData.get("displayName"),
     bio: formData.get("bio"),
     city: formData.get("city"),
-    phone: formData.get("phone"),
-    telegram: formData.get("telegram"),
-    whatsapp: formData.get("whatsapp"),
     existingImages: formData.get("existingImages"),
   });
 
@@ -169,7 +164,8 @@ export async function upsertEscortProfile(
     };
   }
 
-  // Store images as JSON (array of {url, publicId} objects)
+  // Store images as JSON (array of {url, publicId} objects).
+  // Contact (phone, telegram, whatsapp) is not editable by escort; omit from update/create.
   await prisma.escortProfile.upsert({
     where: { userId },
     update: {
@@ -177,9 +173,6 @@ export async function upsertEscortProfile(
       bio: parsed.data.bio || null,
       city: parsed.data.city || null,
       images: allImages as unknown as any,
-      phone: parsed.data.phone || null,
-      telegram: parsed.data.telegram || null,
-      whatsapp: parsed.data.whatsapp || null,
       lastActiveAt: new Date(),
     },
     create: {
@@ -188,10 +181,9 @@ export async function upsertEscortProfile(
       bio: parsed.data.bio || null,
       city: parsed.data.city || null,
       images: allImages as unknown as any,
-      phone: parsed.data.phone || null,
-      telegram: parsed.data.telegram || null,
-      whatsapp: parsed.data.whatsapp || null,
       status: "pending",
+      telegram: DEFAULT_ESCORT_TELEGRAM,
+      whatsapp: DEFAULT_ESCORT_WHATSAPP,
     },
   });
 

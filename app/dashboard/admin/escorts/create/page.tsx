@@ -28,6 +28,7 @@ export default async function AdminCreateEscortPage() {
           <p className="mt-2 text-sm text-zinc-400">
             Add a new escort account. Profile is approved immediately—no review
             needed. They can sign in and complete their profile (e.g. add photos) later.
+            Contact uses platform defaults (Telegram @abeni_agent, WhatsApp +251912696090).
           </p>
         </header>
 

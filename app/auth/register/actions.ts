@@ -5,6 +5,7 @@ import bcrypt from "bcrypt";
 
 import { prisma } from "@/lib/db";
 import { uploadImage } from "@/lib/cloudinary-utils";
+import { DEFAULT_ESCORT_TELEGRAM, DEFAULT_ESCORT_WHATSAPP } from "@/lib/escort-defaults";
 
 const MAX_PHOTO_BYTES = 5 * 1024 * 1024; // 5MB
 
@@ -100,6 +101,8 @@ export async function registerUser(formData: FormData): Promise<RegisterResult> 
           displayName: parsed.data.name,
           images: [profileImage] as unknown as object,
           status: "pending",
+          telegram: DEFAULT_ESCORT_TELEGRAM,
+          whatsapp: DEFAULT_ESCORT_WHATSAPP,
         },
       });
     }
