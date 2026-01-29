@@ -89,9 +89,9 @@ export default function ProfileForm({
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="mt-8 rounded-3xl border border-zinc-800 bg-zinc-950 p-6"
+      className="mt-6 rounded-2xl border border-zinc-800 bg-zinc-950 p-4 sm:mt-8 sm:rounded-3xl sm:p-6"
     >
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
         <label className="flex flex-col gap-2 text-sm text-zinc-200">
           Display name
           <input
@@ -114,7 +114,7 @@ export default function ProfileForm({
         </label>
       </div>
 
-      <div className="mt-6 grid gap-6 md:grid-cols-3">
+      <div className="mt-6 grid gap-4 sm:gap-6 md:grid-cols-3">
         <label className="flex flex-col gap-2 text-sm text-zinc-200">
           Phone
           <input
@@ -167,7 +167,7 @@ export default function ProfileForm({
             : `You can upload up to ${maxImages} images for your current plan.`}
         </p>
         {existingImages.length > 0 ? (
-          <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          <div className="mt-4 grid gap-3 grid-cols-2 sm:grid-cols-3">
             {existingImages.map((image) => (
               <div
                 key={image}

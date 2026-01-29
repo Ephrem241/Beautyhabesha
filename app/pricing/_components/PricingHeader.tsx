@@ -4,7 +4,7 @@ export default function PricingHeader() {
       <p className="text-xs font-semibold uppercase tracking-[0.4em] text-emerald-300">
         Membership Plans
       </p>
-      <h1 className="mt-4 text-3xl font-semibold text-white sm:text-4xl">
+      <h1 className="mt-4 text-2xl font-semibold text-white sm:text-3xl lg:text-4xl">
         Premium visibility for every profile
       </h1>
       <p className="mx-auto mt-4 max-w-2xl text-sm text-zinc-400 sm:text-base">

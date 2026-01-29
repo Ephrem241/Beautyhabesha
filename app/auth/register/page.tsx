@@ -54,10 +54,10 @@ function RegisterForm() {
   };
 
   return (
-    <main className="min-h-screen bg-black px-6 py-16 text-white">
+    <main className="min-h-screen bg-black px-4 py-12 text-white sm:px-6 sm:py-16">
       <div className="mx-auto max-w-md">
         <header className="mb-8 text-center">
-          <h1 className="text-3xl font-semibold">Create Account</h1>
+          <h1 className="text-2xl font-semibold sm:text-3xl">Create Account</h1>
           <p className="mt-2 text-sm text-zinc-400">
             Sign up to get started
           </p>
@@ -65,7 +65,7 @@ function RegisterForm() {
 
         <form
           onSubmit={handleSubmit}
-          className="rounded-2xl border border-zinc-800 bg-black p-6"
+          className="rounded-2xl border border-zinc-800 bg-black p-4 sm:p-6"
         >
           {errorMessage && (
             <div className="mb-4 rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">
@@ -205,7 +205,7 @@ function RegisterForm() {
 export default function RegisterPage() {
   return (
     <Suspense fallback={
-      <main className="min-h-screen bg-black px-6 py-16 text-white">
+      <main className="min-h-screen bg-black px-4 py-16 text-white sm:px-6">
         <div className="mx-auto max-w-md text-center">
           <p className="text-zinc-400">Loading...</p>
         </div>

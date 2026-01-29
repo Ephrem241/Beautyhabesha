@@ -37,7 +37,7 @@ export default function RejectModal({
     <AnimatePresence>
       {subscriptionId ? (
         <motion.div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-6"
+          className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/80 p-4 sm:p-6"
           role="dialog"
           aria-modal="true"
           aria-label="Reject payment"
@@ -58,8 +58,8 @@ export default function RejectModal({
             exit={{ y: prefersReducedMotion ? 0 : 12, opacity: 0 }}
             transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
           >
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-white">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <h2 className="text-base font-semibold text-white sm:text-lg">
                 Reject payment request
               </h2>
               <Button
@@ -85,7 +85,7 @@ export default function RejectModal({
               />
             </label>
 
-            <div className="mt-6 flex flex-wrap gap-3">
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <Button
                 type="button"
                 onClick={() => onConfirm(reason.trim() || undefined)}

@@ -23,7 +23,7 @@ export default async function DashboardPage({
   const plan = session?.user?.id ? await getUserPlan(session.user.id) : null;
 
   return (
-    <main className="min-h-screen bg-black px-6 py-16 text-white">
+    <main className="min-h-screen bg-black px-4 py-12 text-white sm:px-6 sm:py-16">
       <div className="mx-auto max-w-3xl">
         {showSuccess ? (
           <div className="rounded-2xl border border-emerald-500/40 bg-emerald-500/10 p-4 text-sm text-emerald-200">
@@ -40,12 +40,12 @@ export default async function DashboardPage({
             Subscription status: Pending Approval.
           </div>
         ) : null}
-        <h1 className="mt-6 text-2xl font-semibold">Dashboard</h1>
+        <h1 className="mt-6 text-xl font-semibold sm:text-2xl">Dashboard</h1>
         <p className="mt-2 text-sm text-zinc-400">
           Manage your profile, listings, and subscription status here.
         </p>
 
-        <div className="mt-6 grid gap-4 sm:grid-cols-2">
+        <div className="mt-6 grid gap-3 sm:gap-4 sm:grid-cols-2 md:grid-cols-3">
           <Link
             href="/pricing"
             className="rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-4 text-sm text-zinc-200 transition hover:border-emerald-400 hover:text-emerald-300"

@@ -70,13 +70,13 @@ export default async function EscortProfilePage() {
   const statusInfo = profile ? getStatusMessage(profile.status) : null;
 
   return (
-    <main className="min-h-screen bg-black px-6 pb-20 pt-16 text-white sm:pt-20">
+    <main className="min-h-screen bg-black px-4 pb-16 pt-16 text-white sm:px-6 sm:pb-20 sm:pt-20">
       <div className="mx-auto max-w-4xl">
         <header className="flex flex-col gap-3">
           <p className="text-xs font-semibold uppercase tracking-[0.4em] text-emerald-300">
             Escort profile
           </p>
-          <h1 className="text-3xl font-semibold">
+          <h1 className="text-2xl font-semibold sm:text-3xl">
             {profile ? "Edit your profile" : "Create your profile"}
           </h1>
           <p className="text-sm text-zinc-400">
@@ -85,7 +85,7 @@ export default async function EscortProfilePage() {
         </header>
 
         {statusInfo && (
-          <div className={`mt-6 rounded-2xl border p-4 text-sm ${statusInfo.color.includes('red') ? 'border-red-500/40 bg-red-500/10' : statusInfo.color.includes('yellow') ? 'border-yellow-500/40 bg-yellow-500/10' : 'border-emerald-500/40 bg-emerald-500/10'}`}>
+          <div className={`mt-6 rounded-2xl border p-4 text-sm ${statusInfo.color.includes("red") ? "border-red-500/40 bg-red-500/10" : statusInfo.color.includes("yellow") ? "border-yellow-500/40 bg-yellow-500/10" : "border-emerald-500/40 bg-emerald-500/10"}`}>
             {statusInfo.message}
           </div>
         )}

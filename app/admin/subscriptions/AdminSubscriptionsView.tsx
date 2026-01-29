@@ -81,13 +81,13 @@ export default async function AdminSubscriptionsView({
         <p className="text-xs font-semibold uppercase tracking-[0.4em] text-emerald-300">
           Admin dashboard
         </p>
-        <h1 className="text-3xl font-semibold">Pending subscriptions</h1>
+        <h1 className="text-2xl font-semibold sm:text-3xl">Pending subscriptions</h1>
         <p className="text-sm text-zinc-400">
           Review payment proofs, then approve or reject the requested plan.
         </p>
       </header>
 
-      <div className="mt-8">
+      <div className="mt-6 sm:mt-8">
         <PendingSubscriptionsTable
           subscriptions={subscriptions.map((subscription: SubscriptionWithUser) => ({
             _id: subscription.id,

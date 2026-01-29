@@ -56,7 +56,7 @@ export default function UsersTable({ users }: UsersTableProps) {
   }
 
   return (
-    <div className="mt-8">
+    <div className="mt-6 sm:mt-8">
       {status && (
         <div
           className={`mb-4 rounded-2xl border p-4 text-sm ${
@@ -69,73 +69,119 @@ export default function UsersTable({ users }: UsersTableProps) {
         </div>
       )}
 
-      <div className="overflow-x-auto rounded-2xl border border-zinc-800 bg-zinc-950">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-zinc-800">
-              <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-zinc-400">
-                Email
-              </th>
-              <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-zinc-400">
-                Name
-              </th>
-              <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-zinc-400">
-                Role
-              </th>
-              <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-zinc-400">
-                Plan
-              </th>
-              <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-zinc-400">
-                Created
-              </th>
-              <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-zinc-400">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-zinc-800">
-            {users.map((user) => (
-              <tr key={user.id} className="hover:bg-zinc-900/50">
-                <td className="px-6 py-4 text-sm text-zinc-200">{user.email}</td>
-                <td className="px-6 py-4 text-sm text-zinc-400">
-                  {user.name || "—"}
-                </td>
-                <td className="px-6 py-4">
-                  <span
-                    className={`inline-flex rounded-full border px-2.5 py-0.5 text-xs font-medium ${getRoleBadgeColor(
-                      user.role
-                    )}`}
-                  >
-                    {user.role}
-                  </span>
-                </td>
-                <td className="px-6 py-4 text-sm text-zinc-400">
-                  {user.currentPlan || "Normal"}
-                </td>
-                <td className="px-6 py-4 text-sm text-zinc-400">
-                  {new Date(user.createdAt).toLocaleDateString()}
-                </td>
-                <td className="px-6 py-4">
-                  <select
-                    value={user.role}
-                    onChange={(e) =>
-                      handleRoleChange(
-                        user.id,
-                        e.target.value as "admin" | "escort" | "user"
-                      )
-                    }
-                    disabled={isPending}
-                    className="rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-sm text-zinc-200 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:opacity-50"
-                  >
-                    <option value="user">User</option>
-                    <option value="escort">Escort</option>
-                    <option value="admin">Admin</option>
-                  </select>
-                </td>
+      <div className="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950">
+        <div className="hidden overflow-x-auto md:block">
+          <table className="w-full min-w-[640px]">
+            <thead>
+              <tr className="border-b border-zinc-800">
+                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-zinc-400 sm:px-6 sm:py-4">
+                  Email
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-zinc-400 sm:px-6 sm:py-4">
+                  Name
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-zinc-400 sm:px-6 sm:py-4">
+                  Role
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-zinc-400 sm:px-6 sm:py-4">
+                  Plan
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-zinc-400 sm:px-6 sm:py-4">
+                  Created
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-zinc-400 sm:px-6 sm:py-4">
+                  Actions
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-zinc-800">
+              {users.map((user) => (
+                <tr key={user.id} className="hover:bg-zinc-900/50">
+                  <td className="px-4 py-3 text-sm text-zinc-200 sm:px-6 sm:py-4">{user.email}</td>
+                  <td className="px-4 py-3 text-sm text-zinc-400 sm:px-6 sm:py-4">
+                    {user.name || "—"}
+                  </td>
+                  <td className="px-4 py-3 sm:px-6 sm:py-4">
+                    <span
+                      className={`inline-flex rounded-full border px-2.5 py-0.5 text-xs font-medium ${getRoleBadgeColor(
+                        user.role
+                      )}`}
+                    >
+                      {user.role}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-sm text-zinc-400 sm:px-6 sm:py-4">
+                    {user.currentPlan || "Normal"}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-zinc-400 sm:px-6 sm:py-4">
+                    {new Date(user.createdAt).toLocaleDateString()}
+                  </td>
+                  <td className="px-4 py-3 sm:px-6 sm:py-4">
+                    <select
+                      value={user.role}
+                      onChange={(e) =>
+                        handleRoleChange(
+                          user.id,
+                          e.target.value as "admin" | "escort" | "user"
+                        )
+                      }
+                      disabled={isPending}
+                      className="rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-sm text-zinc-200 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:opacity-50"
+                    >
+                      <option value="user">User</option>
+                      <option value="escort">Escort</option>
+                      <option value="admin">Admin</option>
+                    </select>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="flex flex-col gap-4 p-4 md:hidden">
+          {users.map((user) => (
+            <div
+              key={user.id}
+              className="rounded-2xl border border-zinc-800 bg-black p-4"
+            >
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium text-zinc-200">
+                    {user.email}
+                  </p>
+                  <p className="text-xs text-zinc-500">{user.name || "—"}</p>
+                </div>
+                <span
+                  className={`inline-flex shrink-0 rounded-full border px-2.5 py-0.5 text-xs font-medium ${getRoleBadgeColor(
+                    user.role
+                  )}`}
+                >
+                  {user.role}
+                </span>
+              </div>
+              <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-zinc-500">
+                <span>Plan: {user.currentPlan || "Normal"}</span>
+                <span>{new Date(user.createdAt).toLocaleDateString()}</span>
+              </div>
+              <select
+                value={user.role}
+                onChange={(e) =>
+                  handleRoleChange(
+                    user.id,
+                    e.target.value as "admin" | "escort" | "user"
+                  )
+                }
+                disabled={isPending}
+                className="mt-3 w-full rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-200 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:opacity-50"
+              >
+                <option value="user">User</option>
+                <option value="escort">Escort</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

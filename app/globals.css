@@ -1,5 +1,20 @@
 @import "tailwindcss";
 
+@layer base {
+  html {
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    overflow-x: hidden;
+    min-width: 0;
+  }
+  /* Prevent horizontal scroll from flex/grid children */
+  main {
+    min-width: 0;
+  }
+}
+
 @keyframes shimmer {
   0% {
     background-position: -200% 0;

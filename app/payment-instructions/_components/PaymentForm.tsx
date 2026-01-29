@@ -16,7 +16,7 @@ export default function PaymentForm({ planId }: PaymentFormProps) {
   return (
     <form
       action={formAction}
-      className="mt-8 rounded-2xl border border-zinc-800 bg-black p-6"
+      className="mt-6 rounded-2xl border border-zinc-800 bg-black p-4 sm:mt-8 sm:p-6"
     >
       <input type="hidden" name="planId" value={planId} />
       <fieldset className="mt-4">

@@ -44,57 +44,86 @@ export default function EscortsTable({ escorts }: EscortsTableProps) {
 
   return (
     <>
-      <div className="overflow-x-auto rounded-2xl border border-zinc-800 bg-zinc-950">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-zinc-800">
-              <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-zinc-400">
-                Name
-              </th>
-              <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-zinc-400">
-                Location
-              </th>
-              <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-zinc-400">
-                Status
-              </th>
-              <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-zinc-400">
-                Plan
-              </th>
-              <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-zinc-400">
-                Created
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-zinc-800">
-            {escorts.map((escort) => (
-              <tr
-                key={escort.id}
-                className="cursor-pointer hover:bg-zinc-900/50"
-                onClick={() => setSelectedEscort(escort)}
-              >
-                <td className="px-6 py-4 text-sm text-zinc-200">{escort.displayName}</td>
-                <td className="px-6 py-4 text-sm text-zinc-400">
-                  {escort.city || "—"}
-                </td>
-                <td className="px-6 py-4">
-                  <span
-                    className={`inline-flex rounded-full border px-2.5 py-0.5 text-xs font-medium ${getStatusBadgeColor(
-                      escort.status
-                    )}`}
-                  >
-                    {escort.status}
-                  </span>
-                </td>
-                <td className="px-6 py-4 text-sm text-zinc-400">
-                  {escort.plan}
-                </td>
-                <td className="px-6 py-4 text-sm text-zinc-400">
-                  {new Date(escort.createdAt).toLocaleDateString()}
-                </td>
+      <div className="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950">
+        <div className="hidden overflow-x-auto md:block">
+          <table className="w-full min-w-[520px]">
+            <thead>
+              <tr className="border-b border-zinc-800">
+                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-zinc-400 sm:px-6 sm:py-4">
+                  Name
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-zinc-400 sm:px-6 sm:py-4">
+                  Location
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-zinc-400 sm:px-6 sm:py-4">
+                  Status
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-zinc-400 sm:px-6 sm:py-4">
+                  Plan
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-zinc-400 sm:px-6 sm:py-4">
+                  Created
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-zinc-800">
+              {escorts.map((escort) => (
+                <tr
+                  key={escort.id}
+                  className="cursor-pointer hover:bg-zinc-900/50"
+                  onClick={() => setSelectedEscort(escort)}
+                >
+                  <td className="px-4 py-3 text-sm text-zinc-200 sm:px-6 sm:py-4">{escort.displayName}</td>
+                  <td className="px-4 py-3 text-sm text-zinc-400 sm:px-6 sm:py-4">
+                    {escort.city || "—"}
+                  </td>
+                  <td className="px-4 py-3 sm:px-6 sm:py-4">
+                    <span
+                      className={`inline-flex rounded-full border px-2.5 py-0.5 text-xs font-medium ${getStatusBadgeColor(
+                        escort.status
+                      )}`}
+                    >
+                      {escort.status}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-sm text-zinc-400 sm:px-6 sm:py-4">
+                    {escort.plan}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-zinc-400 sm:px-6 sm:py-4">
+                    {new Date(escort.createdAt).toLocaleDateString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="flex flex-col gap-4 p-4 md:hidden">
+          {escorts.map((escort) => (
+            <button
+              type="button"
+              key={escort.id}
+              onClick={() => setSelectedEscort(escort)}
+              className="flex flex-col gap-2 rounded-2xl border border-zinc-800 bg-black p-4 text-left transition hover:border-zinc-700 hover:bg-zinc-900/50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
+            >
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="font-medium text-zinc-200">{escort.displayName}</span>
+                <span
+                  className={`inline-flex shrink-0 rounded-full border px-2.5 py-0.5 text-xs font-medium ${getStatusBadgeColor(
+                    escort.status
+                  )}`}
+                >
+                  {escort.status}
+                </span>
+              </div>
+              <div className="flex flex-wrap items-center gap-3 text-xs text-zinc-500">
+                <span>{escort.city || "—"}</span>
+                <span>{escort.plan}</span>
+                <span>{new Date(escort.createdAt).toLocaleDateString()}</span>
+              </div>
+            </button>
+          ))}
+        </div>
       </div>
 
       {selectedEscort && (

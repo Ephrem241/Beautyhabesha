@@ -24,7 +24,7 @@ export default async function AdminSubscriptionsPage({
   await requireAdmin();
 
   return (
-    <main className="min-h-screen bg-black px-6 pb-20 pt-16 text-white sm:pt-20">
+    <main className="min-h-screen bg-black px-4 pb-16 pt-16 text-white sm:px-6 sm:pb-20 sm:pt-20">
       <div className="mx-auto max-w-6xl">
         <AdminSubscriptionsView
           status={searchParams?.status}

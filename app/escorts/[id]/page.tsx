@@ -17,21 +17,21 @@ export default async function EscortDetailPage({ params }: EscortDetailPageProps
   }
 
   return (
-    <main className="min-h-screen bg-black px-6 pb-20 pt-16 text-white sm:pt-20">
+    <main className="min-h-screen bg-black px-4 pb-16 pt-16 text-white sm:px-6 sm:pb-20 sm:pt-20">
       <div className="mx-auto max-w-5xl">
         <header className="flex flex-col gap-3">
           <p className="text-xs font-semibold uppercase tracking-[0.4em] text-emerald-300">
             Escort profile
           </p>
-          <h1 className="text-3xl font-semibold">{escort.displayName}</h1>
+          <h1 className="text-2xl font-semibold sm:text-3xl">{escort.displayName}</h1>
           <p className="text-sm text-zinc-400">
             {escort.city ?? "Available for premium bookings"}
           </p>
         </header>
 
-        <div className="mt-8 grid gap-8 lg:grid-cols-[2fr_1fr]">
-          <section className="rounded-3xl border border-zinc-800 bg-zinc-950 p-6">
-            <div className="grid gap-4 sm:grid-cols-2">
+        <div className="mt-6 grid gap-6 sm:mt-8 lg:grid-cols-[2fr_1fr] lg:gap-8">
+          <section className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4 sm:rounded-3xl sm:p-6">
+            <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
               {escort.images.length > 0 ? (
                 escort.images.map((image) => (
                   <div
@@ -62,7 +62,7 @@ export default async function EscortDetailPage({ params }: EscortDetailPageProps
             </div>
           </section>
 
-          <aside className="rounded-3xl border border-zinc-800 bg-black p-6">
+          <aside className="rounded-2xl border border-zinc-800 bg-black p-4 sm:rounded-3xl sm:p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-300">
               Contact details
             </p>

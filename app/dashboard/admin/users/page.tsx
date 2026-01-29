@@ -46,13 +46,13 @@ export default async function AdminUsersPage() {
   }));
 
   return (
-    <main className="min-h-screen bg-black px-6 pb-20 pt-16 text-white sm:pt-20">
+    <main className="min-h-screen bg-black px-4 pb-16 pt-16 text-white sm:px-6 sm:pb-20 sm:pt-20">
       <div className="mx-auto max-w-6xl">
         <header className="flex flex-col gap-3">
           <p className="text-xs font-semibold uppercase tracking-[0.4em] text-emerald-300">
             Admin dashboard
           </p>
-          <h1 className="text-3xl font-semibold">User Management</h1>
+          <h1 className="text-2xl font-semibold sm:text-3xl">User Management</h1>
           <p className="text-sm text-zinc-400">
             View and manage user roles. Change a user&apos;s role by selecting from the dropdown.
           </p>

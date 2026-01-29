@@ -30,7 +30,7 @@ export default function PaymentProofForm({ planId }: PaymentProofFormProps) {
   return (
     <form
       action={formAction}
-      className="mt-6 rounded-3xl border border-zinc-800 bg-zinc-950 p-6"
+      className="mt-6 rounded-2xl border border-zinc-800 bg-zinc-950 p-4 sm:rounded-3xl sm:p-6"
     >
       <input type="hidden" name="planId" value={planId} />
 

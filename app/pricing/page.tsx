@@ -24,11 +24,11 @@ export default async function PricingPage() {
   const plans = await getEffectivePlanCatalog();
 
   return (
-    <main className="min-h-screen bg-black px-6 pb-20 pt-16 text-white sm:pt-20">
+    <main className="min-h-screen bg-black px-4 pb-16 pt-16 text-white sm:px-6 sm:pb-20 sm:pt-20">
       <div className="mx-auto max-w-6xl">
         <PricingHeader />
 
-        <div className="mt-12 grid gap-6 lg:grid-cols-3">
+        <div className="mt-8 grid gap-4 sm:mt-12 sm:gap-6 lg:grid-cols-3">
           {plans.map((plan) => (
             <PlanCard key={plan.name} plan={plan} isLoggedIn={isLoggedIn} />
           ))}

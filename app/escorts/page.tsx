@@ -12,23 +12,23 @@ export default async function EscortListingPage() {
   const escorts = await getPublicEscortsOptimized();
 
   return (
-    <main className="min-h-screen bg-black px-6 pb-20 pt-16 text-white sm:pt-20">
+    <main className="min-h-screen bg-black px-4 pb-16 pt-16 text-white sm:px-6 sm:pb-20 sm:pt-20">
       <div className="mx-auto max-w-6xl">
         <header className="flex flex-col gap-3">
           <p className="text-xs font-semibold uppercase tracking-[0.4em] text-emerald-300">
             Escort listings
           </p>
-          <h1 className="text-3xl font-semibold">Discover premium profiles</h1>
+          <h1 className="text-2xl font-semibold sm:text-3xl">Discover premium profiles</h1>
           <p className="text-sm text-zinc-400">
             Platinum profiles appear first, followed by VIP, then Normal.
           </p>
         </header>
 
-        <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-6 grid gap-4 sm:mt-8 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {escorts.map((escort) => (
             <article
               key={escort.id}
-              className="flex flex-col overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-950 transition hover:-translate-y-0.5 hover:border-emerald-500/60"
+              className="flex flex-col overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950 transition hover:-translate-y-0.5 hover:border-emerald-500/60 sm:rounded-3xl"
             >
               <div className="relative h-48 w-full">
                 {escort.images[0] ? (
@@ -55,7 +55,7 @@ export default async function EscortListingPage() {
                   </span>
                 ) : null}
               </div>
-              <div className="flex flex-1 flex-col gap-3 p-6">
+              <div className="flex flex-1 flex-col gap-3 p-4 sm:p-6">
                 <div>
                   <h2 className="text-lg font-semibold text-white">
                     {escort.displayName}

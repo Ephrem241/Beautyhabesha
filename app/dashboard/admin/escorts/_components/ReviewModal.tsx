@@ -97,11 +97,11 @@ export default function ReviewModal({ escort, onClose }: ReviewModalProps) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-2xl border border-zinc-800 bg-zinc-950">
-        <div className="p-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-white">{details.displayName}</h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/50 p-4">
+      <div className="my-4 max-h-[calc(100vh-2rem)] w-full max-w-4xl overflow-y-auto rounded-2xl border border-zinc-800 bg-zinc-950">
+        <div className="p-4 sm:p-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <h2 className="text-lg font-semibold text-white sm:text-xl">{details.displayName}</h2>
             <button
               onClick={onClose}
               className="text-zinc-400 hover:text-zinc-200"
@@ -122,7 +122,7 @@ export default function ReviewModal({ escort, onClose }: ReviewModalProps) {
             </div>
           )}
 
-          <div className="mt-6 grid gap-6 md:grid-cols-2">
+          <div className="mt-6 grid gap-6 sm:grid-cols-1 md:grid-cols-2">
             <div>
               <div className="mb-4">
                 <span
@@ -179,7 +179,7 @@ export default function ReviewModal({ escort, onClose }: ReviewModalProps) {
             <div>
               <h3 className="mb-3 font-medium text-zinc-300">Images</h3>
               {details.images.length > 0 ? (
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-2 sm:gap-3">
                   {details.images.map((image, index) => (
                     <div key={index} className="relative aspect-square overflow-hidden rounded-lg border border-zinc-800">
                       <Image
@@ -199,7 +199,7 @@ export default function ReviewModal({ escort, onClose }: ReviewModalProps) {
             </div>
           </div>
 
-          <div className="mt-6 flex gap-3">
+          <div className="mt-6 flex flex-wrap gap-3">
             <button
               onClick={() => handleAction("approve")}
               disabled={actionPending || details.status === "approved"}

@@ -23,7 +23,7 @@ export default function PreviewModal({ imageUrl, onClose }: PreviewModalProps) {
     <AnimatePresence>
       {imageUrl ? (
         <motion.div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-6"
+          className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/80 p-4 sm:p-6"
           role="dialog"
           aria-modal="true"
           aria-label="Payment proof preview"
@@ -49,11 +49,11 @@ export default function PreviewModal({ imageUrl, onClose }: PreviewModalProps) {
               type="button"
               onClick={onClose}
               aria-label="Close preview"
-              className="absolute right-4 top-4 rounded-full border border-zinc-700 px-3 py-1 text-xs uppercase tracking-[0.2em] text-zinc-300 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
+              className="absolute right-3 top-3 rounded-full border border-zinc-700 px-2.5 py-1 text-xs uppercase tracking-[0.2em] text-zinc-300 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400 sm:right-4 sm:top-4 sm:px-3"
             >
               Close
             </button>
-            <div className="relative h-[70vh] w-full">
+            <div className="relative h-[50vh] min-h-[200px] w-full sm:h-[70vh]">
               <Image
                 src={imageUrl}
                 alt="Payment proof"

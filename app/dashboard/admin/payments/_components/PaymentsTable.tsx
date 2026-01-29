@@ -81,7 +81,7 @@ export default function PaymentsTable({ payments }: PaymentsTableProps) {
   };
 
   return (
-    <div className="mt-8">
+    <div className="mt-6 sm:mt-8">
       {toast ? (
         <div
           role="status"

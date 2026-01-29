@@ -11,14 +11,14 @@ export default function PlanCard({ plan, isLoggedIn }: PlanCardProps) {
 
   return (
     <section
-      className={`relative flex h-full flex-col rounded-3xl border px-6 pb-6 pt-8 shadow-[0_20px_60px_-40px_rgba(0,0,0,0.9)] ${
+      className={`relative flex h-full flex-col rounded-2xl border px-4 pb-6 pt-6 shadow-[0_20px_60px_-40px_rgba(0,0,0,0.9)] sm:rounded-3xl sm:px-6 sm:pt-8 ${
         plan.popular
           ? "border-emerald-500/60 bg-gradient-to-br from-zinc-950 via-zinc-950 to-emerald-950/40"
           : "border-zinc-800 bg-zinc-950"
       } transition hover:-translate-y-0.5 hover:border-emerald-500/60`}
     >
       {plan.popular ? (
-        <span className="absolute right-6 top-6 rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300">
+        <span className="absolute right-4 top-4 rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300 sm:right-6 sm:top-6">
           Popular
         </span>
       ) : null}

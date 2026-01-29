@@ -15,13 +15,13 @@ export default async function Home() {
   const spotlight = await getFeaturedEscorts(6);
 
   return (
-    <main className="min-h-screen bg-black px-6 pb-20 pt-16 text-white sm:pt-20">
+    <main className="min-h-screen bg-black px-4 pb-16 pt-16 text-white sm:px-6 sm:pb-20 sm:pt-20">
       <div className="mx-auto max-w-6xl">
-        <section className="rounded-3xl border border-zinc-800 bg-zinc-950 p-8">
+        <section className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4 sm:rounded-3xl sm:p-6 lg:p-8">
           <p className="text-xs font-semibold uppercase tracking-[0.4em] text-emerald-300">
             Premium membership
           </p>
-          <h1 className="mt-4 text-3xl font-semibold sm:text-4xl">
+          <h1 className="mt-4 text-2xl font-semibold sm:text-3xl lg:text-4xl">
             Showcase premium profiles with Platinum visibility
           </h1>
           <p className="mt-4 max-w-2xl text-sm text-zinc-400">
@@ -38,9 +38,9 @@ export default async function Home() {
           </div>
         </section>
 
-        <section className="mt-10">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold">Homepage spotlight</h2>
+        <section className="mt-8 sm:mt-10">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <h2 className="text-lg font-semibold sm:text-xl">Homepage spotlight</h2>
             <span className="text-xs uppercase tracking-[0.2em] text-emerald-300">
               Platinum only
             </span>
@@ -50,11 +50,11 @@ export default async function Home() {
               No Platinum profiles yet. Upgrade to appear here.
             </div>
           ) : (
-            <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-4 grid gap-4 sm:mt-6 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {spotlight.slice(0, 6).map((escort) => (
                 <article
                   key={escort.id}
-                  className="overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-950 transition hover:-translate-y-0.5 hover:border-emerald-500/60"
+                  className="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950 transition hover:-translate-y-0.5 hover:border-emerald-500/60 sm:rounded-3xl"
                 >
                   <div className="relative h-48 w-full">
                     {escort.images[0] ? (
@@ -76,7 +76,7 @@ export default async function Home() {
                       Featured
                     </span>
                   </div>
-                  <div className="p-5">
+                  <div className="p-4 sm:p-5">
                     <h3 className="text-lg font-semibold text-white">
                       {escort.displayName}
                     </h3>

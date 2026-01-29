@@ -1,6 +1,6 @@
 export default function PaymentInstructions() {
   return (
-    <section className="rounded-3xl border border-zinc-800 bg-black p-6">
+    <section className="rounded-2xl border border-zinc-800 bg-black p-4 sm:rounded-3xl sm:p-6">
       <p className="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-300">
         Payment instructions
       </p>
@@ -8,8 +8,8 @@ export default function PaymentInstructions() {
         Send your payment and upload proof. Admin approval is required to
         activate your subscription.
       </p>
-      <div className="mt-6 grid gap-4 sm:grid-cols-2">
-        <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
+      <div className="mt-4 grid gap-3 sm:mt-6 sm:gap-4 sm:grid-cols-2">
+        <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 sm:rounded-2xl">
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-300">
             Bank transfer
           </p>
@@ -18,7 +18,7 @@ export default function PaymentInstructions() {
           </p>
           <p className="text-sm text-zinc-300">Account number: 000-000-0000</p>
         </div>
-        <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
+        <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-4 sm:rounded-2xl">
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-300">
             Mobile money
           </p>

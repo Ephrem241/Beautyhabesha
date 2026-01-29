@@ -6,17 +6,17 @@ type PlanSummaryProps = {
 
 export default function PlanSummary({ plan }: PlanSummaryProps) {
   return (
-    <section className="rounded-3xl border border-zinc-800 bg-zinc-950 p-6">
-      <div className="flex items-center justify-between">
+    <section className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4 sm:rounded-3xl sm:p-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-300">
             Selected plan
           </p>
-          <h2 className="mt-2 text-2xl font-semibold text-white">
+          <h2 className="mt-2 text-xl font-semibold text-white sm:text-2xl">
             {plan.name}
           </h2>
         </div>
-        <span className="rounded-full border border-zinc-800 px-4 py-2 text-xs uppercase tracking-[0.2em] text-zinc-300">
+        <span className="w-fit rounded-full border border-zinc-800 px-4 py-2 text-xs uppercase tracking-[0.2em] text-zinc-300">
           {plan.priceLabel}
         </span>
       </div>
