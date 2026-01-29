@@ -79,26 +79,7 @@ export default function HeaderNav({ isLoggedIn, role }: HeaderNavProps) {
           Admin
         </Link>
       ) : null}
-      {isLoggedIn ? (
-        <>
-          <Link
-            href={profileHref}
-            className={`flex items-center gap-2 ${linkClass}`}
-            onClick={closeMenu}
-          >
-            <ProfileAvatar
-              src={profileImageUrl}
-              alt={userName || "Profile"}
-              size={32}
-              className="shrink-0"
-            />
-            <span className="max-w-[140px] truncate hidden sm:inline">
-              {userName || "Account"}
-            </span>
-          </Link>
-          <SignOutButton />
-        </>
-      ) : null}
+      {isLoggedIn ? <SignOutButton /> : null}
     </>
   );
 
