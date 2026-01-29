@@ -4,20 +4,25 @@ import { z } from "zod";
 import bcrypt from "bcrypt";
 import { redirect } from "next/navigation";
 
+import { randomUUID } from "crypto";
+
 import { getAuthSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { uploadImage, deleteImages, type CloudinaryImage } from "@/lib/cloudinary-utils";
-import { DEFAULT_ESCORT_TELEGRAM, DEFAULT_ESCORT_WHATSAPP } from "@/lib/escort-defaults";
+import {
+  DEFAULT_ESCORT_TELEGRAM,
+  DEFAULT_ESCORT_WHATSAPP,
+  DEFAULT_ESCORT_EMAIL_DOMAIN,
+  DEFAULT_ESCORT_PASSWORD,
+} from "@/lib/escort-defaults";
 
 const MIN_IMAGES = 3;
 const MAX_IMAGES = 12;
 const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
 
 const createSchema = z.object({
-  email: z.string().email(),
   name: z.string().min(2).max(100),
   displayName: z.string().min(2).max(60).optional(),
-  password: z.string().min(6),
 });
 
 export type CreateEscortResult = {
@@ -40,22 +45,21 @@ export async function createEscortByAdmin(
   const adminId = await requireAdmin();
 
   const parsed = createSchema.safeParse({
-    email: formData.get("email"),
     name: formData.get("name"),
     displayName: formData.get("displayName") || undefined,
-    password: formData.get("password"),
   });
 
   if (!parsed.success) {
-    return { error: "Please fill all required fields. Email valid, name 2–100 chars, password 6+." };
+    return { error: "Please fill required fields. Name 2–100 chars." };
   }
 
-  const email = parsed.data.email.toLowerCase().trim();
   const displayName = parsed.data.displayName?.trim() || parsed.data.name.trim();
+  const unique = randomUUID().slice(0, 12);
+  const email = `escort-${unique}@${DEFAULT_ESCORT_EMAIL_DOMAIN}`.toLowerCase();
 
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {
-    return { error: "An account with this email already exists." };
+    return { error: "Generated email already exists. Please try again." };
   }
 
   const photoFiles = formData.getAll("images").filter((f): f is File => f instanceof File && f.size > 0);
@@ -93,7 +97,7 @@ export async function createEscortByAdmin(
     uploadedImages.push(result.image);
   }
 
-  const hashedPassword = await bcrypt.hash(parsed.data.password, 10);
+  const hashedPassword = await bcrypt.hash(DEFAULT_ESCORT_PASSWORD, 10);
 
   await prisma.$transaction(async (tx) => {
     const user = await tx.user.create({
@@ -120,5 +124,5 @@ export async function createEscortByAdmin(
     });
   });
 
-  redirect("/dashboard/admin/escorts?created=1");
+  redirect(`/dashboard/admin/escorts?created=1&email=${encodeURIComponent(email)}`);
 }

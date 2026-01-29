@@ -64,16 +64,6 @@ export function CreateEscortForm({ createAction }: CreateEscortFormProps) {
 
       <div className="space-y-4">
         <label className="block">
-          <span className="text-sm font-medium text-zinc-200">Email</span>
-          <input
-            type="email"
-            name="email"
-            required
-            placeholder="escort@example.com"
-            className="mt-2 w-full rounded-xl border border-zinc-800 bg-black px-4 py-3 text-sm text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-          />
-        </label>
-        <label className="block">
           <span className="text-sm font-medium text-zinc-200">Name</span>
           <input
             type="text"
@@ -97,18 +87,6 @@ export function CreateEscortForm({ createAction }: CreateEscortFormProps) {
             placeholder="Defaults to name"
             className="mt-2 w-full rounded-xl border border-zinc-800 bg-black px-4 py-3 text-sm text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
           />
-        </label>
-        <label className="block">
-          <span className="text-sm font-medium text-zinc-200">Password</span>
-          <input
-            type="password"
-            name="password"
-            required
-            minLength={6}
-            placeholder="••••••••"
-            className="mt-2 w-full rounded-xl border border-zinc-800 bg-black px-4 py-3 text-sm text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-          />
-          <p className="mt-1 text-xs text-zinc-500">Min 6 characters. Share securely with the escort.</p>
         </label>
         <label className="block">
           <span className="text-sm font-medium text-zinc-200">

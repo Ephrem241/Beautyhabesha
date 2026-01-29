@@ -26,8 +26,9 @@ export default async function AdminCreateEscortPage() {
             Create escort
           </h1>
           <p className="mt-2 text-sm text-zinc-400">
-            Add a new escort account with 3–12 images (first = profile). Profile is approved
-            immediately. Contact uses platform defaults (Telegram @abeni_agent, WhatsApp +251912696090).
+            Add a new escort with name and 3–12 images (first = profile). Uses default email
+            (escort-…@default.local) and default password. Profile approved immediately. Contact:
+            Telegram @abeni_agent, WhatsApp +251912696090.
           </p>
         </header>
 

@@ -14,12 +14,13 @@ async function requireAdmin() {
   }
 }
 
-type Props = { searchParams: Promise<{ created?: string }> };
+type Props = { searchParams: Promise<{ created?: string; email?: string }> };
 
 export default async function AdminEscortsPage({ searchParams }: Props) {
   await requireAdmin();
   const params = await searchParams;
   const showCreated = params.created === "1";
+  const createdEmail = params.email ?? null;
 
   const escorts = await prisma.escortProfile.findMany({
     select: {
@@ -83,7 +84,12 @@ export default async function AdminEscortsPage({ searchParams }: Props) {
 
         {showCreated && (
           <div className="mt-6 rounded-2xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
-            Escort account created and approved. They can sign in and complete their profile.
+            Escort account created and approved.
+            {createdEmail && (
+              <span className="mt-1 block">
+                Sign in with <strong>{createdEmail}</strong> and the default escort password.
+              </span>
+            )}
           </div>
         )}
 
