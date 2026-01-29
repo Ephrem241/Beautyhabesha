@@ -4,26 +4,18 @@ import Link from "next/link";
 import { createPortal } from "react-dom";
 import { useState, useCallback, useEffect, useRef } from "react";
 import SignOutButton from "./SignOutButton";
-import { ProfileAvatar } from "./ProfileAvatar";
 
 type Role = "admin" | "escort" | "user" | null;
 
 type HeaderNavProps = {
   isLoggedIn: boolean;
   role: Role;
-  profileImageUrl?: string | null;
-  userName?: string;
 };
 
 const linkClass =
   "transition hover:text-emerald-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald-400";
 
-export default function HeaderNav({
-  isLoggedIn,
-  role,
-  profileImageUrl = null,
-  userName = "",
-}: HeaderNavProps) {
+export default function HeaderNav({ isLoggedIn, role }: HeaderNavProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
@@ -56,7 +48,6 @@ export default function HeaderNav({
     };
   }, [menuOpen, closeMenu]);
 
-  const profileHref = role === "escort" ? "/escort/profile" : "/dashboard";
   const navLinks = (
     <>
       <Link href="/pricing" className={linkClass} onClick={closeMenu}>
@@ -165,23 +156,6 @@ export default function HeaderNav({
               <p className="px-4 pb-2 text-xs font-semibold tracking-[0.3em] text-zinc-500">
                 Menu
               </p>
-              {isLoggedIn ? (
-                <Link
-                  href={profileHref}
-                  onClick={closeMenu}
-                  className="mb-2 flex items-center gap-3 rounded-xl px-4 py-3 text-left text-zinc-200 transition hover:bg-zinc-800 hover:text-emerald-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
-                >
-                  <ProfileAvatar
-                    src={profileImageUrl}
-                    alt={userName || "Profile"}
-                    size={40}
-                    className="shrink-0"
-                  />
-                  <span className="truncate font-medium normal-case tracking-normal">
-                    {userName || "Account"}
-                  </span>
-                </Link>
-              ) : null}
               <Link
                 href="/pricing"
                 className="rounded-xl px-4 py-3 text-left text-zinc-200 transition hover:bg-zinc-800 hover:text-emerald-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
