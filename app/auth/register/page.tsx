@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { useState, Suspense } from "react";
 import { registerUser } from "./actions";
 
+const MAX_PHOTO_MB = 5;
+
 function RegisterForm() {
   const router = useRouter();
   const [name, setName] = useState("");
@@ -12,6 +14,7 @@ function RegisterForm() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [role, setRole] = useState<"user" | "escort">("user");
+  const [profilePhoto, setProfilePhoto] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -32,12 +35,27 @@ function RegisterForm() {
       return;
     }
 
+    if (role === "escort" && !profilePhoto) {
+      setErrorMessage("Please upload a profile photo. Admin will review it before approving your account.");
+      setIsLoading(false);
+      return;
+    }
+
+    if (role === "escort" && profilePhoto && profilePhoto.size > MAX_PHOTO_MB * 1024 * 1024) {
+      setErrorMessage(`Profile photo must be smaller than ${MAX_PHOTO_MB}MB`);
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const formData = new FormData();
       formData.append("name", name);
       formData.append("email", email);
       formData.append("password", password);
       formData.append("role", role);
+      if (role === "escort" && profilePhoto) {
+        formData.append("profilePhoto", profilePhoto);
+      }
 
       const result = await registerUser(formData);
 
@@ -122,7 +140,11 @@ function RegisterForm() {
               <select
                 id="role"
                 value={role}
-                onChange={(e) => setRole(e.target.value as "user" | "escort")}
+                onChange={(e) => {
+                  const v = e.target.value as "user" | "escort";
+                  setRole(v);
+                  if (v === "user") setProfilePhoto(null);
+                }}
                 required
                 className="mt-2 w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm text-white focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/20"
               >
@@ -131,10 +153,37 @@ function RegisterForm() {
               </select>
               {role === "escort" && (
                 <p className="mt-2 text-xs text-zinc-400">
-                  Escorts can create profiles and list their services. Your account will need admin approval.
+                  Escorts can create profiles and list their services. You must upload a profile photo below — admin will review it before approving your account.
                 </p>
               )}
             </div>
+
+            {role === "escort" && (
+              <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-4">
+                <label
+                  htmlFor="profilePhoto"
+                  className="block text-sm font-semibold text-zinc-200"
+                >
+                  Profile photo <span className="text-amber-400">*</span> (required for escorts)
+                </label>
+                <p className="mt-1 text-xs text-zinc-500">
+                  Add a picture. Admin will review it before approving your account. Max 5MB.
+                </p>
+                <input
+                  id="profilePhoto"
+                  type="file"
+                  accept="image/*"
+                  required={role === "escort"}
+                  onChange={(e) => setProfilePhoto(e.target.files?.[0] ?? null)}
+                  className="mt-3 block w-full cursor-pointer rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-200 file:mr-4 file:rounded-full file:border-0 file:bg-emerald-500 file:px-4 file:py-2 file:text-xs file:font-semibold file:text-emerald-950 hover:file:bg-emerald-400"
+                />
+                {profilePhoto && (
+                  <p className="mt-2 text-xs text-emerald-400">
+                    Selected: {profilePhoto.name}
+                  </p>
+                )}
+              </div>
+            )}
 
             <div>
               <label
