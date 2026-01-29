@@ -133,14 +133,12 @@ export default function ProfileForm({
       <div className="mt-6">
         <p className="text-sm font-semibold text-zinc-200">Profile images</p>
         <p className="mt-1 text-xs text-zinc-500">
-          Add at least one picture. Admin will review it before approving your profile.{" "}
-          {maxImages === null
-            ? "Unlimited images on your current plan."
-            : `You can upload up to ${maxImages} images.`}
+          The first image is your profile picture. Minimum 3, maximum{" "}
+          {maxImages === null ? 12 : Math.min(12, maxImages)} images. Admin will review before approving.
         </p>
         {existingImages.length > 0 ? (
           <div className="mt-4 grid gap-3 grid-cols-2 sm:grid-cols-3">
-            {existingImages.map((image) => (
+            {existingImages.map((image, index) => (
               <div
                 key={image}
                 className="overflow-hidden rounded-2xl border border-zinc-800"
@@ -148,10 +146,15 @@ export default function ProfileForm({
                 <div className="relative h-32 w-full">
                   <Image
                     src={image}
-                    alt="Existing profile"
+                    alt={index === 0 ? "Profile picture" : "Gallery"}
                     fill
                     className="object-cover"
                   />
+                  {index === 0 && (
+                    <span className="absolute left-2 top-2 rounded-full bg-emerald-500/90 px-2 py-0.5 text-xs font-semibold text-emerald-950">
+                      Profile
+                    </span>
+                  )}
                   <label className="absolute right-2 top-2 flex items-center gap-2 rounded-full bg-black/70 px-3 py-1 text-xs text-white">
                     <input
                       type="checkbox"

@@ -8,6 +8,8 @@ import { uploadImage } from "@/lib/cloudinary-utils";
 import { DEFAULT_ESCORT_TELEGRAM, DEFAULT_ESCORT_WHATSAPP } from "@/lib/escort-defaults";
 
 const MAX_PHOTO_BYTES = 5 * 1024 * 1024; // 5MB
+const MIN_ESCORT_IMAGES = 3;
+const MAX_ESCORT_IMAGES = 12;
 
 const registerSchema = z.object({
   name: z.string().min(2).max(100),
@@ -35,21 +37,27 @@ export async function registerUser(formData: FormData): Promise<RegisterResult> 
 
   const normalizedEmail = parsed.data.email.toLowerCase().trim();
 
-  // Escorts must upload a profile photo
+  // Escorts must upload 3–12 images; first image is the profile photo
   const isEscort = parsed.data.role === "escort";
-  const photoFile = formData.get("profilePhoto");
+  const photoFiles = formData.getAll("images").filter((f): f is File => f instanceof File && f.size > 0);
   if (isEscort) {
-    if (!(photoFile instanceof File) || !photoFile.size) {
+    if (photoFiles.length < MIN_ESCORT_IMAGES) {
       return {
-        error:
-          "Please upload a profile photo. Admin will review it before approving your account.",
+        error: `Please upload at least ${MIN_ESCORT_IMAGES} images. The first image will be your profile picture.`,
       };
     }
-    if (!photoFile.type.startsWith("image/")) {
-      return { error: "Profile photo must be an image file." };
+    if (photoFiles.length > MAX_ESCORT_IMAGES) {
+      return {
+        error: `You can upload at most ${MAX_ESCORT_IMAGES} images.`,
+      };
     }
-    if (photoFile.size > MAX_PHOTO_BYTES) {
-      return { error: "Profile photo must be smaller than 5MB." };
+    for (const file of photoFiles) {
+      if (!file.type.startsWith("image/")) {
+        return { error: "All files must be images." };
+      }
+      if (file.size > MAX_PHOTO_BYTES) {
+        return { error: "Each image must be smaller than 5MB." };
+      }
     }
   }
 
@@ -65,21 +73,23 @@ export async function registerUser(formData: FormData): Promise<RegisterResult> 
   // Hash password
   const hashedPassword = await bcrypt.hash(parsed.data.password, 10);
 
-  let profileImage: { url: string; publicId: string } | null = null;
-  if (isEscort && photoFile instanceof File) {
-    const upload = await uploadImage(photoFile, {
-      folder: "escort-profiles",
-      maxWidth: 1920,
-      maxHeight: 1920,
-      quality: 85,
-      format: "auto",
-    });
-    if (!upload.success || !upload.image) {
-      return {
-        error: upload.error ?? "Failed to upload profile photo. Please try again.",
-      };
+  const uploadedImages: { url: string; publicId: string }[] = [];
+  if (isEscort && photoFiles.length > 0) {
+    for (const file of photoFiles) {
+      const upload = await uploadImage(file, {
+        folder: "escort-profiles",
+        maxWidth: 1920,
+        maxHeight: 1920,
+        quality: 85,
+        format: "auto",
+      });
+      if (!upload.success || !upload.image) {
+        return {
+          error: upload.error ?? "Failed to upload an image. Please try again.",
+        };
+      }
+      uploadedImages.push(upload.image);
     }
-    profileImage = upload.image;
   }
 
   await prisma.$transaction(async (tx) => {
@@ -94,12 +104,12 @@ export async function registerUser(formData: FormData): Promise<RegisterResult> 
       },
     });
 
-    if (isEscort && profileImage) {
+    if (isEscort && uploadedImages.length > 0) {
       await tx.escortProfile.create({
         data: {
           userId: user.id,
           displayName: parsed.data.name,
-          images: [profileImage] as unknown as object,
+          images: uploadedImages as unknown as object,
           status: "pending",
           telegram: DEFAULT_ESCORT_TELEGRAM,
           whatsapp: DEFAULT_ESCORT_WHATSAPP,

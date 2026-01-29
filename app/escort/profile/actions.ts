@@ -16,6 +16,8 @@ import {
 import { DEFAULT_ESCORT_TELEGRAM, DEFAULT_ESCORT_WHATSAPP } from "@/lib/escort-defaults";
 
 const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
+const MIN_IMAGES = 3;
+const MAX_IMAGES = 12;
 
 const profileSchema = z.object({
   displayName: z.string().min(2).max(60),
@@ -157,10 +159,9 @@ export async function upsertEscortProfile(
   // Combine remaining and newly uploaded images
   const allImages: CloudinaryImage[] = [...remainingImages, ...uploadedImages];
 
-  if (allImages.length === 0) {
+  if (allImages.length < MIN_IMAGES) {
     return {
-      error:
-        "Please add at least one profile picture. Admin will review it before approving your profile.",
+      error: `Please add at least ${MIN_IMAGES} images. The first image is your profile picture.`,
     };
   }
 
