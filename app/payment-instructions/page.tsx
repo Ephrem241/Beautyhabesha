@@ -1,8 +1,11 @@
+import Link from "next/link";
+
 import {
   getActiveSubscriptionPlans,
   getSubscriptionPlanBySlug,
 } from "@/lib/subscription-plans";
 import { formatPrice, formatDurationDays } from "@/lib/plan-format";
+import { getAuthSession } from "@/lib/auth";
 
 import PaymentForm from "./_components/PaymentForm";
 
@@ -14,6 +17,7 @@ export default async function PaymentInstructionsPage({
   searchParams,
 }: PaymentInstructionsPageProps) {
   const slug = searchParams?.plan ?? "vip";
+  const session = await getAuthSession();
   const selectedPlan =
     (await getSubscriptionPlanBySlug(slug)) ??
     (await getActiveSubscriptionPlans()).find((p) => p.price > 0) ?? null;
@@ -75,7 +79,21 @@ export default async function PaymentInstructionsPage({
           </section>
         </div>
 
-        <PaymentForm planSlug={selectedPlan.slug} />
+        {session?.user ? (
+          <PaymentForm planSlug={selectedPlan.slug} />
+        ) : (
+          <div className="mt-6 rounded-2xl border border-zinc-800 bg-black p-4 sm:mt-8 sm:p-6">
+            <p className="text-sm text-zinc-300">
+              Sign in to upload payment proof and request plan activation.
+            </p>
+            <Link
+              href={`/auth/login?callbackUrl=${encodeURIComponent(`/payment-instructions?plan=${selectedPlan.slug}`)}`}
+              className="mt-4 inline-flex w-full items-center justify-center rounded-full bg-emerald-400 px-4 py-3 text-sm font-semibold text-emerald-950 transition hover:bg-emerald-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
+            >
+              Sign in to submit proof
+            </Link>
+          </div>
+        )}
       </div>
     </main>
   );

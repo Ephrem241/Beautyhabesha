@@ -27,14 +27,9 @@ export async function submitUpgradePayment(
 ): Promise<UpgradeFormState> {
   const session = await getAuthSession();
   const userId = session?.user?.id;
-  const role = session?.user?.role;
 
   if (!userId) {
     return { error: "Please sign in to continue." };
-  }
-
-  if (role !== "admin") {
-    return { error: "Only admins can submit or process plan upgrades." };
   }
 
   const parsed = formSchema.safeParse({

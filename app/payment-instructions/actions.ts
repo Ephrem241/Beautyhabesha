@@ -27,16 +27,9 @@ export async function submitPaymentProof(
 ): Promise<PaymentFormState> {
   const session = await getAuthSession();
   const userId = session?.user?.id;
-  const role = session?.user?.role;
 
   if (!userId) {
     return { error: "Please sign in to upload a payment proof." };
-  }
-
-  if (role !== "admin") {
-    return {
-      error: "Only admins can submit or process payment proofs for plan upgrades.",
-    };
   }
 
   const result = formSchema.safeParse({

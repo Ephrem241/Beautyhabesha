@@ -27,9 +27,6 @@ export default async function UpgradePage({ searchParams }: UpgradePageProps) {
     redirect("/auth/login");
   }
 
-  const role = session.user.role;
-  const isAdmin = role === "admin";
-
   const selectedPlan = params.plan
     ? await getSubscriptionPlanBySlug(params.plan)
     : (await getActiveSubscriptionPlans()).find((p) => p.price > 0) ?? null;
@@ -56,14 +53,7 @@ export default async function UpgradePage({ searchParams }: UpgradePageProps) {
             <PlanSummary plan={selectedPlan} />
             <PaymentInstructions />
             {selectedPlan.price > 0 ? (
-              isAdmin ? (
-                <PaymentProofForm planSlug={selectedPlan.slug} />
-              ) : (
-                <div className="rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm text-amber-200 sm:rounded-3xl sm:p-6">
-                  Only admins can submit payment proofs for plan upgrades. Please contact an
-                  administrator to upgrade this plan.
-                </div>
-              )
+              <PaymentProofForm planSlug={selectedPlan.slug} />
             ) : (
               <div className="rounded-2xl border border-emerald-500/40 bg-emerald-500/10 p-4 text-sm text-emerald-200 sm:rounded-3xl sm:p-6">
                 This plan is free. No payment is required.

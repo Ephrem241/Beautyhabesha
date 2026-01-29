@@ -141,6 +141,12 @@ export default async function DashboardPage({
                 Review subscriptions
               </Link>
               <Link
+                href="/dashboard/admin/payments"
+                className="rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-4 text-sm text-zinc-200 transition hover:border-emerald-400 hover:text-emerald-300"
+              >
+                Pending payments
+              </Link>
+              <Link
                 href="/dashboard/admin/users"
                 className="rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-4 text-sm text-zinc-200 transition hover:border-emerald-400 hover:text-emerald-300"
               >
@@ -151,6 +157,12 @@ export default async function DashboardPage({
                 className="rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-4 text-sm text-zinc-200 transition hover:border-emerald-400 hover:text-emerald-300"
               >
                 Manage escorts
+              </Link>
+              <Link
+                href="/dashboard/admin/escorts/create"
+                className="rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-4 text-sm text-zinc-200 transition hover:border-emerald-400 hover:text-emerald-300"
+              >
+                Create escort
               </Link>
               <Link
                 href="/dashboard/admin/reports"
