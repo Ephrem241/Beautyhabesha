@@ -4,6 +4,7 @@ import "./globals.css";
 import SiteHeader from "./_components/SiteHeader";
 import SiteFooter from "./_components/SiteFooter";
 import { AgeGate } from "./_components/AgeGate";
+import { TelegramFloatingButton } from "./_components/TelegramFloatingButton";
 import { WebVitals } from "./_components/WebVitals";
 import { getSiteUrl } from "@/lib/site-url";
 
@@ -81,6 +82,7 @@ export default function RootLayout({
               {children}
             </main>
             <SiteFooter />
+            <TelegramFloatingButton href="https://t.me/abeni_agent" />
           </div>
         </AgeGate>
       </body>
