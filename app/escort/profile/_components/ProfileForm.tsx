@@ -162,9 +162,10 @@ export default function ProfileForm({
       <div className="mt-6">
         <p className="text-sm font-semibold text-zinc-200">Profile images</p>
         <p className="mt-1 text-xs text-zinc-500">
+          Add at least one picture. Admin will review it before approving your profile.{" "}
           {maxImages === null
             ? "Unlimited images on your current plan."
-            : `You can upload up to ${maxImages} images for your current plan.`}
+            : `You can upload up to ${maxImages} images.`}
         </p>
         {existingImages.length > 0 ? (
           <div className="mt-4 grid gap-3 grid-cols-2 sm:grid-cols-3">

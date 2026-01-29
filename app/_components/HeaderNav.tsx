@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import SignOutButton from "./SignOutButton";
 
 type Role = "admin" | "escort" | "user" | null;
@@ -16,8 +16,12 @@ const linkClass =
 
 export default function HeaderNav({ isLoggedIn, role }: HeaderNavProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
 
-  const closeMenu = useCallback(() => setMenuOpen(false), []);
+  const closeMenu = useCallback(() => {
+    setMenuOpen(false);
+    queueMicrotask(() => menuButtonRef.current?.focus({ preventScroll: true }));
+  }, []);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -25,10 +29,16 @@ export default function HeaderNav({ isLoggedIn, role }: HeaderNavProps) {
       if (e.key === "Escape") closeMenu();
     };
     document.addEventListener("keydown", handleEscape);
-    document.body.style.overflow = "hidden";
+    const html = document.documentElement;
+    const body = document.body;
+    const prevHtml = html.style.overflow;
+    const prevBody = body.style.overflow;
+    html.style.overflow = "hidden";
+    body.style.overflow = "hidden";
     return () => {
       document.removeEventListener("keydown", handleEscape);
-      document.body.style.overflow = "";
+      html.style.overflow = prevHtml;
+      body.style.overflow = prevBody;
     };
   }, [menuOpen, closeMenu]);
 
@@ -78,6 +88,7 @@ export default function HeaderNav({ isLoggedIn, role }: HeaderNavProps) {
 
       <div className="flex items-center md:hidden">
         <button
+          ref={menuButtonRef}
           type="button"
           onClick={() => setMenuOpen((o) => !o)}
           aria-expanded={menuOpen}
@@ -103,7 +114,8 @@ export default function HeaderNav({ isLoggedIn, role }: HeaderNavProps) {
         aria-modal="true"
         aria-label="Mobile menu"
         aria-hidden={!menuOpen}
-        className={`fixed inset-0 top-16 z-40 bg-black/95 backdrop-blur transition-opacity duration-200 md:hidden ${
+        inert={!menuOpen ? true : undefined}
+        className={`fixed inset-0 top-16 z-50 overflow-y-auto bg-black/95 backdrop-blur transition-opacity duration-200 md:hidden ${
           menuOpen ? "visible opacity-100" : "invisible opacity-0 pointer-events-none"
         }`}
         onClick={(e) => e.target === e.currentTarget && closeMenu()}

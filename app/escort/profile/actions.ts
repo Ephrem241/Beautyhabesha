@@ -162,6 +162,13 @@ export async function upsertEscortProfile(
   // Combine remaining and newly uploaded images
   const allImages: CloudinaryImage[] = [...remainingImages, ...uploadedImages];
 
+  if (allImages.length === 0) {
+    return {
+      error:
+        "Please add at least one profile picture. Admin will review it before approving your profile.",
+    };
+  }
+
   // Store images as JSON (array of {url, publicId} objects)
   await prisma.escortProfile.upsert({
     where: { userId },

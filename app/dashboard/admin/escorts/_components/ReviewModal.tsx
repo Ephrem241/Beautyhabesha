@@ -230,23 +230,42 @@ export default function ReviewModal({ escort, onClose }: ReviewModalProps) {
             </div>
 
             <div>
-              <h3 className="mb-3 font-medium text-zinc-300">Images</h3>
+              <h3 className="mb-3 font-medium text-zinc-300">
+                Profile picture — review before approving
+              </h3>
               {details.images.length > 0 ? (
-                <div className="grid grid-cols-2 gap-2 sm:gap-3">
-                  {details.images.map((image, index) => (
-                    <div key={index} className="relative aspect-square overflow-hidden rounded-lg border border-zinc-800">
-                      <Image
-                        src={image}
-                        alt={`Image ${index + 1}`}
-                        fill
-                        className="object-cover"
-                      />
+                <div className="space-y-3">
+                  <div className="relative aspect-4/3 max-h-64 w-full overflow-hidden rounded-xl border border-zinc-800">
+                    <Image
+                      src={details.images[0]}
+                      alt="Primary profile picture"
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 400px"
+                    />
+                  </div>
+                  {details.images.length > 1 ? (
+                    <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                      {details.images.slice(1).map((image, index) => (
+                        <div key={index} className="relative aspect-square overflow-hidden rounded-lg border border-zinc-800">
+                          <Image
+                            src={image}
+                            alt={`Profile image ${index + 2}`}
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 640px) 50vw, 200px"
+                          />
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  ) : null}
                 </div>
               ) : (
-                <div className="rounded-lg border border-zinc-800 p-8 text-center text-zinc-400">
-                  No images uploaded
+                <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-6 text-center text-amber-200">
+                  <p className="font-medium">No profile picture</p>
+                  <p className="mt-1 text-sm text-amber-200/80">
+                    Escort must add at least one picture before you can approve.
+                  </p>
                 </div>
               )}
             </div>
@@ -255,8 +274,9 @@ export default function ReviewModal({ escort, onClose }: ReviewModalProps) {
           <div className="mt-6 flex flex-wrap gap-3">
             <button
               onClick={() => handleAction("approve")}
-              disabled={actionPending || details.status === "approved"}
+              disabled={actionPending || details.status === "approved" || details.images.length === 0}
               className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
+              title={details.images.length === 0 ? "Escort must add at least one picture first" : undefined}
             >
               {actionPending ? "Processing..." : "Approve"}
             </button>

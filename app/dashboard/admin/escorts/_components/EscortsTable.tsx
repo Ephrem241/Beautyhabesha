@@ -8,6 +8,7 @@ type Escort = {
   displayName: string;
   city?: string;
   status: "pending" | "approved" | "rejected" | "suspended";
+  hasImage: boolean;
   plan: string;
   createdAt: string;
   userId: string;
@@ -53,6 +54,9 @@ export default function EscortsTable({ escorts }: EscortsTableProps) {
                   Name
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-zinc-400 sm:px-6 sm:py-4">
+                  Photo
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-zinc-400 sm:px-6 sm:py-4">
                   Location
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-zinc-400 sm:px-6 sm:py-4">
@@ -74,6 +78,18 @@ export default function EscortsTable({ escorts }: EscortsTableProps) {
                   onClick={() => setSelectedEscort(escort)}
                 >
                   <td className="px-4 py-3 text-sm text-zinc-200 sm:px-6 sm:py-4">{escort.displayName}</td>
+                  <td className="px-4 py-3 sm:px-6 sm:py-4">
+                    <span
+                      className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium ${
+                        escort.hasImage
+                          ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-300"
+                          : "border-amber-500/40 bg-amber-500/10 text-amber-300"
+                      }`}
+                      title={escort.hasImage ? "Has profile picture" : "No picture — add before approve"}
+                    >
+                      {escort.hasImage ? "✓ Yes" : "No"}
+                    </span>
+                  </td>
                   <td className="px-4 py-3 text-sm text-zinc-400 sm:px-6 sm:py-4">
                     {escort.city || "—"}
                   </td>
@@ -117,6 +133,9 @@ export default function EscortsTable({ escorts }: EscortsTableProps) {
                 </span>
               </div>
               <div className="flex flex-wrap items-center gap-3 text-xs text-zinc-500">
+                <span className={escort.hasImage ? "text-emerald-400" : "text-amber-400"}>
+                  {escort.hasImage ? "✓ Photo" : "No photo"}
+                </span>
                 <span>{escort.city || "—"}</span>
                 <span>{escort.plan}</span>
                 <span>{new Date(escort.createdAt).toLocaleDateString()}</span>

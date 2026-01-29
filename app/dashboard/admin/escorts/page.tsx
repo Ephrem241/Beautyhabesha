@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 
 import { getAuthSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { extractImageUrls } from "@/lib/image-helpers";
 
 import EscortsTable from "./_components/EscortsTable";
 
@@ -21,6 +22,7 @@ export default async function AdminEscortsPage() {
       displayName: true,
       city: true,
       status: true,
+      images: true,
       createdAt: true,
       userId: true,
       user: {
@@ -46,6 +48,7 @@ export default async function AdminEscortsPage() {
     displayName: escort.displayName,
     city: escort.city ?? undefined,
     status: escort.status,
+    hasImage: extractImageUrls(escort.images).length > 0,
     plan: escort.user.subscriptions[0]?.planId ?? escort.user.currentPlan ?? "Normal",
     createdAt: escort.createdAt.toISOString(),
     userId: escort.userId,
