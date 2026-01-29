@@ -9,10 +9,12 @@ const MAX_PHOTO_MB = 5;
 const MIN_IMAGES = 3;
 const MAX_IMAGES = 12;
 
+const MIN_AGE = 18;
+
 function RegisterForm() {
   const router = useRouter();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
+  const [age, setAge] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [role, setRole] = useState<"user" | "escort">("user");
@@ -37,6 +39,13 @@ function RegisterForm() {
       return;
     }
 
+    const ageNum = parseInt(age, 10);
+    if (Number.isNaN(ageNum) || ageNum < MIN_AGE || ageNum > 120) {
+      setErrorMessage(`Age must be between ${MIN_AGE} and 120`);
+      setIsLoading(false);
+      return;
+    }
+
     if (role === "escort" && images.length < MIN_IMAGES) {
       setErrorMessage(`Please upload at least ${MIN_IMAGES} images. The first image will be your profile picture.`);
       setIsLoading(false);
@@ -57,8 +66,8 @@ function RegisterForm() {
 
     try {
       const formData = new FormData();
-      formData.append("name", name);
-      formData.append("email", email);
+      formData.append("username", username.trim());
+      formData.append("age", age);
       formData.append("password", password);
       formData.append("role", role);
       if (role === "escort" && images.length > 0) {
@@ -102,40 +111,47 @@ function RegisterForm() {
           <div className="space-y-4">
             <div>
               <label
-                htmlFor="name"
+                htmlFor="username"
                 className="block text-sm font-semibold text-zinc-200"
               >
-                Name
+                Username
               </label>
               <input
-                id="name"
+                id="username"
                 type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 required
+                minLength={3}
+                maxLength={30}
+                pattern="[a-zA-Z0-9_]+"
                 className="mt-2 w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm text-white placeholder-zinc-500 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/20"
-                placeholder="Your name"
-                autoComplete="name"
+                placeholder="letters, numbers, underscores"
+                autoComplete="username"
               />
+              <p className="mt-1 text-xs text-zinc-500">3–30 characters. Letters, numbers, underscores only.</p>
             </div>
 
             <div>
               <label
-                htmlFor="email"
+                htmlFor="age"
                 className="block text-sm font-semibold text-zinc-200"
               >
-                Email
+                Age
               </label>
               <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                id="age"
+                type="number"
+                value={age}
+                onChange={(e) => setAge(e.target.value)}
                 required
+                min={MIN_AGE}
+                max={120}
                 className="mt-2 w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm text-white placeholder-zinc-500 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/20"
-                placeholder="you@example.com"
-                autoComplete="email"
+                placeholder="18"
+                autoComplete="off"
               />
+              <p className="mt-1 text-xs text-zinc-500">You must be at least {MIN_AGE}.</p>
             </div>
 
             <div>
@@ -161,7 +177,7 @@ function RegisterForm() {
               </select>
               {role === "escort" && (
                 <p className="mt-2 text-xs text-zinc-400">
-                  Escorts can create profiles and list their services. You must upload a profile photo below — admin will review it before approving your account.
+                  Escorts can create profiles and list their services. Upload 3–12 images below — admin will review before approving.
                 </p>
               )}
             </div>

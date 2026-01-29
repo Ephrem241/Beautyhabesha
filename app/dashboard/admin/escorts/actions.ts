@@ -32,7 +32,8 @@ export type EscortDetails = {
   manualPlanId: string | null;
   user: {
     name?: string;
-    email: string;
+    email?: string | null;
+    username?: string | null;
   };
 };
 
@@ -85,7 +86,8 @@ export async function getEscortDetails(escortId: string): Promise<EscortDetails 
       manualPlanId: escort.manualPlanId,
       user: {
         name: escort.user.name ?? undefined,
-        email: escort.user.email,
+        email: escort.user.email ?? undefined,
+        username: escort.user.username ?? undefined,
       },
     };
   } catch {

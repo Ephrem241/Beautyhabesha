@@ -154,11 +154,8 @@ export async function approvePayment(
   if (result?.isAutoRenew && result.endDate) {
     const displayName =
       result.user.escortProfile?.displayName ?? result.user.name ?? "Member";
-    await sendRenewalSuccessful(
-      result.user.email,
-      displayName,
-      result.endDate
-    );
+    const to = result.user.email ?? result.user.username ?? "";
+    if (to) await sendRenewalSuccessful(to, displayName, result.endDate);
   }
 
   return { ok: true };
@@ -213,12 +210,9 @@ export async function rejectPayment(
 
   if (isAutoRenewSubscription(subscriptionBefore.paymentProofUrl)) {
     const displayName =
-      subscriptionBefore.user.name ?? subscriptionBefore.user.email;
-    await sendRenewalFailed(
-      subscriptionBefore.user.email,
-      displayName,
-      parsed.data.reason?.trim() || undefined
-    );
+      subscriptionBefore.user.name ?? subscriptionBefore.user.username ?? subscriptionBefore.user.email ?? "Member";
+    const to = subscriptionBefore.user.email ?? subscriptionBefore.user.username ?? "";
+    if (to) await sendRenewalFailed(to, displayName, parsed.data.reason?.trim() || undefined);
   }
 
   return { ok: true };

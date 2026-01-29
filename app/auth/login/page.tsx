@@ -12,7 +12,7 @@ function LoginForm() {
   const error = searchParams.get("error");
   const banned = searchParams.get("banned") === "1";
 
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState(
@@ -26,13 +26,13 @@ function LoginForm() {
 
     try {
       const result = await signIn("credentials", {
-        email,
+        username: username.trim().toLowerCase(),
         password,
         redirect: false,
       });
 
       if (result?.error) {
-        setErrorMessage("Invalid email or password");
+        setErrorMessage("Invalid username or password");
         setIsLoading(false);
       } else {
         router.push(callbackUrl);
@@ -67,20 +67,20 @@ function LoginForm() {
           <div className="space-y-4">
             <div>
               <label
-                htmlFor="email"
+                htmlFor="username"
                 className="block text-sm font-semibold text-zinc-200"
               >
-                Email
+                Username
               </label>
               <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                id="username"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 required
                 className="mt-2 w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm text-white placeholder-zinc-500 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/20"
-                placeholder="you@example.com"
-                autoComplete="email"
+                placeholder="your_username"
+                autoComplete="username"
               />
             </div>
 

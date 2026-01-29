@@ -7,7 +7,8 @@ import UsersTable from "./_components/UsersTable";
 
 type UserRow = {
   id: string;
-  email: string;
+  email: string | null;
+  username: string | null;
   name: string | null;
   role: string;
   currentPlan: string | null;
@@ -32,6 +33,7 @@ export default async function AdminUsersPage() {
     select: {
       id: true,
       email: true,
+      username: true,
       name: true,
       role: true,
       currentPlan: true,
@@ -46,7 +48,7 @@ export default async function AdminUsersPage() {
 
   const formattedUsers = users.map((user: UserRow) => ({
     id: user.id,
-    email: user.email,
+    email: user.email ?? user.username ?? "—",
     name: user.name ?? undefined,
     role: user.role as "admin" | "escort" | "user",
     currentPlan: (user.currentPlan as "Normal" | "VIP" | "Platinum" | null) ?? undefined,

@@ -22,7 +22,7 @@ type SubscriptionWithUser = {
   paymentProofUrl: string;
   paymentProofPublicId: string;
   createdAt: Date;
-  user: { name: string | null; email: string };
+  user: { name: string | null; email: string | null; username: string | null };
 };
 
 type AdminSubscriptionsViewProps = {
@@ -55,7 +55,7 @@ export default async function AdminSubscriptionsView({
     orderBy: { createdAt: "desc" },
     include: {
       user: {
-        select: { name: true, email: true },
+        select: { name: true, email: true, username: true },
       },
     },
   });
@@ -93,7 +93,7 @@ export default async function AdminSubscriptionsView({
             _id: subscription.id,
             userId: subscription.userId,
             userName: subscription.user.name ?? undefined,
-            userEmail: subscription.user.email,
+            userEmail: subscription.user.email ?? subscription.user.username ?? "—",
             planId: subscription.planId,
             planPriceLabel: (() => {
               const plan =

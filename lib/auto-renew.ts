@@ -83,11 +83,13 @@ export async function processAutoRenewals(): Promise<AutoRenewResult> {
 
         renewalsCreated += 1;
 
-        const email = sub.user.email;
+        const to = sub.user.email ?? sub.user.username ?? "";
         const displayName = sub.user.escortProfile?.displayName ?? sub.user.name ?? "Member";
-        await sendAutoRenewInitiated(email, displayName, sub.endDate!);
-        await sendPaymentPendingApproval(email, displayName);
-        emailsSent += 2;
+        if (to) {
+          await sendAutoRenewInitiated(to, displayName, sub.endDate!);
+          await sendPaymentPendingApproval(to, displayName);
+          emailsSent += 2;
+        }
       });
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);

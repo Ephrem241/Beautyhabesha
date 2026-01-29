@@ -27,28 +27,28 @@ export const authOptions: NextAuthOptions = {
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        email: { label: "Email", type: "email" },
+        username: { label: "Username", type: "text" },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
         try {
-          if (!credentials?.email || !credentials.password) {
+          if (!credentials?.username || !credentials.password) {
             console.error("[Auth] Missing credentials");
             return null;
           }
 
-          const normalizedEmail = credentials.email.toLowerCase().trim();
+          const username = credentials.username.toLowerCase().trim();
           const user = await prisma.user.findUnique({
-            where: { email: normalizedEmail },
+            where: { username },
           });
-          
+
           if (!user) {
-            console.error(`[Auth] User not found: ${normalizedEmail}`);
+            console.error(`[Auth] User not found: ${username}`);
             return null;
           }
 
           if (!user.password) {
-            console.error(`[Auth] User has no password (OAuth user): ${normalizedEmail}`);
+            console.error(`[Auth] User has no password (OAuth user): ${username}`);
             return null;
           }
 
@@ -56,21 +56,21 @@ export const authOptions: NextAuthOptions = {
             credentials.password,
             user.password
           );
-          
+
           if (!isValid) {
-            console.error(`[Auth] Invalid password for: ${normalizedEmail}`);
+            console.error(`[Auth] Invalid password for: ${username}`);
             return null;
           }
 
           if (user.bannedAt) {
-            console.error(`[Auth] Banned user attempted login: ${normalizedEmail}`);
+            console.error(`[Auth] Banned user attempted login: ${username}`);
             return null;
           }
 
           return {
             id: user.id,
-            email: user.email,
-            name: user.name ?? undefined,
+            email: user.email ?? undefined,
+            name: user.username ?? user.name ?? undefined,
             role: (user.role as "admin" | "escort" | "user") ?? "user",
           };
         } catch (error) {
@@ -112,13 +112,20 @@ export const authOptions: NextAuthOptions = {
       }
       return true;
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
       if (user) {
-        // Fetch user from database to get role
-        const dbUser = await prisma.user.findUnique({
-          where: { email: user.email?.toLowerCase() },
-        });
-
+        let dbUser: { id: string; role: string } | null = null;
+        if (account?.provider === "credentials" && user.id) {
+          dbUser = await prisma.user.findUnique({
+            where: { id: user.id },
+            select: { id: true, role: true },
+          });
+        } else if (user.email?.includes("@")) {
+          dbUser = await prisma.user.findUnique({
+            where: { email: user.email.toLowerCase() },
+            select: { id: true, role: true },
+          });
+        }
         if (dbUser) {
           token.role = dbUser.role as "admin" | "escort" | "user";
           token.uid = dbUser.id;

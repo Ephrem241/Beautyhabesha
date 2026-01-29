@@ -17,7 +17,7 @@ export default async function AdminReportsPage() {
   const reports = await prisma.report.findMany({
     include: {
       escortProfile: { select: { id: true, displayName: true, userId: true } },
-      reporter: { select: { id: true, email: true, name: true } },
+      reporter: { select: { id: true, email: true, username: true, name: true } },
     },
     orderBy: { createdAt: "desc" },
   });
@@ -26,7 +26,7 @@ export default async function AdminReportsPage() {
     id: r.id,
     escortId: r.escortProfileId,
     escortName: r.escortProfile.displayName,
-    reporterEmail: r.reporter?.email ?? null,
+    reporterEmail: r.reporter?.email ?? r.reporter?.username ?? null,
     reporterName: r.reporter?.name ?? null,
     reason: r.reason,
     details: r.details ?? null,

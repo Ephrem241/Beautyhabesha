@@ -16,7 +16,7 @@ export default async function AdminConsentPage() {
 
   const records = await prisma.consentRecord.findMany({
     include: {
-      user: { select: { id: true, email: true, name: true, role: true } },
+      user: { select: { id: true, email: true, username: true, name: true, role: true } },
     },
     orderBy: { acceptedAt: "desc" },
     take: 500,
@@ -25,7 +25,7 @@ export default async function AdminConsentPage() {
   const formatted = records.map((r) => ({
     id: r.id,
     userId: r.userId,
-    userEmail: r.user.email,
+    userEmail: r.user.email ?? r.user.username ?? "—",
     userName: r.user.name ?? null,
     userRole: r.user.role,
     type: r.type,

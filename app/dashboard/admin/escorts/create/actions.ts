@@ -12,7 +12,6 @@ import { uploadImage, deleteImages, type CloudinaryImage } from "@/lib/cloudinar
 import {
   DEFAULT_ESCORT_TELEGRAM,
   DEFAULT_ESCORT_WHATSAPP,
-  DEFAULT_ESCORT_EMAIL_DOMAIN,
   DEFAULT_ESCORT_PASSWORD,
 } from "@/lib/escort-defaults";
 
@@ -55,11 +54,11 @@ export async function createEscortByAdmin(
 
   const displayName = parsed.data.displayName?.trim() || parsed.data.name.trim();
   const unique = randomUUID().slice(0, 12);
-  const email = `escort-${unique}@${DEFAULT_ESCORT_EMAIL_DOMAIN}`.toLowerCase();
+  const username = `escort_${unique}`.toLowerCase();
 
-  const existing = await prisma.user.findUnique({ where: { email } });
+  const existing = await prisma.user.findUnique({ where: { username } });
   if (existing) {
-    return { error: "Generated email already exists. Please try again." };
+    return { error: "Generated username already exists. Please try again." };
   }
 
   const photoFiles = formData.getAll("images").filter((f): f is File => f instanceof File && f.size > 0);
@@ -102,7 +101,7 @@ export async function createEscortByAdmin(
   await prisma.$transaction(async (tx) => {
     const user = await tx.user.create({
       data: {
-        email,
+        username,
         name: parsed.data.name,
         password: hashedPassword,
         role: "escort",
@@ -124,5 +123,5 @@ export async function createEscortByAdmin(
     });
   });
 
-  redirect(`/dashboard/admin/escorts?created=1&email=${encodeURIComponent(email)}`);
+  redirect(`/dashboard/admin/escorts?created=1&username=${encodeURIComponent(username)}`);
 }

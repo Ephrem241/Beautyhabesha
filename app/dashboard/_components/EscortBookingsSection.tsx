@@ -15,7 +15,7 @@ type BookingItem = {
   mode: string;
   status: string;
   escortAcceptedAt: Date | null;
-  user: { id: string; email: string; name: string | null };
+  user: { id: string; email: string | null; username: string | null; name: string | null };
 };
 
 type EscortBookingsSectionProps = {
@@ -81,7 +81,7 @@ export function EscortBookingsSection({ bookings }: EscortBookingsSectionProps) 
               </p>
               {b.status === "approved" || b.status === "completed" ? (
                 <p className="text-sm text-zinc-400">
-                  {b.user.name ?? "Client"} ({b.user.email})
+                  {b.user.name ?? "Client"} ({b.user.email ?? b.user.username ?? "—"})
                 </p>
               ) : (
                 <p className="text-sm text-zinc-500">Client (contact after approval)</p>

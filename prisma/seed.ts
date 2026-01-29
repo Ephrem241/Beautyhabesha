@@ -123,6 +123,7 @@ async function main() {
   await prisma.user.create({
     data: {
       email: "admin@example.com",
+      username: "admin_one",
       password: hashedPassword,
       name: "Admin One",
       role: "admin",
@@ -133,6 +134,7 @@ async function main() {
   const escortUser1 = await prisma.user.create({
     data: {
       email: "mimi@example.com",
+      username: "mimi",
       password: hashedPassword,
       name: "Mimi",
       role: "escort",
@@ -143,6 +145,7 @@ async function main() {
   const escortUser2 = await prisma.user.create({
     data: {
       email: "hana@example.com",
+      username: "hana",
       password: hashedPassword,
       name: "Hana",
       role: "escort",
@@ -153,6 +156,7 @@ async function main() {
   const escortUser3 = await prisma.user.create({
     data: {
       email: "sara@example.com",
+      username: "sara",
       password: hashedPassword,
       name: "Sara",
       role: "escort",
@@ -163,6 +167,7 @@ async function main() {
   const basicUser = await prisma.user.create({
     data: {
       email: "user1@example.com",
+      username: "user1",
       password: hashedPassword,
       name: "Basic User",
       role: "user",

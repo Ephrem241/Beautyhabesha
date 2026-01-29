@@ -40,9 +40,9 @@ export async function approveDeposit(
     include: {
       booking: {
         include: {
-          user: { select: { email: true, name: true } },
+          user: { select: { email: true, username: true, name: true } },
           escortProfile: {
-            include: { user: { select: { email: true } } },
+            include: { user: { select: { email: true, username: true } } },
           },
         },
       },
@@ -68,15 +68,17 @@ export async function approveDeposit(
   const dateStr = new Date(booking.date).toLocaleDateString();
   const slot = `${booking.startTime}–${booking.endTime}`;
 
+  const userIdent = booking.user.email ?? booking.user.username ?? "";
+  const escortIdent = booking.escortProfile.user.email ?? booking.escortProfile.user.username ?? "";
   await sendBookingApproved(
-    booking.user.email,
+    userIdent,
     booking.user.name ?? "User",
     booking.escortProfile.displayName,
     dateStr,
     slot
   );
   await sendEscortNewBooking(
-    booking.escortProfile.user.email,
+    escortIdent,
     booking.escortProfile.displayName,
     dateStr,
     slot
@@ -105,7 +107,7 @@ export async function rejectDeposit(
     include: {
       booking: {
         include: {
-          user: { select: { email: true, name: true } },
+          user: { select: { email: true, username: true, name: true } },
         },
       },
     },
@@ -129,8 +131,9 @@ export async function rejectDeposit(
     }),
   ]);
 
+  const userIdent = deposit.booking.user.email ?? deposit.booking.user.username ?? "";
   await sendBookingRejected(
-    deposit.booking.user.email,
+    userIdent,
     deposit.booking.user.name ?? "User",
     parsed.data.reason?.trim()
   );

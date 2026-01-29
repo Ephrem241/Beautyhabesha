@@ -48,7 +48,7 @@ export async function createBooking(
 
   const escort = await prisma.escortProfile.findUnique({
     where: { id: parsed.data.escortId, status: "approved" },
-    include: { user: { select: { email: true } } },
+    include: { user: { select: { email: true, username: true } } },
   });
   if (!escort) {
     return { ok: false, error: "Escort not found or not available." };
@@ -71,22 +71,24 @@ export async function createBooking(
       status: "pending",
     },
     include: {
-      user: { select: { email: true, name: true } },
+      user: { select: { email: true, username: true, name: true } },
       escortProfile: { select: { displayName: true } },
     },
   });
 
   const slot = `${parsed.data.startTime}–${parsed.data.endTime}`;
   const dateStr = date.toLocaleDateString();
+  const userIdent = session.user.email ?? session.user.name ?? "";
+  const escortIdent = escort.user.email ?? escort.user.username ?? "";
   await sendBookingRequested(
-    session.user.email ?? "",
-    escort.user.email,
+    userIdent,
+    escortIdent,
     escort.displayName,
     dateStr,
     slot
   );
   await sendEscortNewBooking(
-    escort.user.email,
+    escortIdent,
     escort.displayName,
     dateStr,
     slot
@@ -132,7 +134,7 @@ export async function uploadDeposit(
 
   const booking = await prisma.booking.findFirst({
     where: { id: parsed.data.bookingId, userId: session.user.id, status: "pending" },
-    include: { escortProfile: { include: { user: { select: { email: true } } } } },
+    include: { escortProfile: { include: { user: { select: { email: true, username: true } } } } },
   });
   if (!booking) {
     return { ok: false, error: "Booking not found or already processed." };
@@ -163,7 +165,7 @@ export async function uploadDeposit(
   });
 
   await sendDepositSubmitted(
-    session.user.email ?? "",
+    session.user.email ?? session.user.name ?? "",
     session.user.name ?? "User",
     parsed.data.amount,
     booking.id
@@ -225,7 +227,7 @@ export async function escortCompleteBooking(bookingId: string): Promise<BookingA
 
   const booking = await prisma.booking.findFirst({
     where: { id: bookingId, escortId: profile.id, status: "approved" },
-    include: { user: { select: { email: true, name: true } } },
+    include: { user: { select: { email: true, username: true, name: true } } },
   });
   if (!booking) return { ok: false, error: "Booking not found or not approved." };
 
@@ -234,8 +236,9 @@ export async function escortCompleteBooking(bookingId: string): Promise<BookingA
     data: { status: "completed" },
   });
 
+  const userIdent = booking.user.email ?? booking.user.username ?? "";
   await sendBookingCompleted(
-    booking.user.email,
+    userIdent,
     booking.user.name ?? "Client",
     profile.displayName
   );

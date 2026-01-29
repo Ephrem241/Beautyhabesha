@@ -21,7 +21,7 @@ type SubscriptionWithUser = {
   paymentMethod: string;
   paymentProofUrl: string;
   createdAt: Date;
-  user: { name: string | null; email: string };
+  user: { name: string | null; email: string | null; username: string | null };
 };
 
 async function requireAdmin() {
@@ -39,7 +39,7 @@ export default async function AdminPaymentsPage() {
     orderBy: { createdAt: "desc" },
     include: {
       user: {
-        select: { name: true, email: true },
+        select: { name: true, email: true, username: true },
       },
     },
   });
@@ -47,7 +47,7 @@ export default async function AdminPaymentsPage() {
   const payments: PendingPayment[] = pendingPayments.map((payment: SubscriptionWithUser) => ({
     id: payment.id,
     userName: payment.user.name ?? undefined,
-    userEmail: payment.user.email,
+    userEmail: payment.user.email ?? payment.user.username ?? "—",
     planName: payment.planId,
     paymentMethod: payment.paymentMethod,
     submittedAt: payment.createdAt.toLocaleString(),

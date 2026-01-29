@@ -176,7 +176,7 @@ export default function ReviewModal({ escort, onClose }: ReviewModalProps) {
                 </div>
                 <div>
                   <span className="font-medium text-zinc-300">User:</span>{" "}
-                  <span className="text-zinc-200">{details.user.name || details.user.email}</span>
+                  <span className="text-zinc-200">{details.user.name ?? details.user.username ?? details.user.email ?? "—"}</span>
                 </div>
                 <div>
                   <span className="font-medium text-zinc-300">Location:</span>{" "}

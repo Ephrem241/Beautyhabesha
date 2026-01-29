@@ -11,9 +11,15 @@ const MAX_PHOTO_BYTES = 5 * 1024 * 1024; // 5MB
 const MIN_ESCORT_IMAGES = 3;
 const MAX_ESCORT_IMAGES = 12;
 
+const MIN_AGE = 18;
+
 const registerSchema = z.object({
-  name: z.string().min(2).max(100),
-  email: z.string().email(),
+  username: z
+    .string()
+    .min(3, "Username must be at least 3 characters")
+    .max(30, "Username too long")
+    .regex(/^[a-zA-Z0-9_]+$/, "Username: letters, numbers, underscores only"),
+  age: z.coerce.number().int().min(MIN_AGE, `You must be at least ${MIN_AGE}`).max(120),
   password: z.string().min(6),
   role: z.enum(["user", "escort"]),
 });
@@ -25,17 +31,19 @@ export type RegisterResult = {
 
 export async function registerUser(formData: FormData): Promise<RegisterResult> {
   const parsed = registerSchema.safeParse({
-    name: formData.get("name"),
-    email: formData.get("email"),
+    username: formData.get("username"),
+    age: formData.get("age"),
     password: formData.get("password"),
     role: formData.get("role"),
   });
 
   if (!parsed.success) {
-    return { error: "Please fill out all fields correctly." };
+    const msg = parsed.error.flatten().fieldErrors;
+    const parts = Object.values(msg).flat().filter(Boolean) as string[];
+    return { error: parts.length ? parts.join(" ") : "Please fill out all fields correctly." };
   }
 
-  const normalizedEmail = parsed.data.email.toLowerCase().trim();
+  const username = parsed.data.username.trim().toLowerCase();
 
   // Escorts must upload 3–12 images; first image is the profile photo
   const isEscort = parsed.data.role === "escort";
@@ -61,13 +69,12 @@ export async function registerUser(formData: FormData): Promise<RegisterResult> 
     }
   }
 
-  // Check if user already exists
   const existingUser = await prisma.user.findUnique({
-    where: { email: normalizedEmail },
+    where: { username },
   });
 
   if (existingUser) {
-    return { error: "An account with this email already exists." };
+    return { error: "This username is already taken." };
   }
 
   // Hash password
@@ -95,8 +102,8 @@ export async function registerUser(formData: FormData): Promise<RegisterResult> 
   await prisma.$transaction(async (tx) => {
     const user = await tx.user.create({
       data: {
-        email: normalizedEmail,
-        name: parsed.data.name,
+        username,
+        age: parsed.data.age,
         password: hashedPassword,
         role: parsed.data.role,
         currentPlan: "Normal",
@@ -108,7 +115,7 @@ export async function registerUser(formData: FormData): Promise<RegisterResult> 
       await tx.escortProfile.create({
         data: {
           userId: user.id,
-          displayName: parsed.data.name,
+          displayName: parsed.data.username,
           images: uploadedImages as unknown as object,
           status: "pending",
           telegram: DEFAULT_ESCORT_TELEGRAM,
