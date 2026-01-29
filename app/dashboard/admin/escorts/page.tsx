@@ -83,7 +83,7 @@ export default async function AdminEscortsPage({ searchParams }: Props) {
 
         {showCreated && (
           <div className="mt-6 rounded-2xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
-            Escort account created. They can sign in and complete their profile.
+            Escort account created and approved. They can sign in and complete their profile.
           </div>
         )}
 

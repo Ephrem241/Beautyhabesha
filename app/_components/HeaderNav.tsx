@@ -62,7 +62,7 @@ export default function HeaderNav({ isLoggedIn, role }: HeaderNavProps) {
         </Link>
       ) : (
         <Link href="/auth/login" className={linkClass} onClick={closeMenu}>
-          Login
+          Sign in
         </Link>
       )}
       {role === "escort" ? (
@@ -124,7 +124,7 @@ export default function HeaderNav({ isLoggedIn, role }: HeaderNavProps) {
             aria-label="Mobile menu"
             aria-hidden={!menuOpen}
             inert={!menuOpen ? true : undefined}
-            className={`fixed inset-0 top-16 z-60 overflow-y-auto bg-zinc-950 transition-opacity duration-200 md:hidden ${
+            className={`fixed inset-0 top-16 z-[60] overflow-y-auto bg-zinc-950 transition-opacity duration-200 md:hidden ${
               menuOpen ? "visible opacity-100" : "invisible opacity-0 pointer-events-none"
             }`}
             onClick={(e) => e.target === e.currentTarget && closeMenu()}
@@ -132,7 +132,11 @@ export default function HeaderNav({ isLoggedIn, role }: HeaderNavProps) {
             <nav
               className="flex min-h-[200px] flex-col gap-1 px-4 py-6 text-sm uppercase tracking-[0.2em] sm:px-6"
               onClick={(e) => e.stopPropagation()}
+              aria-label="Mobile menu"
             >
+              <p className="px-4 pb-2 text-xs font-semibold tracking-[0.3em] text-zinc-500">
+                Menu
+              </p>
               <Link
                 href="/pricing"
                 className="rounded-xl px-4 py-3 text-left text-zinc-200 transition hover:bg-zinc-800 hover:text-emerald-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
@@ -161,7 +165,7 @@ export default function HeaderNav({ isLoggedIn, role }: HeaderNavProps) {
                   className="rounded-xl px-4 py-3 text-left text-zinc-200 transition hover:bg-zinc-800 hover:text-emerald-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
                   onClick={closeMenu}
                 >
-                  Login
+                  Sign in
                 </Link>
               )}
               {role === "escort" ? (

@@ -26,8 +26,8 @@ export default async function AdminCreateEscortPage() {
             Create escort
           </h1>
           <p className="mt-2 text-sm text-zinc-400">
-            Add a new escort account. They can sign in and complete their
-            profile (including photo) later. Profile starts as pending.
+            Add a new escort account. Profile is approved immediately—no review
+            needed. They can sign in and complete their profile (e.g. add photos) later.
           </p>
         </header>
 

@@ -31,7 +31,7 @@ export async function createEscortByAdmin(
   _prev: CreateEscortResult,
   formData: FormData
 ): Promise<CreateEscortResult> {
-  await requireAdmin();
+  const adminId = await requireAdmin();
 
   const parsed = createSchema.safeParse({
     email: formData.get("email"),
@@ -69,7 +69,9 @@ export async function createEscortByAdmin(
       data: {
         userId: user.id,
         displayName,
-        status: "pending",
+        status: "approved",
+        approvedAt: new Date(),
+        approvedBy: adminId,
       },
     });
   });
