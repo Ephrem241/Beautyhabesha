@@ -1,7 +1,8 @@
-import type { PlanDetails } from "@/lib/plans";
+import type { PlanDisplay } from "@/lib/plan-format";
+import { formatPrice, formatDurationDays } from "@/lib/plan-format";
 
 type PlanSummaryProps = {
-  plan: PlanDetails;
+  plan: PlanDisplay;
 };
 
 export default function PlanSummary({ plan }: PlanSummaryProps) {
@@ -17,13 +18,17 @@ export default function PlanSummary({ plan }: PlanSummaryProps) {
           </h2>
         </div>
         <span className="w-fit rounded-full border border-zinc-800 px-4 py-2 text-xs uppercase tracking-[0.2em] text-zinc-300">
-          {plan.priceLabel}
+          {formatPrice(plan)}
         </span>
       </div>
 
-      <p className="mt-3 text-sm text-zinc-400">{plan.description}</p>
+      <p className="mt-3 text-sm text-zinc-400">
+        {plan.price > 0
+          ? "Premium visibility and feature access. Activate after approval."
+          : "Free plan. No payment required."}
+      </p>
       <p className="mt-4 text-sm text-zinc-500">
-        Duration: {plan.durationLabel}
+        Duration: {formatDurationDays(plan.durationDays)}
       </p>
 
       <ul className="mt-4 grid gap-2 text-sm text-zinc-300">

@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { getAuthSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { getUserPlan } from "@/lib/plan-access";
+import { hasEscortConsentComplete } from "@/lib/consent";
 import {
   uploadImage,
   deleteImages,
@@ -45,6 +46,10 @@ export async function upsertEscortProfile(
   formData: FormData
 ): Promise<FormState> {
   const userId = await requireEscort();
+
+  if (!(await hasEscortConsentComplete(userId))) {
+    return { error: "You must accept Terms and consent first. Go to /consent" };
+  }
 
   const parsed = profileSchema.safeParse({
     displayName: formData.get("displayName"),
@@ -168,6 +173,7 @@ export async function upsertEscortProfile(
       phone: parsed.data.phone || null,
       telegram: parsed.data.telegram || null,
       whatsapp: parsed.data.whatsapp || null,
+      lastActiveAt: new Date(),
     },
     create: {
       userId,

@@ -5,7 +5,8 @@ import { redirect } from "next/navigation";
 
 import { getAuthSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { getEffectivePlanById } from "@/lib/plans";
+import { getSubscriptionPlanBySlug } from "@/lib/subscription-plans";
+import { getGraceCutoff } from "@/lib/subscription-grace";
 import { uploadImage } from "@/lib/cloudinary-utils";
 
 export type UpgradeFormState = {
@@ -15,7 +16,7 @@ export type UpgradeFormState = {
 const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
 
 const formSchema = z.object({
-  planId: z.enum(["Normal", "VIP", "Platinum"]),
+  planSlug: z.string().min(1),
   paymentMethod: z.enum(["bank", "mobile_money"]),
   proof: z.custom<File>((value) => value instanceof File),
 });
@@ -37,7 +38,7 @@ export async function submitUpgradePayment(
   }
 
   const parsed = formSchema.safeParse({
-    planId: formData.get("planId"),
+    planSlug: formData.get("planSlug"),
     paymentMethod: formData.get("paymentMethod"),
     proof: formData.get("proof"),
   });
@@ -46,19 +47,18 @@ export async function submitUpgradePayment(
     return { error: "Please select a plan and upload a valid image." };
   }
 
-  const plan = await getEffectivePlanById(parsed.data.planId);
-  if (!plan || plan.priceEtb === 0) {
-    return { error: "Please select a paid plan to continue." };
+  const plan = await getSubscriptionPlanBySlug(parsed.data.planSlug);
+  if (!plan || !plan.isActive || plan.price === 0) {
+    return { error: "Plan not found or not available for purchase." };
   }
 
-  // Prevent duplicate active subscriptions before charging Cloudinary.
-  const now = new Date();
+  const graceCutoff = getGraceCutoff(new Date());
   const activeSubscription = await prisma.subscription.findFirst({
     where: {
       userId,
       status: "active",
       OR: [
-        { endDate: { gte: now } },
+        { endDate: { gte: graceCutoff } },
         { endDate: null },
       ],
     },
@@ -71,7 +71,7 @@ export async function submitUpgradePayment(
     where: {
       userId,
       status: "pending",
-      planId: plan.id,
+      subscriptionPlanId: plan.id,
     },
   });
   if (pendingSubscription) {
@@ -103,7 +103,8 @@ export async function submitUpgradePayment(
   await prisma.subscription.create({
     data: {
       userId,
-      planId: plan.id,
+      planId: plan.name,
+      subscriptionPlanId: plan.id,
       status: "pending",
       paymentMethod: parsed.data.paymentMethod,
       paymentProofUrl: uploadResult.image.url,

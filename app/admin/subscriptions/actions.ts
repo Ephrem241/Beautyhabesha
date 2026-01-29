@@ -28,7 +28,7 @@ export async function approveSubscription(formData: FormData) {
   });
 
   if (!result.success) {
-    redirect("/admin/subscriptions?error=invalid-request");
+    redirect("/admin/subscriptions?tab=pending&error=invalid-request");
   }
 
   try {
@@ -52,11 +52,23 @@ export async function approveSubscription(formData: FormData) {
         throw new Error("Subscription already processed.");
       }
 
-      const planDoc = await tx.plan.findUnique({
-        where: { name: subscription.planId },
-      });
-      const fallbackPlan = getPlanById(subscription.planId);
-      const durationDays = planDoc?.durationDays ?? fallbackPlan?.durationDays ?? 30;
+      let durationDays = 30;
+      let planName = subscription.planId;
+      if (subscription.subscriptionPlanId) {
+        const sp = await tx.subscriptionPlan.findUnique({
+          where: { id: subscription.subscriptionPlanId },
+        });
+        if (sp) {
+          durationDays = sp.durationDays;
+          planName = sp.name;
+        }
+      } else {
+        const planDoc = await tx.plan.findUnique({
+          where: { name: subscription.planId },
+        });
+        const fallbackPlan = getPlanById(subscription.planId);
+        durationDays = planDoc?.durationDays ?? fallbackPlan?.durationDays ?? 30;
+      }
 
       const startDate = new Date();
       const endDate =
@@ -108,15 +120,15 @@ export async function approveSubscription(formData: FormData) {
       return {
         subscription: updated,
         user: subscription.user,
-        planName: planDoc?.name ?? subscription.planId,
+        planName,
         endDate: endDate!,
       };
     });
 
-    redirect("/admin/subscriptions?status=approved");
+    redirect("/admin/subscriptions?tab=pending&status=approved");
   } catch (error) {
     console.error("Error approving subscription:", error);
-    redirect("/admin/subscriptions?error=processing-failed");
+    redirect("/admin/subscriptions?tab=pending&error=processing-failed");
   }
 }
 
@@ -128,7 +140,7 @@ export async function rejectSubscription(formData: FormData) {
   });
 
   if (!result.success) {
-    redirect("/admin/subscriptions?error=invalid-request");
+    redirect("/admin/subscriptions?tab=pending&error=invalid-request");
   }
 
   try {
@@ -159,9 +171,9 @@ export async function rejectSubscription(formData: FormData) {
       };
     });
 
-    redirect("/admin/subscriptions?status=rejected");
+    redirect("/admin/subscriptions?tab=pending&status=rejected");
   } catch (error) {
     console.error("Error rejecting subscription:", error);
-    redirect("/admin/subscriptions?error=processing-failed");
+    redirect("/admin/subscriptions?tab=pending&error=processing-failed");
   }
 }

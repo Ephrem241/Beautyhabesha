@@ -2,7 +2,19 @@
 
 import { useEffect, useState, useTransition } from "react";
 import Image from "next/image";
-import { approveEscort, rejectEscort, suspendEscort, getEscortDetails, type EscortDetails, type EscortActionResult } from "../actions";
+import {
+  approveEscort,
+  rejectEscort,
+  suspendEscort,
+  getEscortDetails,
+  boostEscortRanking,
+  setRankingSuspended,
+  setManualPlan,
+  clearManualPlan,
+  clearBoost,
+  type EscortDetails,
+  type EscortActionResult,
+} from "../actions";
 
 type ReviewModalProps = {
   escort: {
@@ -33,6 +45,13 @@ export default function ReviewModal({ escort, onClose }: ReviewModalProps) {
     fetchDetails();
   }, [escort.id]);
 
+  const refreshDetails = () => {
+    getEscortDetails(escort.id).then((data) => {
+      setDetails(data);
+      setActionStatus(null);
+    });
+  };
+
   const handleAction = async (action: "approve" | "reject" | "suspend") => {
     startActionTransition(async () => {
       const formData = new FormData();
@@ -48,12 +67,19 @@ export default function ReviewModal({ escort, onClose }: ReviewModalProps) {
       }
 
       setActionStatus(result);
-      if (result.ok) {
-        // Refresh details
-        const updated = await getEscortDetails(escort.id);
-        setDetails(updated);
-        setActionStatus(null); // Clear status after success
-      }
+      if (result.ok) refreshDetails();
+    });
+  };
+
+  const handleRankingAction = async (
+    fn: (prev: EscortActionResult, formData: FormData) => Promise<EscortActionResult>,
+    formData: FormData
+  ) => {
+    startActionTransition(async () => {
+      formData.set("escortId", escort.id);
+      const result = await fn({ ok: false }, formData);
+      setActionStatus(result);
+      if (result.ok) refreshDetails();
     });
   };
 
@@ -173,6 +199,33 @@ export default function ReviewModal({ escort, onClose }: ReviewModalProps) {
                     <span className="text-zinc-200">{new Date(details.approvedAt).toLocaleDateString()}</span>
                   </div>
                 )}
+                {(details.lastActiveAt != null || details.rankingBoostUntil != null || details.rankingSuspended || details.manualPlanId != null) && (
+                  <div className="mt-4 space-y-2 border-t border-zinc-800 pt-4">
+                    <span className="font-medium text-zinc-300">Ranking</span>
+                    {details.lastActiveAt != null && (
+                      <div>
+                        <span className="text-zinc-400">Last active: </span>
+                        <span className="text-zinc-200">{new Date(details.lastActiveAt).toLocaleString()}</span>
+                      </div>
+                    )}
+                    {details.rankingBoostUntil != null && (
+                      <div>
+                        <span className="text-zinc-400">Boost until: </span>
+                        <span className="text-emerald-300">{new Date(details.rankingBoostUntil).toLocaleString()}</span>
+                      </div>
+                    )}
+                    <div>
+                      <span className="text-zinc-400">Ranking suspended: </span>
+                      <span className="text-zinc-200">{details.rankingSuspended ? "Yes" : "No"}</span>
+                    </div>
+                    {details.manualPlanId != null && (
+                      <div>
+                        <span className="text-zinc-400">Manual tier: </span>
+                        <span className="text-amber-300">{details.manualPlanId}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -222,6 +275,75 @@ export default function ReviewModal({ escort, onClose }: ReviewModalProps) {
               {actionPending ? "Processing..." : "Suspend"}
             </button>
           </div>
+
+          <section className="mt-8 border-t border-zinc-800 pt-6">
+            <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-zinc-400">
+              Ranking & visibility
+            </h3>
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                disabled={actionPending}
+                onClick={() => {
+                  const until = new Date();
+                  until.setDate(until.getDate() + 7);
+                  const formData = new FormData();
+                  formData.append("until", until.toISOString());
+                  handleRankingAction(boostEscortRanking, formData);
+                }}
+                className="rounded-lg border border-emerald-500/50 bg-emerald-500/10 px-3 py-1.5 text-sm text-emerald-300 hover:bg-emerald-500/20 disabled:opacity-50"
+              >
+                Boost 7 days
+              </button>
+              {details.rankingBoostUntil != null && (
+                <button
+                  type="button"
+                  disabled={actionPending}
+                  onClick={() => handleRankingAction(clearBoost, new FormData())}
+                  className="rounded-lg border border-zinc-600 bg-zinc-800 px-3 py-1.5 text-sm text-zinc-300 hover:bg-zinc-700 disabled:opacity-50"
+                >
+                  Clear boost
+                </button>
+              )}
+              <button
+                type="button"
+                disabled={actionPending}
+                onClick={() => {
+                  const formData = new FormData();
+                  formData.append("suspended", details.rankingSuspended ? "false" : "true");
+                  handleRankingAction(setRankingSuspended, formData);
+                }}
+                className={`rounded-lg border px-3 py-1.5 text-sm disabled:opacity-50 ${
+                  details.rankingSuspended
+                    ? "border-amber-500/50 bg-amber-500/20 text-amber-300 hover:bg-amber-500/30"
+                    : "border-zinc-600 bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
+                }`}
+              >
+                {details.rankingSuspended ? "Resume ranking" : "Suspend ranking"}
+              </button>
+              <span className="text-zinc-500">|</span>
+              <select
+                className="rounded-lg border border-zinc-600 bg-zinc-800 px-3 py-1.5 text-sm text-zinc-200 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                value={details.manualPlanId ?? ""}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  const formData = new FormData();
+                  if (v === "") {
+                    handleRankingAction(clearManualPlan, formData);
+                  } else {
+                    formData.append("planId", v);
+                    handleRankingAction(setManualPlan, formData);
+                  }
+                }}
+                disabled={actionPending}
+              >
+                <option value="">Tier: subscription</option>
+                <option value="Normal">Normal</option>
+                <option value="VIP">VIP</option>
+                <option value="Platinum">Platinum</option>
+              </select>
+            </div>
+          </section>
         </div>
       </div>
     </div>

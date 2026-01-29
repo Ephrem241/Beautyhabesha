@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { processAutoRenewals } from "@/lib/auto-renew";
 import { expireSubscriptions } from "@/lib/subscription-expiration";
 import { sendExpiryWarnings } from "@/lib/subscription-warnings";
 
@@ -11,15 +12,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // Run both expiration and warning checks
-  const [expirationResult, warningResult] = await Promise.all([
+  const [expirationResult, warningResult, autoRenewResult] = await Promise.all([
     expireSubscriptions(),
     sendExpiryWarnings(),
+    processAutoRenewals(),
   ]);
 
   return NextResponse.json({
     ok: true,
     expiration: expirationResult,
     warnings: warningResult,
+    autoRenew: autoRenewResult,
   });
 }

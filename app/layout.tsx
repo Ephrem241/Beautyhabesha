@@ -3,6 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import SiteHeader from "./_components/SiteHeader";
 import SiteFooter from "./_components/SiteFooter";
+import { AgeGate } from "./_components/AgeGate";
+import { WebVitals } from "./_components/WebVitals";
+import { getSiteUrl } from "@/lib/site-url";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,18 +25,38 @@ export const viewport: Viewport = {
   maximumScale: 5,
 };
 
+const siteUrl = getSiteUrl();
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: {
     default: "Beautyhabesha",
     template: "%s • Beautyhabesha",
   },
   description:
     "Membership platform for premium escort profiles with verified listings.",
+  keywords: ["escort", "membership", "premium", "VIP", "Platinum", "profiles"],
   openGraph: {
     title: "Beautyhabesha",
     description:
       "Discover premium escort profiles with VIP and Platinum visibility.",
     type: "website",
+    siteName: "Beautyhabesha",
+    locale: "en",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Beautyhabesha",
+    description:
+      "Discover premium escort profiles with VIP and Platinum visibility.",
+  },
+  alternates: {
+    canonical: "/",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true },
   },
 };
 
@@ -47,11 +70,19 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} min-h-screen antialiased`}
       >
-        <div className="flex min-h-screen min-w-0 flex-col">
-          <SiteHeader />
-          <main className="min-w-0 flex-1">{children}</main>
-          <SiteFooter />
-        </div>
+        <WebVitals />
+        <AgeGate>
+          <a href="#main-content" className="skip-link">
+            Skip to main content
+          </a>
+          <div className="flex min-h-screen min-w-0 flex-col">
+            <SiteHeader />
+            <main id="main-content" className="min-w-0 flex-1" tabIndex={-1}>
+              {children}
+            </main>
+            <SiteFooter />
+          </div>
+        </AgeGate>
       </body>
     </html>
   );

@@ -1,5 +1,6 @@
 import { PLAN_CATALOG, type PlanId } from "@/lib/plans";
 import { prisma } from "@/lib/db";
+import { getGraceCutoff } from "@/lib/subscription-grace";
 
 export type PlanAccess = {
   planId: PlanId;
@@ -10,10 +11,11 @@ export type PlanAccess = {
 
 export async function expireStaleSubscriptions() {
   const now = new Date();
+  const graceCutoff = getGraceCutoff(now);
   await prisma.subscription.updateMany({
     where: {
       status: "active",
-      endDate: { lt: now },
+      endDate: { lt: graceCutoff },
     },
     data: { status: "expired" },
   });
@@ -43,12 +45,13 @@ export async function getActiveSubscriptionsForUsers(userIds: string[]) {
   }
 
   const now = new Date();
+  const graceCutoff = getGraceCutoff(now);
   const subscriptions = await prisma.subscription.findMany({
     where: {
       userId: { in: userIds },
       status: "active",
       OR: [
-        { endDate: { gte: now } },
+        { endDate: { gte: graceCutoff } },
         { endDate: null },
       ],
     },
@@ -70,12 +73,13 @@ export async function getUserPlanAccess(userId: string): Promise<PlanAccess> {
   await expireStaleSubscriptions();
 
   const now = new Date();
+  const graceCutoff = getGraceCutoff(now);
   const subscription = await prisma.subscription.findFirst({
     where: {
       userId,
       status: "active",
       OR: [
-        { endDate: { gte: now } },
+        { endDate: { gte: graceCutoff } },
         { endDate: null },
       ],
     },

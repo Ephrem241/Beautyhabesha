@@ -6,6 +6,8 @@ import { redirect } from "next/navigation";
 import { getAuthSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { getPlanById } from "@/lib/plans";
+import { isAutoRenewSubscription } from "@/lib/auto-renew";
+import { sendRenewalSuccessful, sendRenewalFailed } from "@/lib/email";
 
 type TransactionClient = Parameters<Parameters<typeof prisma.$transaction>[0]>[0];
 
@@ -44,8 +46,17 @@ export async function approvePayment(
     return { ok: false, error: "Invalid request." };
   }
 
-  // Use Prisma transaction for atomic updates
-    await prisma.$transaction(async (tx: TransactionClient) => {
+  const subscriptionBefore = await prisma.subscription.findUnique({
+    where: { id: parsed.data.subscriptionId },
+    include: {
+      user: { include: { escortProfile: true } },
+    },
+  });
+  if (!subscriptionBefore || subscriptionBefore.status !== "pending") {
+    return { ok: false, error: "Subscription not found or already processed." };
+  }
+
+  const result = await prisma.$transaction(async (tx: TransactionClient) => {
     const subscription = await tx.subscription.findUnique({
       where: { id: parsed.data.subscriptionId },
       include: {
@@ -64,11 +75,23 @@ export async function approvePayment(
       throw new Error("Subscription already processed.");
     }
 
-    const planDoc = await tx.plan.findUnique({
-      where: { name: subscription.planId },
-    });
-    const fallbackPlan = getPlanById(subscription.planId);
-    const durationDays = planDoc?.durationDays ?? fallbackPlan?.durationDays ?? 30;
+    let durationDays = 30;
+    let planName = subscription.planId;
+    if (subscription.subscriptionPlanId) {
+      const sp = await tx.subscriptionPlan.findUnique({
+        where: { id: subscription.subscriptionPlanId },
+      });
+      if (sp) {
+        durationDays = sp.durationDays;
+        planName = sp.name;
+      }
+    } else {
+      const planDoc = await tx.plan.findUnique({
+        where: { name: subscription.planId },
+      });
+      const fallbackPlan = getPlanById(subscription.planId);
+      durationDays = planDoc?.durationDays ?? fallbackPlan?.durationDays ?? 30;
+    }
 
     const startDate = new Date();
     const endDate =
@@ -98,14 +121,14 @@ export async function approvePayment(
       },
     });
 
-    // Update user subscription fields
     await tx.user.update({
       where: { id: subscription.userId },
       data: {
         subscriptionStartDate: startDate,
         subscriptionEndDate: endDate,
         subscriptionStatus: "active",
-        currentPlan: subscription.planId,
+        currentPlan: planName,
+        subscriptionPlanId: subscription.subscriptionPlanId,
       },
     });
 
@@ -122,10 +145,21 @@ export async function approvePayment(
     return {
       subscription: updated,
       user: subscription.user,
-      planName: planDoc?.name ?? subscription.planId,
+      planName,
       endDate: endDate!,
+      isAutoRenew: isAutoRenewSubscription(subscription.paymentProofUrl),
     };
   });
+
+  if (result?.isAutoRenew && result.endDate) {
+    const displayName =
+      result.user.escortProfile?.displayName ?? result.user.name ?? "Member";
+    await sendRenewalSuccessful(
+      result.user.email,
+      displayName,
+      result.endDate
+    );
+  }
 
   return { ok: true };
 }
@@ -145,12 +179,18 @@ export async function rejectPayment(
     return { ok: false, error: "Invalid request." };
   }
 
-    await prisma.$transaction(async (tx: TransactionClient) => {
+  const subscriptionBefore = await prisma.subscription.findUnique({
+    where: { id: parsed.data.subscriptionId },
+    include: { user: true },
+  });
+  if (!subscriptionBefore || subscriptionBefore.status !== "pending") {
+    return { ok: false, error: "Subscription not found or already processed." };
+  }
+
+  await prisma.$transaction(async (tx: TransactionClient) => {
     const subscription = await tx.subscription.findUnique({
       where: { id: parsed.data.subscriptionId },
-      include: {
-        user: true,
-      },
+      include: { user: true },
     });
 
     if (!subscription) {
@@ -160,7 +200,7 @@ export async function rejectPayment(
       throw new Error("Subscription already processed.");
     }
 
-    const updated = await tx.subscription.update({
+    await tx.subscription.update({
       where: { id: parsed.data.subscriptionId },
       data: {
         status: "rejected",
@@ -168,11 +208,18 @@ export async function rejectPayment(
       },
     });
 
-    return {
-      subscription: updated,
-      user: subscription.user,
-    };
+    return { subscription, user: subscription.user };
   });
+
+  if (isAutoRenewSubscription(subscriptionBefore.paymentProofUrl)) {
+    const displayName =
+      subscriptionBefore.user.name ?? subscriptionBefore.user.email;
+    await sendRenewalFailed(
+      subscriptionBefore.user.email,
+      displayName,
+      parsed.data.reason?.trim() || undefined
+    );
+  }
 
   return { ok: true };
 }

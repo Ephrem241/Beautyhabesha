@@ -9,12 +9,12 @@ import { Button } from "@/app/_components/ui/Button";
 import { submitUpgradePayment, type UpgradeFormState } from "../actions";
 
 type PaymentProofFormProps = {
-  planId: "Normal" | "VIP" | "Platinum";
+  planSlug: string;
 };
 
 const initialState: UpgradeFormState = {};
 
-export default function PaymentProofForm({ planId }: PaymentProofFormProps) {
+export default function PaymentProofForm({ planSlug }: PaymentProofFormProps) {
   const [state, formAction] = useFormState(
     submitUpgradePayment,
     initialState
@@ -32,7 +32,7 @@ export default function PaymentProofForm({ planId }: PaymentProofFormProps) {
       action={formAction}
       className="mt-6 rounded-2xl border border-zinc-800 bg-zinc-950 p-4 sm:rounded-3xl sm:p-6"
     >
-      <input type="hidden" name="planId" value={planId} />
+      <input type="hidden" name="planSlug" value={planSlug} />
 
       <fieldset>
         <legend className="text-sm font-semibold text-zinc-200">

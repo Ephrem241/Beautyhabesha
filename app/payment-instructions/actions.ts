@@ -5,7 +5,8 @@ import { redirect } from "next/navigation";
 
 import { getAuthSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { getEffectivePlanById } from "@/lib/plans";
+import { getSubscriptionPlanBySlug } from "@/lib/subscription-plans";
+import { getGraceCutoff } from "@/lib/subscription-grace";
 import { uploadImage } from "@/lib/cloudinary-utils";
 
 export type PaymentFormState = {
@@ -15,7 +16,7 @@ export type PaymentFormState = {
 const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
 
 const formSchema = z.object({
-  planId: z.enum(["Normal", "VIP", "Platinum"]),
+  planSlug: z.string().min(1),
   paymentMethod: z.enum(["bank", "mobile_money"]),
   proof: z.custom<File>((value) => value instanceof File),
 });
@@ -39,7 +40,7 @@ export async function submitPaymentProof(
   }
 
   const result = formSchema.safeParse({
-    planId: formData.get("planId"),
+    planSlug: formData.get("planSlug"),
     paymentMethod: formData.get("paymentMethod"),
     proof: formData.get("proof"),
   });
@@ -48,9 +49,9 @@ export async function submitPaymentProof(
     return { error: "Please select a plan and upload a valid image." };
   }
 
-  const plan = await getEffectivePlanById(result.data.planId);
-  if (!plan || plan.priceEtb === 0) {
-    return { error: "Please select a paid plan to continue." };
+  const plan = await getSubscriptionPlanBySlug(result.data.planSlug);
+  if (!plan || !plan.isActive || plan.price === 0) {
+    return { error: "Plan not found or not available for purchase." };
   }
 
   const proof = result.data.proof;
@@ -62,13 +63,13 @@ export async function submitPaymentProof(
     return { error: "Image must be smaller than 5MB." };
   }
 
-  const now = new Date();
+  const graceCutoff = getGraceCutoff(new Date());
   const activeSubscription = await prisma.subscription.findFirst({
     where: {
       userId,
       status: "active",
       OR: [
-        { endDate: { gte: now } },
+        { endDate: { gte: graceCutoff } },
         { endDate: null },
       ],
     },
@@ -81,7 +82,7 @@ export async function submitPaymentProof(
     where: {
       userId,
       status: "pending",
-      planId: plan.id,
+      subscriptionPlanId: plan.id,
     },
   });
   if (pendingSubscription) {
@@ -105,7 +106,8 @@ export async function submitPaymentProof(
   await prisma.subscription.create({
     data: {
       userId,
-      planId: plan.id,
+      planId: plan.name,
+      subscriptionPlanId: plan.id,
       status: "pending",
       paymentMethod: result.data.paymentMethod,
       paymentProofUrl: uploadResult.image.url,

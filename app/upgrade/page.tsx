@@ -3,11 +3,9 @@ import { redirect } from "next/navigation";
 
 import { getAuthSession } from "@/lib/auth";
 import {
-  getPlanById,
-  PLAN_CATALOG,
-  type PlanId,
-  type PlanDetails,
-} from "@/lib/plans";
+  getActiveSubscriptionPlans,
+  getSubscriptionPlanBySlug,
+} from "@/lib/subscription-plans";
 
 import PaymentInstructions from "./_components/PaymentInstructions";
 import PaymentProofForm from "./_components/PaymentProofForm";
@@ -19,9 +17,7 @@ export const metadata: Metadata = {
 };
 
 type UpgradePageProps = {
-  searchParams: Promise<{
-    plan?: PlanId;
-  }>;
+  searchParams: Promise<{ plan?: string }>;
 };
 
 export default async function UpgradePage({ searchParams }: UpgradePageProps) {
@@ -34,11 +30,11 @@ export default async function UpgradePage({ searchParams }: UpgradePageProps) {
   const role = session.user.role;
   const isAdmin = role === "admin";
 
-  const selectedPlan: PlanDetails =
-    getPlanById(params.plan) ??
-    PLAN_CATALOG.find((plan) => plan.id !== "Normal")!;
+  const selectedPlan = params.plan
+    ? await getSubscriptionPlanBySlug(params.plan)
+    : (await getActiveSubscriptionPlans()).find((p) => p.price > 0) ?? null;
 
-  if (!selectedPlan) {
+  if (!selectedPlan || !selectedPlan.isActive || selectedPlan.price === 0) {
     redirect("/pricing");
   }
 
@@ -59,9 +55,9 @@ export default async function UpgradePage({ searchParams }: UpgradePageProps) {
           <div className="space-y-6">
             <PlanSummary plan={selectedPlan} />
             <PaymentInstructions />
-            {selectedPlan.priceEtb > 0 ? (
+            {selectedPlan.price > 0 ? (
               isAdmin ? (
-                <PaymentProofForm planId={selectedPlan.id} />
+                <PaymentProofForm planSlug={selectedPlan.slug} />
               ) : (
                 <div className="rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm text-amber-200 sm:rounded-3xl sm:p-6">
                   Only admins can submit payment proofs for plan upgrades. Please contact an
@@ -70,7 +66,7 @@ export default async function UpgradePage({ searchParams }: UpgradePageProps) {
               )
             ) : (
               <div className="rounded-2xl border border-emerald-500/40 bg-emerald-500/10 p-4 text-sm text-emerald-200 sm:rounded-3xl sm:p-6">
-                The Normal plan is free. No payment is required.
+                This plan is free. No payment is required.
               </div>
             )}
           </div>

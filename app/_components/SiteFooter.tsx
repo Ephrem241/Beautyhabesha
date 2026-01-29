@@ -37,17 +37,20 @@ export default function SiteFooter() {
             Quick links
           </div>
           <div className="mt-4 flex flex-col gap-2 text-sm text-zinc-400">
-            <Link
-              href="/pricing"
-              className="w-fit transition hover:text-emerald-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald-400"
-            >
+            <Link href="/pricing" className="w-fit transition hover:text-emerald-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald-400">
               Pricing
             </Link>
-            <Link
-              href="/escorts"
-              className="w-fit transition hover:text-emerald-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald-400"
-            >
+            <Link href="/escorts" className="w-fit transition hover:text-emerald-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald-400">
               Escorts
+            </Link>
+            <Link href="/terms" className="w-fit transition hover:text-emerald-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald-400">
+              Terms
+            </Link>
+            <Link href="/privacy" className="w-fit transition hover:text-emerald-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald-400">
+              Privacy
+            </Link>
+            <Link href="/18-plus" className="w-fit transition hover:text-emerald-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald-400">
+              18+
             </Link>
           </div>
         </div>

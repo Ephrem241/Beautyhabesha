@@ -5,12 +5,12 @@ import { useFormState } from "react-dom";
 import { submitPaymentProof, type PaymentFormState } from "../actions";
 
 type PaymentFormProps = {
-  planId: "Normal" | "VIP" | "Platinum";
+  planSlug: string;
 };
 
 const initialState: PaymentFormState = {};
 
-export default function PaymentForm({ planId }: PaymentFormProps) {
+export default function PaymentForm({ planSlug }: PaymentFormProps) {
   const [state, formAction] = useFormState(submitPaymentProof, initialState);
 
   return (
@@ -18,7 +18,7 @@ export default function PaymentForm({ planId }: PaymentFormProps) {
       action={formAction}
       className="mt-6 rounded-2xl border border-zinc-800 bg-black p-4 sm:mt-8 sm:p-6"
     >
-      <input type="hidden" name="planId" value={planId} />
+      <input type="hidden" name="planSlug" value={planSlug} />
       <fieldset className="mt-4">
         <legend className="text-sm font-semibold text-zinc-200">
           Payment method

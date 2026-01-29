@@ -11,6 +11,10 @@ type UserRow = {
   name: string | null;
   role: string;
   currentPlan: string | null;
+  autoRenew: boolean;
+  renewalAttempts: number;
+  lastRenewalAttempt: Date | null;
+  bannedAt: Date | null;
   createdAt: Date;
 };
 
@@ -31,6 +35,10 @@ export default async function AdminUsersPage() {
       name: true,
       role: true,
       currentPlan: true,
+      autoRenew: true,
+      renewalAttempts: true,
+      lastRenewalAttempt: true,
+      bannedAt: true,
       createdAt: true,
     },
     orderBy: { createdAt: "desc" },
@@ -42,6 +50,10 @@ export default async function AdminUsersPage() {
     name: user.name ?? undefined,
     role: user.role as "admin" | "escort" | "user",
     currentPlan: (user.currentPlan as "Normal" | "VIP" | "Platinum" | null) ?? undefined,
+    autoRenew: user.autoRenew,
+    renewalAttempts: user.renewalAttempts,
+    lastRenewalAttempt: user.lastRenewalAttempt?.toISOString() ?? undefined,
+    bannedAt: user.bannedAt?.toISOString() ?? undefined,
     createdAt: user.createdAt.toISOString(),
   }));
 

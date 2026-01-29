@@ -1,8 +1,9 @@
 import { redirect } from "next/navigation";
 
-import { getAuthSession } from "@/lib/auth";
+import { getAuthSession, checkUserNotBanned } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { getUserPlan } from "@/lib/plan-access";
+import { hasEscortConsentComplete } from "@/lib/consent";
 import { extractImageUrls } from "@/lib/image-helpers";
 
 import ProfileForm from "./_components/ProfileForm";
@@ -17,6 +18,10 @@ async function requireEscort() {
 
 export default async function EscortProfilePage() {
   const userId = await requireEscort();
+  await checkUserNotBanned(userId);
+
+  const consentOk = await hasEscortConsentComplete(userId);
+  if (!consentOk) redirect("/consent");
 
   const [profile, access] = await Promise.all([
     prisma.escortProfile.findUnique({

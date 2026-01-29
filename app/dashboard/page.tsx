@@ -1,7 +1,13 @@
 import Link from "next/link";
 
-import { getAuthSession } from "@/lib/auth";
+import { getAuthSession, checkUserNotBanned } from "@/lib/auth";
 import { getUserPlan, hasFeatureAccess } from "@/lib/plan-access";
+import { getBookingsForUser, getBookingsForEscort } from "@/lib/booking";
+import { prisma } from "@/lib/db";
+import { getRenewalDashboardData } from "@/app/dashboard/actions";
+import { AutoRenewSection } from "@/app/dashboard/_components/AutoRenewSection";
+import { MyBookingsSection } from "@/app/dashboard/_components/MyBookingsSection";
+import { EscortBookingsSection } from "@/app/dashboard/_components/EscortBookingsSection";
 
 type DashboardPageProps = {
   searchParams: Promise<{
@@ -20,7 +26,21 @@ export default async function DashboardPage({
   const showSubscriptionPending = params.subscription === "pending";
   const session = await getAuthSession();
   const role = session?.user?.role;
-  const plan = session?.user?.id ? await getUserPlan(session.user.id) : null;
+  const userId = session?.user?.id ?? null;
+  if (userId) await checkUserNotBanned(userId);
+  const plan = userId ? await getUserPlan(userId) : null;
+  const renewalData =
+    role === "escort" && userId ? await getRenewalDashboardData(userId) : null;
+  const userBookings = userId ? await getBookingsForUser(userId) : [];
+  const escortProfile =
+    role === "escort" && userId
+      ? await prisma.escortProfile.findUnique({
+          where: { userId },
+          select: { id: true },
+        })
+      : null;
+  const escortBookings =
+    escortProfile?.id ? await getBookingsForEscort(escortProfile.id) : [];
 
   return (
     <main className="min-h-screen bg-black px-4 py-12 text-white sm:px-6 sm:py-16">
@@ -76,15 +96,44 @@ export default async function DashboardPage({
             </div>
           ) : null}
           {role === "escort" ? (
-            <Link
-              href="/escort/profile"
-              className="rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-4 text-sm text-zinc-200 transition hover:border-emerald-400 hover:text-emerald-300"
-            >
-              Edit escort profile
-            </Link>
+            <>
+              <Link
+                href="/escort/profile"
+                className="rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-4 text-sm text-zinc-200 transition hover:border-emerald-400 hover:text-emerald-300"
+              >
+                Edit escort profile
+              </Link>
+              <Link
+                href="/escort/availability"
+                className="rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-4 text-sm text-zinc-200 transition hover:border-emerald-400 hover:text-emerald-300"
+              >
+                Manage availability
+              </Link>
+            </>
+          ) : null}
+          {renewalData ? (
+            <div className="sm:col-span-2 md:col-span-3">
+              <AutoRenewSection data={renewalData} />
+            </div>
+          ) : null}
+          {userBookings.length > 0 ? (
+            <div className="sm:col-span-2 md:col-span-3">
+              <MyBookingsSection bookings={userBookings} />
+            </div>
+          ) : null}
+          {escortBookings.length > 0 ? (
+            <div className="sm:col-span-2 md:col-span-3">
+              <EscortBookingsSection bookings={escortBookings} />
+            </div>
           ) : null}
           {role === "admin" ? (
             <>
+              <Link
+                href="/dashboard/admin/bookings"
+                className="rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-4 text-sm text-zinc-200 transition hover:border-emerald-400 hover:text-emerald-300"
+              >
+                Manage bookings
+              </Link>
               <Link
                 href="/dashboard/admin/subscriptions"
                 className="rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-4 text-sm text-zinc-200 transition hover:border-emerald-400 hover:text-emerald-300"
@@ -102,6 +151,18 @@ export default async function DashboardPage({
                 className="rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-4 text-sm text-zinc-200 transition hover:border-emerald-400 hover:text-emerald-300"
               >
                 Manage escorts
+              </Link>
+              <Link
+                href="/dashboard/admin/reports"
+                className="rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-4 text-sm text-zinc-200 transition hover:border-emerald-400 hover:text-emerald-300"
+              >
+                Profile reports
+              </Link>
+              <Link
+                href="/dashboard/admin/consent"
+                className="rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-4 text-sm text-zinc-200 transition hover:border-emerald-400 hover:text-emerald-300"
+              >
+                Consent history
               </Link>
               <Link
                 href="/dashboard/admin/plans"

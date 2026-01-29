@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { getGraceCutoff } from "@/lib/subscription-grace";
 
 type TransactionClient = Parameters<Parameters<typeof prisma.$transaction>[0]>[0];
 
@@ -10,12 +11,13 @@ export type ExpirationResult = {
 
 export async function expireSubscriptions(): Promise<ExpirationResult> {
   const now = new Date();
+  const graceCutoff = getGraceCutoff(now);
 
-  // 1) Expire active subscriptions past endDate.
+  // 1) Expire active subscriptions past grace period (endDate + 48h < now).
   const expiredSubs = await prisma.subscription.findMany({
     where: {
       status: "active",
-      endDate: { lt: now },
+      endDate: { lt: graceCutoff },
     },
     include: {
       user: {
@@ -36,12 +38,12 @@ export async function expireSubscriptions(): Promise<ExpirationResult> {
         data: { status: "expired" },
       });
 
-      // Update user subscription status
       await tx.user.update({
         where: { id: sub.userId },
         data: {
           subscriptionStatus: "expired",
           currentPlan: "Normal",
+          subscriptionPlanId: null,
         },
       });
 
@@ -64,7 +66,7 @@ export async function expireSubscriptions(): Promise<ExpirationResult> {
     where: {
       status: "active",
       OR: [
-        { endDate: { gte: now } },
+        { endDate: { gte: graceCutoff } },
         { endDate: null },
       ],
     },
@@ -103,7 +105,7 @@ export async function expireSubscriptions(): Promise<ExpirationResult> {
       userId: { in: affectedUserIds },
       status: "active",
       OR: [
-        { endDate: { gte: now } },
+        { endDate: { gte: graceCutoff } },
         { endDate: null },
       ],
     },

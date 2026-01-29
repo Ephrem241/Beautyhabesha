@@ -1,20 +1,38 @@
-import { getEffectivePlanCatalog, type PlanId } from "@/lib/plans";
+import {
+  getActiveSubscriptionPlans,
+  getSubscriptionPlanBySlug,
+} from "@/lib/subscription-plans";
+import { formatPrice, formatDurationDays } from "@/lib/plan-format";
 
 import PaymentForm from "./_components/PaymentForm";
 
 type PaymentInstructionsPageProps = {
-  searchParams?: {
-    plan?: PlanId;
-  };
+  searchParams?: { plan?: string };
 };
 
 export default async function PaymentInstructionsPage({
   searchParams,
 }: PaymentInstructionsPageProps) {
-  const plans = await getEffectivePlanCatalog();
+  const slug = searchParams?.plan ?? "vip";
   const selectedPlan =
-    plans.find((plan) => plan.id === (searchParams?.plan ?? "VIP")) ??
-    plans.find((plan) => plan.id !== "Normal")!;
+    (await getSubscriptionPlanBySlug(slug)) ??
+    (await getActiveSubscriptionPlans()).find((p) => p.price > 0) ?? null;
+
+  if (!selectedPlan) {
+    return (
+      <main className="min-h-screen bg-black px-4 pb-16 pt-16 text-white sm:px-6 sm:pb-20 sm:pt-20">
+        <div className="mx-auto max-w-3xl rounded-2xl border border-zinc-800 bg-zinc-950 p-6 text-center">
+          <h1 className="text-xl font-semibold">No plan selected</h1>
+          <p className="mt-2 text-sm text-zinc-400">
+            <a href="/pricing" className="text-emerald-400 hover:underline">
+              Choose a plan
+            </a>{" "}
+            and return here to pay.
+          </p>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-black px-4 pb-16 pt-16 text-white sm:px-6 sm:pb-20 sm:pt-20">
@@ -33,8 +51,8 @@ export default async function PaymentInstructionsPage({
             <span className="rounded-full border border-zinc-800 px-3 py-1">
               {selectedPlan.name}
             </span>
-            <span>{selectedPlan.priceLabel}</span>
-            <span>{selectedPlan.durationLabel}</span>
+            <span>{formatPrice(selectedPlan)}</span>
+            <span>{formatDurationDays(selectedPlan.durationDays)}</span>
           </div>
         </div>
 
@@ -57,7 +75,7 @@ export default async function PaymentInstructionsPage({
           </section>
         </div>
 
-        <PaymentForm planId={selectedPlan.id} />
+        <PaymentForm planSlug={selectedPlan.slug} />
       </div>
     </main>
   );

@@ -1,7 +1,13 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { updateUserRole } from "../actions";
+import {
+  updateUserRole,
+  setUserAutoRenew,
+  forceRenewSubscription,
+  banUser,
+  unbanUser,
+} from "../actions";
 
 type User = {
   id: string;
@@ -9,6 +15,10 @@ type User = {
   name?: string;
   role: "admin" | "escort" | "user";
   currentPlan?: "Normal" | "VIP" | "Platinum";
+  autoRenew?: boolean;
+  renewalAttempts?: number;
+  lastRenewalAttempt?: string;
+  bannedAt?: string;
   createdAt: string;
 };
 
@@ -25,14 +35,50 @@ export default function UsersTable({ users }: UsersTableProps) {
       const formData = new FormData();
       formData.append("userId", userId);
       formData.append("role", newRole);
-      
       const result = await updateUserRole({ ok: false }, formData);
       setStatus(result);
-      
-      if (result.ok) {
-        // Reload the page to show updated roles
-        window.location.reload();
-      }
+      if (result.ok) window.location.reload();
+    });
+  }
+
+  async function handleDisableAutoRenew(userId: string) {
+    startTransition(async () => {
+      const formData = new FormData();
+      formData.append("userId", userId);
+      formData.append("enabled", "false");
+      const result = await setUserAutoRenew({ ok: false }, formData);
+      setStatus(result);
+      if (result.ok) window.location.reload();
+    });
+  }
+
+  async function handleForceRenew(userId: string) {
+    startTransition(async () => {
+      const formData = new FormData();
+      formData.append("userId", userId);
+      const result = await forceRenewSubscription({ ok: false }, formData);
+      setStatus(result);
+      if (result.ok) window.location.reload();
+    });
+  }
+
+  async function handleBan(userId: string) {
+    startTransition(async () => {
+      const formData = new FormData();
+      formData.append("userId", userId);
+      const result = await banUser({ ok: false }, formData);
+      setStatus(result);
+      if (result.ok) window.location.reload();
+    });
+  }
+
+  async function handleUnban(userId: string) {
+    startTransition(async () => {
+      const formData = new FormData();
+      formData.append("userId", userId);
+      const result = await unbanUser({ ok: false }, formData);
+      setStatus(result);
+      if (result.ok) window.location.reload();
     });
   }
 
@@ -87,6 +133,12 @@ export default function UsersTable({ users }: UsersTableProps) {
                   Plan
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-zinc-400 sm:px-6 sm:py-4">
+                  Auto-renew
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-zinc-400 sm:px-6 sm:py-4">
+                  Renewal attempts
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-zinc-400 sm:px-6 sm:py-4">
                   Created
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-zinc-400 sm:px-6 sm:py-4">
@@ -112,12 +164,27 @@ export default function UsersTable({ users }: UsersTableProps) {
                   </td>
                   <td className="px-4 py-3 text-sm text-zinc-400 sm:px-6 sm:py-4">
                     {user.currentPlan || "Normal"}
+                    {user.bannedAt && (
+                      <span className="ml-2 rounded bg-red-500/20 px-1.5 py-0.5 text-xs text-red-300">
+                        Banned
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-zinc-400 sm:px-6 sm:py-4">
+                    {user.autoRenew ? "Yes" : "No"}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-zinc-400 sm:px-6 sm:py-4">
+                    {user.renewalAttempts ?? 0}
+                    {user.lastRenewalAttempt
+                      ? ` (${new Date(user.lastRenewalAttempt).toLocaleDateString()})`
+                      : ""}
                   </td>
                   <td className="px-4 py-3 text-sm text-zinc-400 sm:px-6 sm:py-4">
                     {new Date(user.createdAt).toLocaleDateString()}
                   </td>
                   <td className="px-4 py-3 sm:px-6 sm:py-4">
-                    <select
+                    <div className="flex flex-wrap items-center gap-2">
+                      <select
                       value={user.role}
                       onChange={(e) =>
                         handleRoleChange(
@@ -132,6 +199,46 @@ export default function UsersTable({ users }: UsersTableProps) {
                       <option value="escort">Escort</option>
                       <option value="admin">Admin</option>
                     </select>
+                    {user.role === "escort" && user.autoRenew && (
+                      <button
+                        type="button"
+                        onClick={() => handleDisableAutoRenew(user.id)}
+                        disabled={isPending}
+                        className="rounded-lg border border-amber-500/50 bg-amber-500/10 px-2 py-1 text-xs text-amber-300 hover:bg-amber-500/20 disabled:opacity-50"
+                      >
+                        Disable auto-renew
+                      </button>
+                    )}
+                    {user.role === "escort" && (user.currentPlan === "VIP" || user.currentPlan === "Platinum") && (
+                      <button
+                        type="button"
+                        onClick={() => handleForceRenew(user.id)}
+                        disabled={isPending}
+                        className="rounded-lg border border-emerald-500/50 bg-emerald-500/10 px-2 py-1 text-xs text-emerald-300 hover:bg-emerald-500/20 disabled:opacity-50"
+                      >
+                        Force renew
+                      </button>
+                    )}
+                    {user.bannedAt ? (
+                      <button
+                        type="button"
+                        onClick={() => handleUnban(user.id)}
+                        disabled={isPending}
+                        className="rounded-lg border border-amber-500/50 bg-amber-500/10 px-2 py-1 text-xs text-amber-300 disabled:opacity-50"
+                      >
+                        Unban
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => handleBan(user.id)}
+                        disabled={isPending}
+                        className="rounded-lg border border-red-500/50 bg-red-500/10 px-2 py-1 text-xs text-red-300 hover:bg-red-500/20 disabled:opacity-50"
+                      >
+                        Ban
+                      </button>
+                    )}
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -162,7 +269,55 @@ export default function UsersTable({ users }: UsersTableProps) {
               </div>
               <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-zinc-500">
                 <span>Plan: {user.currentPlan || "Normal"}</span>
+                {user.bannedAt && <span className="text-red-400">Banned</span>}
+                <span>Auto-renew: {user.autoRenew ? "Yes" : "No"}</span>
+                <span>Attempts: {user.renewalAttempts ?? 0}</span>
                 <span>{new Date(user.createdAt).toLocaleDateString()}</span>
+              </div>
+              {user.role === "escort" && (user.autoRenew || user.currentPlan === "VIP" || user.currentPlan === "Platinum") && (
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {user.autoRenew && (
+                    <button
+                      type="button"
+                      onClick={() => handleDisableAutoRenew(user.id)}
+                      disabled={isPending}
+                      className="rounded-lg border border-amber-500/50 bg-amber-500/10 px-2 py-1 text-xs text-amber-300"
+                    >
+                      Disable auto-renew
+                    </button>
+                  )}
+                  {(user.currentPlan === "VIP" || user.currentPlan === "Platinum") && (
+                    <button
+                      type="button"
+                      onClick={() => handleForceRenew(user.id)}
+                      disabled={isPending}
+                      className="rounded-lg border border-emerald-500/50 bg-emerald-500/10 px-2 py-1 text-xs text-emerald-300"
+                    >
+                      Force renew
+                    </button>
+                  )}
+                </div>
+              )}
+              <div className="mt-2 flex flex-wrap gap-2">
+                {user.bannedAt ? (
+                  <button
+                    type="button"
+                    onClick={() => handleUnban(user.id)}
+                    disabled={isPending}
+                    className="rounded-lg border border-amber-500/50 bg-amber-500/10 px-2 py-1 text-xs text-amber-300"
+                  >
+                    Unban
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => handleBan(user.id)}
+                    disabled={isPending}
+                    className="rounded-lg border border-red-500/50 bg-red-500/10 px-2 py-1 text-xs text-red-300"
+                  >
+                    Ban
+                  </button>
+                )}
               </div>
               <select
                 value={user.role}

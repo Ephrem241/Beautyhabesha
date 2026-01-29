@@ -114,14 +114,14 @@ export default function HeaderNav({ isLoggedIn, role }: HeaderNavProps) {
         >
           <Link
             href="/pricing"
-            className="rounded-xl px-4 py-3 transition hover:bg-zinc-900 hover:text-emerald-300"
+            className="rounded-xl px-4 py-3 transition hover:bg-zinc-900 hover:text-emerald-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
             onClick={closeMenu}
           >
             Pricing
           </Link>
           <Link
             href="/escorts"
-            className="rounded-xl px-4 py-3 transition hover:bg-zinc-900 hover:text-emerald-300"
+            className="rounded-xl px-4 py-3 transition hover:bg-zinc-900 hover:text-emerald-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
             onClick={closeMenu}
           >
             Escorts
@@ -129,7 +129,7 @@ export default function HeaderNav({ isLoggedIn, role }: HeaderNavProps) {
           {isLoggedIn ? (
             <Link
               href="/dashboard"
-              className="rounded-xl px-4 py-3 transition hover:bg-zinc-900 hover:text-emerald-300"
+              className="rounded-xl px-4 py-3 transition hover:bg-zinc-900 hover:text-emerald-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
               onClick={closeMenu}
             >
               Dashboard
@@ -137,7 +137,7 @@ export default function HeaderNav({ isLoggedIn, role }: HeaderNavProps) {
           ) : (
             <Link
               href="/auth/login"
-              className="rounded-xl px-4 py-3 transition hover:bg-zinc-900 hover:text-emerald-300"
+              className="rounded-xl px-4 py-3 transition hover:bg-zinc-900 hover:text-emerald-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
               onClick={closeMenu}
             >
               Login
@@ -146,7 +146,7 @@ export default function HeaderNav({ isLoggedIn, role }: HeaderNavProps) {
           {role === "escort" ? (
             <Link
               href="/escort/profile"
-              className="rounded-xl px-4 py-3 transition hover:bg-zinc-900 hover:text-emerald-300"
+              className="rounded-xl px-4 py-3 transition hover:bg-zinc-900 hover:text-emerald-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
               onClick={closeMenu}
             >
               My profile
@@ -155,7 +155,7 @@ export default function HeaderNav({ isLoggedIn, role }: HeaderNavProps) {
           {role === "admin" ? (
             <Link
               href="/dashboard/admin/subscriptions"
-              className="rounded-xl px-4 py-3 transition hover:bg-zinc-900 hover:text-emerald-300"
+              className="rounded-xl px-4 py-3 transition hover:bg-zinc-900 hover:text-emerald-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
               onClick={closeMenu}
             >
               Admin

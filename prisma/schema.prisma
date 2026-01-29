@@ -13,45 +13,158 @@ enum EscortStatus {
   suspended
 }
 
+enum BookingMode {
+  online
+  in_person
+}
+
+enum BookingStatus {
+  pending
+  approved
+  rejected
+  completed
+  canceled
+}
+
+enum DepositStatus {
+  pending
+  approved
+  rejected
+}
+
+enum DepositPaymentMethod {
+  telebirr
+  bank_transfer
+  cash
+}
+
+enum ReportReason {
+  fake_profile
+  underage
+  abuse
+  scam
+}
+
+enum ReportStatus {
+  pending
+  reviewed
+  action_taken
+}
+
+enum BillingCycle {
+  monthly
+  yearly
+}
+
 model User {
-  id                  String         @id @default(cuid())
-  email               String         @unique
-  password            String?
-  name                String?
-  role                String         @default("user")
-  currentPlan         String?        @default("Normal")
+  id                    String         @id @default(cuid())
+  email                 String         @unique
+  password              String?
+  name                  String?
+  role                  String         @default("user")
+  currentPlan           String?        @default("Normal")
   subscriptionStartDate DateTime?
   subscriptionEndDate   DateTime?
   subscriptionStatus    String?        @default("inactive")
-  createdAt           DateTime       @default(now())
-  updatedAt           DateTime       @updatedAt
-  escortProfile       EscortProfile?
-  subscriptions       Subscription[]
+  subscriptionPlanId    String?
+  autoRenew             Boolean        @default(false)
+  renewalAttempts       Int            @default(0)
+  lastRenewalAttempt    DateTime?
+  bannedAt              DateTime?
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+  escortProfile         EscortProfile?
+  subscriptions         Subscription[]
+  bookings              Booking[]
+  depositPayments       DepositPayment[]
+  consentRecords        ConsentRecord[]
+  reportsFiled          Report[]       @relation("ReportReporter")
+  subscriptionPlan      SubscriptionPlan? @relation(fields: [subscriptionPlanId], references: [id], onDelete: SetNull)
 
   @@index([subscriptionEndDate])
   @@index([subscriptionStatus])
+  @@index([subscriptionPlanId])
   @@map("users")
 }
 
 model EscortProfile {
-  id          String       @id @default(cuid())
-  userId      String       @unique
-  displayName String
-  bio         String?
-  city        String?
-  images      Json         @default("[]")
-  phone       String?
-  telegram    String?
-  whatsapp    String?
-  status      EscortStatus @default(pending)
-  approvedAt  DateTime?
-  approvedBy  String?
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                 String       @id @default(cuid())
+  userId             String       @unique
+  displayName        String
+  bio                String?
+  city               String?
+  images             Json         @default("[]")
+  phone              String?
+  telegram           String?
+  whatsapp           String?
+  status             EscortStatus @default(pending)
+  approvedAt         DateTime?
+  approvedBy         String?
+  createdAt          DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  lastActiveAt       DateTime?
+  rankingBoostUntil  DateTime?
+  rankingSuspended  Boolean      @default(false)
+  manualPlanId       String?
+  user               User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bookings          Booking[]
+  availabilities     Availability[]
+  reports            Report[]
 
   @@index([status, createdAt(sort: Desc)])
+  @@index([lastActiveAt(sort: Desc)])
   @@map("escort_profiles")
+}
+
+model ConsentRecord {
+  id         String   @id @default(cuid())
+  userId     String
+  type       String   // terms | content | 18_plus | ownership
+  version    String
+  acceptedAt DateTime @default(now())
+  ip         String?
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, type])
+  @@map("consent_records")
+}
+
+model Report {
+  id             String       @id @default(cuid())
+  escortProfileId String
+  reporterUserId  String?
+  reason         ReportReason
+  details        String?
+  status         ReportStatus @default(pending)
+  reviewedAt     DateTime?
+  reviewedBy     String?
+  createdAt      DateTime     @default(now())
+  escortProfile  EscortProfile @relation(fields: [escortProfileId], references: [id], onDelete: Cascade)
+  reporter       User?        @relation("ReportReporter", fields: [reporterUserId], references: [id], onDelete: SetNull)
+
+  @@index([escortProfileId])
+  @@index([status])
+  @@index([reporterUserId])
+  @@map("reports")
+}
+
+model Availability {
+  id          String       @id @default(cuid())
+  escortId    String
+  date        DateTime     @db.Date
+  startTime   String
+  endTime     String
+  mode        BookingMode
+  isBooked    Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  escortProfile EscortProfile @relation(fields: [escortId], references: [id], onDelete: Cascade)
+
+  @@index([escortId])
+  @@index([escortId, date])
+  @@index([date])
+  @@map("availabilities")
 }
 
 model Plan {
@@ -67,10 +180,34 @@ model Plan {
   @@map("plans")
 }
 
+model SubscriptionPlan {
+  id            String       @id @default(cuid())
+  name          String
+  slug          String       @unique
+  price         Float
+  currency      String       @default("ETB")
+  billingCycle  BillingCycle @default(monthly)
+  features      String[]     @default([])
+  durationDays  Int          @default(30)
+  isPopular     Boolean      @default(false)
+  isRecommended Boolean      @default(false)
+  isActive      Boolean      @default(true)
+  deletedAt     DateTime?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  users         User[]
+  subscriptions Subscription[]
+
+  @@index([slug])
+  @@index([isActive, deletedAt])
+  @@map("subscription_plans")
+}
+
 model Subscription {
   id                   String    @id @default(cuid())
   userId               String
   planId               String
+  subscriptionPlanId   String?
   status               String    @default("pending")
   paymentMethod        String
   paymentProofUrl      String
@@ -83,8 +220,55 @@ model Subscription {
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
   user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subscriptionPlan     SubscriptionPlan? @relation(fields: [subscriptionPlanId], references: [id], onDelete: SetNull)
 
   @@index([status, endDate])
   @@index([userId, status])
+  @@index([subscriptionPlanId])
   @@map("subscriptions")
+}
+
+model Booking {
+  id                String        @id @default(cuid())
+  userId            String
+  escortId          String
+  date              DateTime      @db.Date
+  startTime         String
+  endTime           String
+  mode              BookingMode
+  status            BookingStatus @default(pending)
+  depositAmount     Float
+  escortAcceptedAt  DateTime?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  escortProfile     EscortProfile @relation(fields: [escortId], references: [id], onDelete: Cascade)
+  depositPayments   DepositPayment[]
+
+  @@index([userId])
+  @@index([escortId])
+  @@index([status])
+  @@index([date])
+  @@map("bookings")
+}
+
+model DepositPayment {
+  id             String              @id @default(cuid())
+  bookingId      String
+  userId         String
+  amount         Float
+  paymentMethod  DepositPaymentMethod
+  receiptUrl     String
+  receiptPublicId String?
+  status         DepositStatus       @default(pending)
+  rejectionReason String?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  booking        Booking             @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  user           User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([bookingId])
+  @@index([userId])
+  @@index([status])
+  @@map("deposit_payments")
 }

@@ -4,8 +4,17 @@ import GoogleProvider from "next-auth/providers/google";
 import { getServerSession } from "next-auth";
 import bcrypt from "bcrypt";
 
+import { redirect } from "next/navigation";
 import { env } from "@/lib/env";
 import { prisma } from "@/lib/db";
+
+export async function checkUserNotBanned(userId: string): Promise<void> {
+  const u = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { bannedAt: true },
+  });
+  if (u?.bannedAt) redirect("/auth/login?banned=1");
+}
 
 export const authOptions: NextAuthOptions = {
   secret: env.NEXTAUTH_SECRET,
@@ -53,6 +62,11 @@ export const authOptions: NextAuthOptions = {
             return null;
           }
 
+          if (user.bannedAt) {
+            console.error(`[Auth] Banned user attempted login: ${normalizedEmail}`);
+            return null;
+          }
+
           return {
             id: user.id,
             email: user.email,
@@ -74,10 +88,13 @@ export const authOptions: NextAuthOptions = {
           return false;
         }
 
-        // Check if user exists, if not create one
         const existingUser = await prisma.user.findUnique({
           where: { email: user.email.toLowerCase() },
         });
+
+        if (existingUser?.bannedAt) {
+          return false;
+        }
 
         if (!existingUser) {
           // Create new user from Google account

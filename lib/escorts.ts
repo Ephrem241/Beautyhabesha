@@ -1,10 +1,20 @@
 import { type PlanId } from "@/lib/plans";
 import {
+  getDisplayPlanId,
+  getRankingPriority,
+  computeProfileCompleteness,
+  sortByRanking,
+  PLAN_PRIORITY,
+  type RankedEscortPayload,
+} from "@/lib/ranking";
+import { getGraceCutoff } from "@/lib/subscription-grace";
+import {
   expireStaleSubscriptions,
   getActiveSubscriptionsForUsers,
   getPlanPriorityMap,
   resolvePlanAccess,
 } from "@/lib/subscription-access";
+import { getViewerHasActiveSubscription } from "@/lib/viewer-access";
 import { prisma } from "@/lib/db";
 import { extractImageUrls } from "@/lib/image-helpers";
 
@@ -78,10 +88,21 @@ export async function getPublicEscorts(): Promise<PublicEscort[]> {
   });
 }
 
-export async function getPublicEscortsOptimized(): Promise<PublicEscort[]> {
+export type GetEscortsOptions = {
+  /** When provided, escort data is limited (no bio, contact, images) if viewer has no active subscription. */
+  viewerUserId?: string | null;
+};
+
+export async function getPublicEscortsOptimized(
+  options?: GetEscortsOptions
+): Promise<PublicEscort[]> {
   await expireStaleSubscriptions();
 
+  const viewerUserId = options?.viewerUserId ?? null;
+  const viewerHasAccess = await getViewerHasActiveSubscription(viewerUserId);
+
   const now = new Date();
+  const graceCutoff = getGraceCutoff(now);
   const profiles = await prisma.escortProfile.findMany({
     where: { status: 'approved' },
     include: {
@@ -91,7 +112,7 @@ export async function getPublicEscortsOptimized(): Promise<PublicEscort[]> {
             where: {
               status: "active",
               OR: [
-                { endDate: { gte: now } },
+                { endDate: { gte: graceCutoff } },
                 { endDate: null },
               ],
             },
@@ -109,41 +130,68 @@ export async function getPublicEscortsOptimized(): Promise<PublicEscort[]> {
 
   const { planMap, fallbackMap } = await getPlanPriorityMap();
 
-  const escorts = profiles.map((profile) => {
+  type WithRanking = PublicEscort & RankedEscortPayload;
+
+  const escorts: WithRanking[] = profiles.map((profile) => {
     const subscription = profile.user.subscriptions[0];
-    const planId = normalizePlanId(subscription?.planId ?? "Normal");
-    const planData = planMap.get(planId) ?? fallbackMap.get(planId);
-    const planPriority = planData?.priority ?? (planId === "Platinum" ? 3 : planId === "VIP" ? 2 : 1);
-    const canShowContact = planId !== "Normal";
+    const subscriptionPlanId = normalizePlanId(
+      subscription?.planId ?? "Normal"
+    ) as PlanId;
+    const displayPlanId = getDisplayPlanId(
+      profile.manualPlanId,
+      subscriptionPlanId
+    );
+    const rankingPriority = getRankingPriority(
+      displayPlanId,
+      profile.rankingSuspended,
+      profile.rankingBoostUntil
+    );
+    const planPriority =
+      PLAN_PRIORITY[displayPlanId] ?? (planMap.get(displayPlanId)?.priority ?? 1);
+    const canShowContact = displayPlanId !== "Normal";
     const allImages = extractImageUrls(profile.images);
-    const limitedImages = limitImagesForPlan(planId, allImages);
+    const limitedImages = limitImagesForPlan(displayPlanId, allImages);
+    const completenessScore = computeProfileCompleteness(
+      profile.bio,
+      profile.city,
+      allImages.length
+    );
 
     return {
       id: profile.id,
       displayName: profile.displayName,
-      bio: profile.bio ?? undefined,
+      bio: viewerHasAccess ? (profile.bio ?? undefined) : undefined,
       city: profile.city ?? undefined,
-      images: limitedImages,
-      contact: canShowContact
-        ? {
-            phone: profile.phone ?? undefined,
-            telegram: profile.telegram ?? undefined,
-            whatsapp: profile.whatsapp ?? undefined,
-          }
-        : undefined,
-      planId: planId as PlanId,
+      images: viewerHasAccess ? limitedImages : [],
+      contact:
+        viewerHasAccess && canShowContact
+          ? {
+              phone: profile.phone ?? undefined,
+              telegram: profile.telegram ?? undefined,
+              whatsapp: profile.whatsapp ?? undefined,
+            }
+          : undefined,
+      planId: displayPlanId,
       planPriority,
       canShowContact,
       createdAt: profile.createdAt,
+      displayPlanId,
+      rankingPriority,
+      lastActiveAt: profile.lastActiveAt,
+      completenessScore,
     };
   });
 
-  return escorts.sort((a, b) => {
-    if (b.planPriority !== a.planPriority) {
-      return b.planPriority - a.planPriority;
-    }
-    return b.createdAt.getTime() - a.createdAt.getTime();
-  });
+  const sorted = sortByRanking(escorts);
+  return sorted.map(
+    ({
+      rankingPriority: _rp,
+      lastActiveAt: _la,
+      completenessScore: _cs,
+      displayPlanId: _dp,
+      ...rest
+    }) => rest
+  );
 }
 
 function normalizePlanId(planId: string): PlanId {
@@ -153,54 +201,100 @@ function normalizePlanId(planId: string): PlanId {
   return "Normal";
 }
 
-export async function getFeaturedEscorts(limit = 6): Promise<PublicEscort[]> {
-  const escorts = await getPublicEscortsOptimized();
+export async function getFeaturedEscorts(
+  limit = 6,
+  options?: GetEscortsOptions
+): Promise<PublicEscort[]> {
+  const escorts = await getPublicEscortsOptimized(options);
   return escorts.filter((escort) => escort.planId === "Platinum").slice(0, limit);
 }
 
-export async function getPublicEscortById(
+/** Lightweight fetch of approved escort IDs for sitemap. */
+export async function getEscortIdsForSitemap(): Promise<string[]> {
+  const rows = await prisma.escortProfile.findMany({
+    where: { status: "approved" },
+    select: { id: true },
+  });
+  return rows.map((r) => r.id);
+}
+
+export type EscortMetadataForSeo = {
+  displayName: string;
+  city: string | null;
+  bio: string | null;
+  image: string | null;
+};
+
+/** Minimal escort data for SEO metadata (OG, Twitter). No subscription gating. */
+export async function getEscortMetadataForSeo(
   profileId: string
+): Promise<EscortMetadataForSeo | null> {
+  const profile = await prisma.escortProfile.findUnique({
+    where: { id: profileId },
+    select: { displayName: true, city: true, bio: true, images: true, status: true },
+  });
+  if (!profile || profile.status !== "approved") return null;
+  const urls = extractImageUrls(profile.images);
+  return {
+    displayName: profile.displayName,
+    city: profile.city,
+    bio: profile.bio,
+    image: urls[0] ?? null,
+  };
+}
+
+export type GetEscortByIdOptions = {
+  viewerUserId?: string | null;
+};
+
+export async function getPublicEscortById(
+  profileId: string,
+  options?: GetEscortByIdOptions
 ): Promise<PublicEscort | null> {
   try {
     await expireStaleSubscriptions();
 
+    const viewerUserId = options?.viewerUserId ?? null;
+    const viewerHasAccess = await getViewerHasActiveSubscription(viewerUserId);
+
     const profile = await prisma.escortProfile.findUnique({
       where: { id: profileId },
     });
-    
-    if (!profile || profile.status !== 'approved') {
+
+    if (!profile || profile.status !== "approved") {
       return null;
     }
 
-  const activeSubscriptions = await getActiveSubscriptionsForUsers([
-    profile.userId,
-  ]);
-  const { planMap, fallbackMap } = await getPlanPriorityMap();
+    const activeSubscriptions = await getActiveSubscriptionsForUsers([
+      profile.userId,
+    ]);
+    const { planMap, fallbackMap } = await getPlanPriorityMap();
 
-  const planId =
-    activeSubscriptions.get(profile.userId)?.planId ?? ("Normal" as PlanId);
-  const access = resolvePlanAccess(planId, planMap, fallbackMap);
-  const allImages = extractImageUrls(profile.images);
-  const limitedImages = limitImagesForPlan(access.planId, allImages);
+    const planId =
+      activeSubscriptions.get(profile.userId)?.planId ?? ("Normal" as PlanId);
+    const access = resolvePlanAccess(planId, planMap, fallbackMap);
+    const allImages = extractImageUrls(profile.images);
+    const limitedImages = limitImagesForPlan(access.planId, allImages);
 
-  return {
-    id: profile.id,
-    displayName: profile.displayName,
-    bio: profile.bio ?? undefined,
-    city: profile.city ?? undefined,
-    images: limitedImages,
-    contact: access.canShowContact
-      ? {
-          phone: profile.phone ?? undefined,
-          telegram: profile.telegram ?? undefined,
-          whatsapp: profile.whatsapp ?? undefined,
-        }
-      : undefined,
-    planId: access.planId,
-    planPriority: access.priority,
-    canShowContact: access.canShowContact,
-    createdAt: profile.createdAt,
-  };
+    return {
+      id: profile.id,
+      displayName: profile.displayName,
+      bio: viewerHasAccess ? (profile.bio ?? undefined) : undefined,
+      city: profile.city ?? undefined,
+      images: viewerHasAccess ? limitedImages : [],
+      contact:
+        viewerHasAccess && access.canShowContact
+          ? {
+              phone: profile.phone ?? undefined,
+              telegram: profile.telegram ?? undefined,
+              whatsapp: profile.whatsapp ?? undefined,
+            }
+          : undefined,
+      planId: access.planId,
+      planPriority: access.priority,
+      canShowContact: access.canShowContact,
+      createdAt: profile.createdAt,
+    };
   } catch (error) {
     console.error("Error fetching escort profile:", error);
     if (error instanceof Error) {

@@ -24,3 +24,37 @@
   }
 }
 
+/* Skip link: hidden until focused, then visible for keyboard users */
+.skip-link {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.skip-link:focus {
+  position: fixed;
+  inset: auto;
+  left: 1rem;
+  top: 1rem;
+  z-index: 100;
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: 0.5rem 1rem;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+  border-radius: 0.5rem;
+  background: rgb(52 211 153);
+  color: rgb(6 78 59);
+  font-size: 0.875rem;
+  font-weight: 600;
+  outline: none;
+  box-shadow: 0 0 0 2px white;
+}
+
