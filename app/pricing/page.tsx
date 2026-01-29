@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { cookies } from "next/headers";
 
 import { getActiveSubscriptionPlans } from "@/lib/subscription-plans";
 
@@ -19,16 +18,7 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image", title: "Pricing • Beautyhabesha" },
 };
 
-async function getIsLoggedIn() {
-  const store = await cookies();
-  return (
-    store.has("next-auth.session-token") ||
-    store.has("__Secure-next-auth.session-token")
-  );
-}
-
 export default async function PricingPage() {
-  const isLoggedIn = await getIsLoggedIn();
   const plans = await getActiveSubscriptionPlans();
 
   return (
@@ -43,7 +33,7 @@ export default async function PricingPage() {
             </p>
           ) : (
             plans.map((plan) => (
-              <PlanCard key={plan.id} plan={plan} isLoggedIn={isLoggedIn} />
+              <PlanCard key={plan.id} plan={plan} />
             ))
           )}
         </div>

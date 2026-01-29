@@ -82,7 +82,7 @@ export default async function DashboardPage({
               </p>
               {plan.planId === "Normal" ? (
                 <Link
-                  href="/upgrade?plan=VIP"
+                  href="/payment-instructions?plan=vip"
                   className="mt-3 inline-flex text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300"
                 >
                   Upgrade for more visibility

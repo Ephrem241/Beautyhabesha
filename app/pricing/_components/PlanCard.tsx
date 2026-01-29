@@ -4,10 +4,9 @@ import { ButtonLink } from "@/app/_components/ui/Button";
 
 type PlanCardProps = {
   plan: PlanDisplay;
-  isLoggedIn: boolean;
 };
 
-export default function PlanCard({ plan, isLoggedIn }: PlanCardProps) {
+export default function PlanCard({ plan }: PlanCardProps) {
   const isPaid = plan.price > 0;
 
   return (
@@ -58,21 +57,15 @@ export default function PlanCard({ plan, isLoggedIn }: PlanCardProps) {
         ))}
       </ul>
 
-      {isPaid && isLoggedIn ? (
+      {isPaid ? (
         <ButtonLink
-          href={`/upgrade?plan=${plan.slug}`}
+          href={`/payment-instructions?plan=${plan.slug}`}
           fullWidth
           size="md"
           className="mt-6"
         >
-          Subscribe Now
+          Choose plan
         </ButtonLink>
-      ) : null}
-
-      {isPaid && !isLoggedIn ? (
-        <p className="mt-6 text-center text-xs uppercase tracking-[0.2em] text-zinc-500">
-          Sign in to subscribe
-        </p>
       ) : null}
     </section>
   );

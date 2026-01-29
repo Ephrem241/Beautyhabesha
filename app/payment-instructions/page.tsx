@@ -84,14 +84,22 @@ export default async function PaymentInstructionsPage({
         ) : (
           <div className="mt-6 rounded-2xl border border-zinc-800 bg-black p-4 sm:mt-8 sm:p-6">
             <p className="text-sm text-zinc-300">
-              Sign in to upload payment proof and request plan activation.
+              Sign in or sign up to upload payment proof and request plan activation.
             </p>
-            <Link
-              href={`/auth/login?callbackUrl=${encodeURIComponent(`/payment-instructions?plan=${selectedPlan.slug}`)}`}
-              className="mt-4 inline-flex w-full items-center justify-center rounded-full bg-emerald-400 px-4 py-3 text-sm font-semibold text-emerald-950 transition hover:bg-emerald-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
-            >
-              Sign in to submit proof
-            </Link>
+            <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+              <Link
+                href={`/auth/login?callbackUrl=${encodeURIComponent(`/payment-instructions?plan=${selectedPlan.slug}`)}`}
+                className="inline-flex flex-1 items-center justify-center rounded-full bg-emerald-400 px-4 py-3 text-sm font-semibold text-emerald-950 transition hover:bg-emerald-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
+              >
+                Sign in
+              </Link>
+              <Link
+                href={`/auth/register?redirect=${encodeURIComponent(`/payment-instructions?plan=${selectedPlan.slug}`)}`}
+                className="inline-flex flex-1 items-center justify-center rounded-full border border-zinc-600 px-4 py-3 text-sm font-semibold text-zinc-200 transition hover:bg-zinc-800 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
+              >
+                Sign up
+              </Link>
+            </div>
           </div>
         )}
       </div>

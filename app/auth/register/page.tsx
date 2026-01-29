@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState, Suspense } from "react";
 import { registerUser } from "./actions";
 
@@ -13,6 +13,8 @@ const MIN_AGE = 18;
 
 function RegisterForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get("redirect");
   const [username, setUsername] = useState("");
   const [age, setAge] = useState("");
   const [password, setPassword] = useState("");
@@ -80,7 +82,10 @@ function RegisterForm() {
         setErrorMessage(result.error);
         setIsLoading(false);
       } else {
-        router.push("/auth/login?registered=true");
+        const loginUrl = redirect
+          ? `/auth/login?registered=true&callbackUrl=${encodeURIComponent(redirect)}`
+          : "/auth/login?registered=true";
+        router.push(loginUrl);
       }
     } catch {
       setErrorMessage("An error occurred. Please try again.");
@@ -265,7 +270,7 @@ function RegisterForm() {
           <p>
             Already have an account?{" "}
             <Link
-              href="/auth/login"
+              href={redirect ? `/auth/login?callbackUrl=${encodeURIComponent(redirect)}` : "/auth/login"}
               className="text-emerald-400 transition hover:text-emerald-300"
             >
               Sign in
