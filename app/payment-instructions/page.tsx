@@ -6,6 +6,7 @@ import {
 } from "@/lib/subscription-plans";
 import { formatPrice, formatDurationDays } from "@/lib/plan-format";
 import { getAuthSession } from "@/lib/auth";
+import { getActivePaymentAccounts } from "@/lib/payment-accounts";
 
 import PaymentForm from "./_components/PaymentForm";
 
@@ -17,8 +18,13 @@ export default async function PaymentInstructionsPage({
   searchParams,
 }: PaymentInstructionsPageProps) {
   const slug = searchParams?.plan ?? "vip";
-  const session = await getAuthSession();
-  const selectedPlan =
+  const [session, planBySlug, allPlans, paymentAccounts] = await Promise.all([
+    getAuthSession(),
+    getSubscriptionPlanBySlug(slug),
+    getActiveSubscriptionPlans(),
+    getActivePaymentAccounts(),
+  ]);
+  const selectedPlan = planBySlug ?? allPlans.find((p) => p.price > 0) ?? null;
     (await getSubscriptionPlanBySlug(slug)) ??
     (await getActiveSubscriptionPlans()).find((p) => p.price > 0) ?? null;
 
@@ -61,22 +67,34 @@ export default async function PaymentInstructionsPage({
         </div>
 
         <div className="mt-6 grid gap-3 sm:mt-8 sm:gap-4 sm:grid-cols-2">
-          <section className="rounded-xl border border-zinc-800 bg-black p-4 sm:rounded-2xl sm:p-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-300">
-              Bank transfer
+          {paymentAccounts.map((acc) => (
+            <section
+              key={acc.id}
+              className="rounded-xl border border-zinc-800 bg-black p-4 sm:rounded-2xl sm:p-5"
+            >
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-300">
+                {acc.type === "bank" ? "Bank transfer" : "Mobile money"}
+              </p>
+              <p className="mt-3 text-sm text-zinc-300">
+                Account name: {acc.accountName}
+              </p>
+              {acc.type === "bank" ? (
+                <p className="text-sm text-zinc-300">Account number: {acc.accountNumber}</p>
+              ) : (
+                <>
+                  {acc.provider && (
+                    <p className="text-sm text-zinc-300">Provider: {acc.provider}</p>
+                  )}
+                  <p className="text-sm text-zinc-300">Number: {acc.accountNumber}</p>
+                </>
+              )}
+            </section>
+          ))}
+          {paymentAccounts.length === 0 && (
+            <p className="col-span-full text-center text-sm text-zinc-500">
+              No payment accounts configured. Contact support.
             </p>
-            <p className="mt-3 text-sm text-zinc-300">
-              Account name: Beautyhabesha
-            </p>
-            <p className="text-sm text-zinc-300">Account number: 000-000-0000</p>
-          </section>
-          <section className="rounded-xl border border-zinc-800 bg-black p-4 sm:rounded-2xl sm:p-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-300">
-              Mobile money
-            </p>
-            <p className="mt-3 text-sm text-zinc-300">Provider: TeleBirr</p>
-            <p className="text-sm text-zinc-300">Number: 0912 000 000</p>
-          </section>
+          )}
         </div>
 
         {session?.user ? (

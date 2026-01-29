@@ -182,6 +182,12 @@ export default async function DashboardPage({
               >
                 Manage plans
               </Link>
+              <Link
+                href="/dashboard/admin/payment-accounts"
+                className="rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-4 text-sm text-zinc-200 transition hover:border-emerald-400 hover:text-emerald-300"
+              >
+                Payment accounts
+              </Link>
             </>
           ) : null}
         </div>

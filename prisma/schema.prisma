@@ -182,6 +182,21 @@ model Plan {
   @@map("plans")
 }
 
+model PaymentAccount {
+  id            String   @id @default(cuid())
+  type          String   // "bank" | "mobile_money"
+  accountName   String
+  accountNumber String
+  provider      String?  // e.g. "TeleBirr" for mobile_money
+  displayOrder  Int      @default(0)
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([isActive, displayOrder])
+  @@map("payment_accounts")
+}
+
 model SubscriptionPlan {
   id            String       @id @default(cuid())
   name          String
