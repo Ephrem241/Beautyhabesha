@@ -60,6 +60,7 @@ export async function getEscortDetails(escortId: string): Promise<EscortDetails 
           select: {
             name: true,
             email: true,
+            username: true,
           },
         },
       },
