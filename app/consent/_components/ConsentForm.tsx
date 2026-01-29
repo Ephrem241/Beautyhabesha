@@ -55,7 +55,7 @@ export function ConsentForm({ className = "" }: ConsentFormProps) {
         <label className="flex gap-3">
           <input type="checkbox" name="18_plus" required className="mt-1 rounded border-zinc-600" />
           <span className="text-sm text-zinc-200">
-            I confirm that I am 18 years of age or older.
+            I confirm that I am 21 years of age or older.
           </span>
         </label>
         <label className="flex gap-3">

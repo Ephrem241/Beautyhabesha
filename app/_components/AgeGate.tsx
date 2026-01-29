@@ -3,39 +3,16 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-
-const COOKIE_NAME = "age_gate_18";
-const STORAGE_KEY = "age_gate_18";
-const MAX_AGE_SEC = 365 * 24 * 60 * 60;
+import { getAgeGateAccepted, setAgeGateAccepted } from "@/lib/age-gate-client";
 
 const LEGAL_PATHS = ["/terms", "/privacy", "/consent", "/18-plus"];
-
-function getAccepted(): boolean {
-  if (typeof window === "undefined") return false;
-  try {
-    if (localStorage.getItem(STORAGE_KEY) === "accepted") return true;
-    const match = document.cookie.match(new RegExp(`(^| )${COOKIE_NAME}=([^;]+)`));
-    return match?.[2] === "accepted";
-  } catch {
-    return false;
-  }
-}
-
-function setAccepted(): void {
-  try {
-    localStorage.setItem(STORAGE_KEY, "accepted");
-    document.cookie = `${COOKIE_NAME}=accepted; path=/; max-age=${MAX_AGE_SEC}; SameSite=Lax`;
-  } catch {
-    /* ignore */
-  }
-}
 
 export function AgeGate({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [accepted, setAcceptedState] = useState<boolean | null>(null);
 
   useEffect(() => {
-    setAcceptedState(getAccepted());
+    setAcceptedState(getAgeGateAccepted());
   }, []);
 
   const isLegalPath = LEGAL_PATHS.some((p) => pathname?.startsWith(p));
@@ -62,11 +39,11 @@ export function AgeGate({ children }: { children: React.ReactNode }) {
           Adults only
         </p>
         <h1 className="mt-4 text-2xl font-semibold sm:text-3xl">
-          You must be 18 or older
+          You must be 21 or older
         </h1>
         <p className="mt-3 text-sm text-zinc-400">
           This platform is intended for adults only. By entering you confirm that
-          you are at least 18 years of age and agree to our{" "}
+          you are at least 21 years of age and agree to our{" "}
           <Link href="/terms" className="text-emerald-400 hover:underline">
             Terms of Service
           </Link>{" "}
@@ -80,12 +57,12 @@ export function AgeGate({ children }: { children: React.ReactNode }) {
           <button
             type="button"
             onClick={() => {
-              setAccepted();
+              setAgeGateAccepted();
               setAcceptedState(true);
             }}
             className="rounded-xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-black"
           >
-            I am 18 or older — Enter
+            I am 21 or older — Enter
           </button>
           <Link
             href="/18-plus"

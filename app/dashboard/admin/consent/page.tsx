@@ -45,7 +45,7 @@ export default async function AdminConsentPage() {
             Consent history
           </h1>
           <p className="text-sm text-zinc-400">
-            View when users accepted terms, content agreement, 18+, and
+            View when users accepted terms, content agreement, 21+, and
             ownership.
           </p>
         </header>

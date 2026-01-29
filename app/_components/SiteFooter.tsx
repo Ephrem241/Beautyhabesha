@@ -62,7 +62,7 @@ export default function SiteFooter() {
               Privacy
             </Link>
             <Link href="/18-plus" className="w-fit transition hover:text-emerald-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald-400">
-              18+
+              21+
             </Link>
           </div>
         </div>

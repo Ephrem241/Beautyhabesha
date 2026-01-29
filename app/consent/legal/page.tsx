@@ -24,7 +24,7 @@ export default function ConsentLegalPage() {
             to the following.
           </p>
           <ul className="mt-4 list-disc space-y-2 pl-6">
-            <li>You are 18 years of age or older.</li>
+            <li>You are 21 years of age or older.</li>
             <li>You own all content you upload or have the right to use it.</li>
             <li>You consent to your profile and approved content being displayed in accordance with the platform’s functionality.</li>
             <li>You will not upload illegal or non-consensual content.</li>

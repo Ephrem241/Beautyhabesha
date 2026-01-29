@@ -22,13 +22,13 @@ export default function TermsPage() {
         <div className="prose prose-invert mt-8 max-w-none text-sm text-zinc-300">
           <p>
             Welcome to Beautyhabesha. By using this platform you agree to these
-            Terms of Service. This platform is intended for adults (18+) only.
+            Terms of Service. This platform is intended for adults (21+) only.
           </p>
           <h2 className="mt-8 text-lg font-semibold text-white">
             1. Eligibility
           </h2>
           <p>
-            You must be at least 18 years of age to use this service. By
+            You must be at least 21 years of age to use this service. By
             accessing the platform you confirm that you meet this requirement.
           </p>
           <h2 className="mt-8 text-lg font-semibold text-white">
