@@ -16,12 +16,17 @@ async function requireAdmin() {
 }
 
 const createSchema = z.object({
-  name: z.string().min(1).max(120),
-  slug: z.string().min(1).max(80).regex(/^[a-z0-9_]+$/, "Slug: lowercase, numbers, underscores only"),
-  price: z.coerce.number().min(0),
+  name: z.string().min(1, "Name is required").max(120),
+  slug: z
+    .string()
+    .min(1, "Slug is required")
+    .max(80)
+    .transform((s) => s.trim().toLowerCase().replace(/[\s-]+/g, "_"))
+    .pipe(z.string().regex(/^[a-z0-9_]+$/, "Slug: use only lowercase letters, numbers, and underscores (e.g. vip_yearly)")),
+  price: z.coerce.number().min(0, "Price must be ≥ 0"),
   currency: z.string().min(1).max(10).default("ETB"),
   billingCycle: z.enum(["monthly", "yearly"]),
-  durationDays: z.coerce.number().int().min(0),
+  durationDays: z.coerce.number().int().min(0, "Duration (days) must be ≥ 0"),
   features: z
     .union([z.string(), z.null()])
     .transform((s) => {
@@ -44,6 +49,9 @@ export async function createPlan(
 ): Promise<PlanActionResult> {
   await requireAdmin();
 
+  const checkbox = (name: string) =>
+    formData.getAll(name).includes("on") || formData.get(name) === "true";
+
   const parsed = createSchema.safeParse({
     name: formData.get("name"),
     slug: formData.get("slug"),
@@ -52,13 +60,18 @@ export async function createPlan(
     billingCycle: formData.get("billingCycle") || "monthly",
     durationDays: formData.get("durationDays"),
     features: formData.get("features"),
-    isPopular: formData.get("isPopular") === "on" || formData.get("isPopular") === "true",
-    isRecommended: formData.get("isRecommended") === "on" || formData.get("isRecommended") === "true",
-    isActive: formData.get("isActive") === "on" || formData.get("isActive") === "true",
+    isPopular: checkbox("isPopular"),
+    isRecommended: checkbox("isRecommended"),
+    isActive: checkbox("isActive"),
   });
 
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.flatten().formErrors.join(" ") || "Invalid input." };
+    const flat = parsed.error.flatten();
+    const parts = [
+      ...flat.formErrors,
+      ...Object.values(flat.fieldErrors).flat().filter(Boolean),
+    ] as string[];
+    return { ok: false, error: parts.length ? parts.join(" ") : "Invalid input." };
   }
 
   const existing = await prisma.subscriptionPlan.findUnique({
@@ -96,6 +109,9 @@ export async function updatePlan(
     return { ok: false, error: "Missing plan id." };
   }
 
+  const checkbox = (name: string) =>
+    formData.getAll(name).includes("on") || formData.get(name) === "true";
+
   const parsed = updateSchema.safeParse({
     id,
     name: formData.get("name"),
@@ -105,13 +121,18 @@ export async function updatePlan(
     billingCycle: formData.get("billingCycle") || "monthly",
     durationDays: formData.get("durationDays"),
     features: formData.get("features"),
-    isPopular: formData.get("isPopular") === "on" || formData.get("isPopular") === "true",
-    isRecommended: formData.get("isRecommended") === "on" || formData.get("isRecommended") === "true",
-    isActive: formData.get("isActive") === "on" || formData.get("isActive") === "true",
+    isPopular: checkbox("isPopular"),
+    isRecommended: checkbox("isRecommended"),
+    isActive: checkbox("isActive"),
   });
 
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.flatten().formErrors.join(" ") || "Invalid input." };
+    const flat = parsed.error.flatten();
+    const parts = [
+      ...flat.formErrors,
+      ...Object.values(flat.fieldErrors).flat().filter(Boolean),
+    ] as string[];
+    return { ok: false, error: parts.length ? parts.join(" ") : "Invalid input." };
   }
 
   const plan = await prisma.subscriptionPlan.findUnique({ where: { id } });

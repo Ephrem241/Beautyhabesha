@@ -4,6 +4,7 @@ import { getFeaturedEscorts } from "@/lib/escorts";
 import { getViewerHasActiveSubscription } from "@/lib/viewer-access";
 import { ButtonLink } from "@/app/_components/ui/Button";
 import { HeroTextCarousel } from "@/app/_components/HeroTextCarousel";
+import { ProfileAvatar } from "@/app/_components/ProfileAvatar";
 import { ProtectedEscortImage } from "@/app/_components/ProtectedEscortImage";
 
 export const metadata: Metadata = {
@@ -90,10 +91,20 @@ export default async function Home() {
                     </span>
                   </div>
                   <div className="p-4 sm:p-5">
-                    <h3 className="text-lg font-semibold text-white">
-                      {escort.displayName}
-                    </h3>
-                    <p className="text-xs text-zinc-500">{escort.city}</p>
+                    <div className="flex items-center gap-3">
+                      <ProfileAvatar
+                        src={escort.images[0]}
+                        alt={escort.displayName}
+                        size={44}
+                        className="shrink-0"
+                      />
+                      <div className="min-w-0">
+                        <h3 className="text-lg font-semibold text-white truncate">
+                          {escort.displayName}
+                        </h3>
+                        <p className="text-xs text-zinc-500">{escort.city}</p>
+                      </div>
+                    </div>
                     <p className="mt-3 text-sm text-zinc-400">
                       {escort.bio ?? "Premium spotlight profile."}
                     </p>

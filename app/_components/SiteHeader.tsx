@@ -1,12 +1,29 @@
 import Link from "next/link";
 
 import { getAuthSession } from "@/lib/auth";
+import { prisma } from "@/lib/db";
+import { extractImageUrls } from "@/lib/image-helpers";
 import HeaderNav from "./HeaderNav";
 
 export default async function SiteHeader() {
   const session = await getAuthSession();
-  const role = session?.user?.role ?? null;
+  const role = (session?.user?.role as "admin" | "escort" | "user" | null) ?? null;
   const isLoggedIn = !!session;
+
+  let profileImageUrl: string | null = null;
+  let userName: string = session?.user?.name ?? session?.user?.email ?? "";
+
+  if (role === "escort" && session?.user?.id) {
+    const profile = await prisma.escortProfile.findUnique({
+      where: { userId: session.user.id },
+      select: { images: true, displayName: true },
+    });
+    if (profile) {
+      const urls = extractImageUrls(profile.images);
+      profileImageUrl = urls[0] ?? null;
+      if (profile.displayName) userName = profile.displayName;
+    }
+  }
 
   return (
     <header className="sticky top-0 z-30 border-b border-zinc-900 bg-black/80 backdrop-blur">
@@ -17,8 +34,13 @@ export default async function SiteHeader() {
         >
           Beautyhabesha
         </Link>
-        <div className="shrink-0">
-          <HeaderNav isLoggedIn={isLoggedIn} role={role} />
+        <div className="flex shrink-0 items-center gap-4">
+          <HeaderNav
+            isLoggedIn={isLoggedIn}
+            role={role}
+            profileImageUrl={profileImageUrl}
+            userName={userName}
+          />
         </div>
       </div>
     </header>

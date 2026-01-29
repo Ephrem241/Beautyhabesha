@@ -74,7 +74,7 @@ export function PlanForm({ plan, onSuccess }: PlanFormProps) {
                 placeholder="vip_yearly"
               />
               <p className="mt-1 text-xs text-zinc-500">
-                Lowercase, numbers, underscores only.
+                Lowercase, numbers, underscores only. Spaces and hyphens are converted to underscores.
               </p>
             </div>
           </div>

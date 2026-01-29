@@ -7,6 +7,7 @@ import { ButtonLink } from "@/app/_components/ui/Button";
 import { BlurGate } from "@/app/_components/BlurGate";
 import { Breadcrumbs } from "@/app/_components/Breadcrumbs";
 import { PlanBadge } from "@/app/_components/PlanBadge";
+import { ProfileAvatar } from "@/app/_components/ProfileAvatar";
 import { ProtectedEscortImage } from "@/app/_components/ProtectedEscortImage";
 
 function escortCardClassName(planId: PlanId): string {
@@ -68,12 +69,20 @@ export default async function EscortListingPage() {
             >
               {/* Name, city, plan badge – always visible */}
               <div className="border-b border-zinc-800 px-4 py-3 sm:px-6 sm:py-4">
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <h3 className="text-lg font-semibold text-white">
-                      {escort.displayName}
-                    </h3>
-                    <p className="text-xs text-zinc-500">{escort.city}</p>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex min-w-0 flex-1 items-center gap-3">
+                    <ProfileAvatar
+                      src={escort.images[0]}
+                      alt={escort.displayName}
+                      size={44}
+                      className="shrink-0"
+                    />
+                    <div className="min-w-0">
+                      <h3 className="text-lg font-semibold text-white truncate">
+                        {escort.displayName}
+                      </h3>
+                      <p className="text-xs text-zinc-500">{escort.city}</p>
+                    </div>
                   </div>
                   <PlanBadge planId={escort.planId} showFeatured />
                 </div>

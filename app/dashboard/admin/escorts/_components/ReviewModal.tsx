@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react";
 import Image from "next/image";
+import { ProfileAvatar } from "@/app/_components/ProfileAvatar";
 import {
   approveEscort,
   rejectEscort,
@@ -127,7 +128,15 @@ export default function ReviewModal({ escort, onClose }: ReviewModalProps) {
       <div className="my-4 max-h-[calc(100vh-2rem)] w-full max-w-4xl overflow-y-auto rounded-2xl border border-zinc-800 bg-zinc-950">
         <div className="p-4 sm:p-6">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="text-lg font-semibold text-white sm:text-xl">{details.displayName}</h2>
+            <div className="flex min-w-0 items-center gap-3">
+              <ProfileAvatar
+                src={details.images[0]}
+                alt={details.displayName}
+                size={48}
+                className="shrink-0"
+              />
+              <h2 className="text-lg font-semibold text-white sm:text-xl truncate">{details.displayName}</h2>
+            </div>
             <button
               onClick={onClose}
               className="text-zinc-400 hover:text-zinc-200"

@@ -49,17 +49,21 @@ export default async function AdminEscortsPage({ searchParams }: Props) {
     orderBy: { createdAt: "desc" },
   });
 
-  const formattedEscorts = escorts.map((escort: any) => ({
-    id: escort.id,
-    displayName: escort.displayName,
-    city: escort.city ?? undefined,
-    status: escort.status,
-    hasImage: extractImageUrls(escort.images).length > 0,
-    plan: escort.user.subscriptions[0]?.planId ?? escort.user.currentPlan ?? "Normal",
-    createdAt: escort.createdAt.toISOString(),
-    userId: escort.userId,
-    userName: escort.user.name ?? escort.user.email,
-  }));
+  const formattedEscorts = escorts.map((escort: any) => {
+    const urls = extractImageUrls(escort.images);
+    return {
+      id: escort.id,
+      displayName: escort.displayName,
+      city: escort.city ?? undefined,
+      status: escort.status,
+      hasImage: urls.length > 0,
+      profileImageUrl: urls[0] ?? null,
+      plan: escort.user.subscriptions[0]?.planId ?? escort.user.currentPlan ?? "Normal",
+      createdAt: escort.createdAt.toISOString(),
+      userId: escort.userId,
+      userName: escort.user.name ?? escort.user.email,
+    };
+  });
 
   return (
     <main className="min-h-screen bg-black px-4 pb-16 pt-16 text-white sm:px-6 sm:pb-20 sm:pt-20">

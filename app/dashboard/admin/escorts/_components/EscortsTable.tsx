@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ProfileAvatar } from "@/app/_components/ProfileAvatar";
 import ReviewModal from "./ReviewModal";
 
 type Escort = {
@@ -9,6 +10,7 @@ type Escort = {
   city?: string;
   status: "pending" | "approved" | "rejected" | "suspended";
   hasImage: boolean;
+  profileImageUrl: string | null;
   plan: string;
   createdAt: string;
   userId: string;
@@ -77,7 +79,17 @@ export default function EscortsTable({ escorts }: EscortsTableProps) {
                   className="cursor-pointer hover:bg-zinc-900/50"
                   onClick={() => setSelectedEscort(escort)}
                 >
-                  <td className="px-4 py-3 text-sm text-zinc-200 sm:px-6 sm:py-4">{escort.displayName}</td>
+                  <td className="px-4 py-3 sm:px-6 sm:py-4">
+                    <div className="flex items-center gap-3">
+                      <ProfileAvatar
+                        src={escort.profileImageUrl}
+                        alt={escort.displayName}
+                        size={36}
+                        className="shrink-0"
+                      />
+                      <span className="text-sm text-zinc-200">{escort.displayName}</span>
+                    </div>
+                  </td>
                   <td className="px-4 py-3 sm:px-6 sm:py-4">
                     <span
                       className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium ${
@@ -123,7 +135,15 @@ export default function EscortsTable({ escorts }: EscortsTableProps) {
               className="flex flex-col gap-2 rounded-2xl border border-zinc-800 bg-black p-4 text-left transition hover:border-zinc-700 hover:bg-zinc-900/50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
             >
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <span className="font-medium text-zinc-200">{escort.displayName}</span>
+                <div className="flex min-w-0 items-center gap-3">
+                  <ProfileAvatar
+                    src={escort.profileImageUrl}
+                    alt={escort.displayName}
+                    size={40}
+                    className="shrink-0"
+                  />
+                  <span className="font-medium text-zinc-200 truncate">{escort.displayName}</span>
+                </div>
                 <span
                   className={`inline-flex shrink-0 rounded-full border px-2.5 py-0.5 text-xs font-medium ${getStatusBadgeColor(
                     escort.status

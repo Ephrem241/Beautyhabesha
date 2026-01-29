@@ -9,6 +9,7 @@ import { BlurGate } from "@/app/_components/BlurGate";
 import { Breadcrumbs } from "@/app/_components/Breadcrumbs";
 import { ChatFloatingButton } from "@/app/_components/ChatFloatingButton";
 import { PlanBadge } from "@/app/_components/PlanBadge";
+import { ProfileAvatar } from "@/app/_components/ProfileAvatar";
 import { ProtectedEscortImage } from "@/app/_components/ProtectedEscortImage";
 import { BookButton } from "./_components/BookButton";
 import { ReportProfileButton } from "./_components/ReportProfileButton";
@@ -86,12 +87,22 @@ export default async function EscortDetailPage({ params }: EscortDetailPageProps
           <p className="text-xs font-semibold uppercase tracking-[0.4em] text-emerald-300">
             Escort profile
           </p>
-          <h1 className="text-2xl font-semibold sm:text-3xl">
-            {escort.displayName}
-          </h1>
-          <p className="text-sm text-zinc-400">
-            {escort.city ?? "Available for premium bookings"}
-          </p>
+          <div className="flex items-center gap-4">
+            <ProfileAvatar
+              src={escort.images[0]}
+              alt={escort.displayName}
+              size={56}
+              className="shrink-0"
+            />
+            <div className="min-w-0">
+              <h1 className="text-2xl font-semibold sm:text-3xl truncate">
+                {escort.displayName}
+              </h1>
+              <p className="text-sm text-zinc-400">
+                {escort.city ?? "Available for premium bookings"}
+              </p>
+            </div>
+          </div>
         </header>
 
         <div className="mt-4 rounded-xl border border-zinc-800 bg-zinc-950/80 px-4 py-3 text-center text-xs text-zinc-500">
