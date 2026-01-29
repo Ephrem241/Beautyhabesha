@@ -11,13 +11,14 @@ import { getActivePaymentAccounts } from "@/lib/payment-accounts";
 import PaymentForm from "./_components/PaymentForm";
 
 type PaymentInstructionsPageProps = {
-  searchParams?: { plan?: string };
+  searchParams?: Promise<{ plan?: string }>;
 };
 
 export default async function PaymentInstructionsPage({
   searchParams,
 }: PaymentInstructionsPageProps) {
-  const slug = searchParams?.plan ?? "vip";
+  const params = searchParams ? await searchParams : {};
+  const slug = params?.plan ?? "vip";
   const [session, planBySlug, allPlans, paymentAccounts] = await Promise.all([
     getAuthSession(),
     getSubscriptionPlanBySlug(slug),
@@ -25,8 +26,6 @@ export default async function PaymentInstructionsPage({
     getActivePaymentAccounts(),
   ]);
   const selectedPlan = planBySlug ?? allPlans.find((p) => p.price > 0) ?? null;
-    (await getSubscriptionPlanBySlug(slug)) ??
-    (await getActiveSubscriptionPlans()).find((p) => p.price > 0) ?? null;
 
   if (!selectedPlan) {
     return (

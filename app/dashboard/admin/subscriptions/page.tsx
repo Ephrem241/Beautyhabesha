@@ -5,10 +5,7 @@ import { getAuthSession } from "@/lib/auth";
 import AdminSubscriptionsView from "@/app/admin/subscriptions/AdminSubscriptionsView";
 
 type AdminSubscriptionsPageProps = {
-  searchParams?: {
-    status?: string;
-    error?: string;
-  };
+  searchParams?: Promise<{ status?: string; error?: string }>;
 };
 
 async function requireAdmin() {
@@ -22,13 +19,14 @@ export default async function AdminSubscriptionsPage({
   searchParams,
 }: AdminSubscriptionsPageProps) {
   await requireAdmin();
+  const params = searchParams ? await searchParams : {};
 
   return (
     <main className="min-h-screen bg-black px-6 pb-20 pt-16 text-white sm:pt-20">
       <div className="mx-auto max-w-6xl">
         <AdminSubscriptionsView
-          status={searchParams?.status}
-          error={searchParams?.error}
+          status={params?.status}
+          error={params?.error}
         />
       </div>
     </main>

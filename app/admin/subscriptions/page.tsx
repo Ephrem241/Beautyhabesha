@@ -7,11 +7,7 @@ import { AdminPlansSection } from "@/app/_components/admin/AdminPlansSection";
 import AdminSubscriptionsView from "./AdminSubscriptionsView";
 
 type AdminSubscriptionsPageProps = {
-  searchParams?: {
-    tab?: string;
-    status?: string;
-    error?: string;
-  };
+  searchParams?: Promise<{ tab?: string; status?: string; error?: string }>;
 };
 
 async function requireAdmin() {
@@ -25,8 +21,8 @@ export default async function AdminSubscriptionsPage({
   searchParams,
 }: AdminSubscriptionsPageProps) {
   await requireAdmin();
-
-  const tab = searchParams?.tab === "plans" ? "plans" : "pending";
+  const params = searchParams ? await searchParams : {};
+  const tab = params?.tab === "plans" ? "plans" : "pending";
 
   return (
     <main className="min-h-screen bg-black px-4 pb-16 pt-16 text-white sm:px-6 sm:pb-20 sm:pt-20">
@@ -61,8 +57,8 @@ export default async function AdminSubscriptionsPage({
           <AdminPlansSection embedded />
         ) : (
           <AdminSubscriptionsView
-            status={searchParams?.status}
-            error={searchParams?.error}
+            status={params?.status}
+            error={params?.error}
           />
         )}
       </div>

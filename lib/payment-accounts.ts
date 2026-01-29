@@ -14,21 +14,25 @@ export type PaymentAccountDoc = {
 
 /** Active payment accounts for payment-instructions page, ordered by displayOrder. */
 export async function getActivePaymentAccounts(): Promise<PaymentAccountDoc[]> {
-  const rows = await prisma.paymentAccount.findMany({
-    where: { isActive: true },
-    orderBy: [{ displayOrder: "asc" }, { createdAt: "asc" }],
-  });
-  return rows.map((r) => ({
-    id: r.id,
-    type: r.type as "bank" | "mobile_money",
-    accountName: r.accountName,
-    accountNumber: r.accountNumber,
-    provider: r.provider,
-    displayOrder: r.displayOrder,
-    isActive: r.isActive,
-    createdAt: r.createdAt,
-    updatedAt: r.updatedAt,
-  }));
+  try {
+    const rows = await prisma.paymentAccount.findMany({
+      where: { isActive: true },
+      orderBy: [{ displayOrder: "asc" }, { createdAt: "asc" }],
+    });
+    return rows.map((r) => ({
+      id: r.id,
+      type: r.type as "bank" | "mobile_money",
+      accountName: r.accountName,
+      accountNumber: r.accountNumber,
+      provider: r.provider,
+      displayOrder: r.displayOrder,
+      isActive: r.isActive,
+      createdAt: r.createdAt,
+      updatedAt: r.updatedAt,
+    }));
+  } catch {
+    return [];
+  }
 }
 
 /** All payment accounts for admin CRUD. */
