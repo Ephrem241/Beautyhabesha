@@ -165,9 +165,9 @@ function RegisterForm() {
                 id="role"
                 value={role}
                 onChange={(e) => {
-                  const v = e.target.value as "user" | "escort";
-                  setRole(v);
-                  if (v === "user") setImages([]);
+                  const value = e.target.value as "user" | "escort";
+                  setRole(value);
+                  if (value === "user") setImages([]);
                 }}
                 required
                 className="mt-2 w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm text-white focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/20"

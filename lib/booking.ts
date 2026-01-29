@@ -49,7 +49,7 @@ export async function getPendingDepositsForAdmin() {
     include: {
       booking: {
         include: {
-          user: { select: { id: true, email: true, name: true } },
+          user: { select: { id: true, email: true, username: true, name: true } },
           escortProfile: { select: { id: true, displayName: true } },
         },
       },

@@ -355,12 +355,12 @@ export default function ReviewModal({ escort, onClose }: ReviewModalProps) {
                 className="rounded-lg border border-zinc-600 bg-zinc-800 px-3 py-1.5 text-sm text-zinc-200 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                 value={details.manualPlanId ?? ""}
                 onChange={(e) => {
-                  const v = e.target.value;
+                  const value = e.target.value;
                   const formData = new FormData();
-                  if (v === "") {
+                  if (value === "") {
                     handleRankingAction(clearManualPlan, formData);
                   } else {
-                    formData.append("planId", v);
+                    formData.append("planId", value);
                     handleRankingAction(setManualPlan, formData);
                   }
                 }}
