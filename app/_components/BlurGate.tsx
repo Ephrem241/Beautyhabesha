@@ -33,13 +33,13 @@ export function BlurGate({
       aria-hidden={false}
     >
       <div
-        className="select-none transition-all duration-300 blur-sm will-change-[filter] [&_img]:blur-md"
+        className="select-none transition-all duration-300 blur-[2px] will-change-[filter] [&_img]:blur"
         aria-hidden="true"
       >
         {children}
       </div>
       <div
-        className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-black/35 px-4 py-6"
+        className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-black/25 px-4 py-6"
         role="presentation"
       >
         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-zinc-500/80 bg-zinc-900/90 text-zinc-400">

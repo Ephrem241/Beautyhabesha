@@ -162,7 +162,7 @@ export async function getPublicEscortsOptimized(
       displayName: profile.displayName,
       bio: viewerHasAccess ? (profile.bio ?? undefined) : undefined,
       city: profile.city ?? undefined,
-      images: viewerHasAccess ? limitedImages : [],
+      images: viewerHasAccess ? limitedImages : (limitedImages.length > 0 ? [limitedImages[0]] : []),
       contact:
         viewerHasAccess && canShowContact
           ? {
@@ -281,7 +281,7 @@ export async function getPublicEscortById(
       displayName: profile.displayName,
       bio: viewerHasAccess ? (profile.bio ?? undefined) : undefined,
       city: profile.city ?? undefined,
-      images: viewerHasAccess ? limitedImages : [],
+      images: viewerHasAccess ? limitedImages : (limitedImages.length > 0 ? [limitedImages[0]] : []),
       contact:
         viewerHasAccess && access.canShowContact
           ? {
