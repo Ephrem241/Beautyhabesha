@@ -17,7 +17,7 @@ const envSchema = z.object({
   CRON_SECRET: z.string().min(1).optional(),
 });
 
-export const env = envSchema.parse({
+const parsed = envSchema.safeParse({
   DATABASE_URL: process.env.DATABASE_URL,
   CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
   CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
@@ -28,3 +28,16 @@ export const env = envSchema.parse({
   GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
   CRON_SECRET: process.env.CRON_SECRET,
 });
+
+if (!parsed.success) {
+  const details = parsed.error.issues
+    .map((e) => e.path.filter((p) => typeof p === "string").join("."))
+    .filter(Boolean)
+    .join(", ");
+  throw new Error(
+    `Missing or invalid environment variables${details ? `: ${details}` : ""}. ` +
+      "On Vercel, add these in Project Settings → Environment Variables."
+  );
+}
+
+export const env = parsed.data;
