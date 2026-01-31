@@ -1,6 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import type { PublicEscort } from "@/lib/escorts";
@@ -25,8 +26,24 @@ export function SwipeCard({
   onDragEnd,
   exitX,
 }: SwipeCardProps) {
+  const [imageIndex, setImageIndex] = useState(0);
   const canShowContact = hasActiveSubscription && profile.canShowContact;
-  const mainImage = profile.images[0] ?? null;
+
+  useEffect(() => {
+    setImageIndex(0);
+  }, [profile.id]);
+  const images = profile.images;
+  const mainImage = images[imageIndex] ?? images[0] ?? null;
+
+  const goToImage = (idx: number) => {
+    if (images.length <= 1) return;
+    setImageIndex((i) => {
+      const next = i + idx;
+      if (next < 0) return images.length - 1;
+      if (next >= images.length) return 0;
+      return next;
+    });
+  };
 
   const getContactHref = () => {
     if (!canShowContact) return "#";
@@ -71,25 +88,99 @@ export function SwipeCard({
     >
       <div className="flex h-full w-full flex-col overflow-hidden rounded-2xl bg-zinc-900">
         <div className="relative flex-1 overflow-hidden">
-          {mainImage ? (
-            <Image
-              src={mainImage}
-              alt={profile.displayName}
-              fill
-              sizes="100vw"
-              className={`object-cover transition-all duration-300 ${
-                canShowContact ? "" : "blur-md"
-              }`}
-              priority={isTop}
-              draggable={false}
-            />
-          ) : (
-            <div className="flex h-full items-center justify-center bg-zinc-800 text-zinc-500">
-              <span className="text-sm uppercase tracking-widest">
-                No image
-              </span>
-            </div>
-          )}
+          <div
+            className="relative h-full w-full"
+            onClick={(e) => {
+              if (!isTop || images.length <= 1) return;
+              const rect = e.currentTarget.getBoundingClientRect();
+              const x = e.clientX - rect.left;
+              if (x < rect.width / 2) goToImage(-1);
+              else goToImage(1);
+            }}
+          >
+            <AnimatePresence mode="wait" initial={false}>
+              {mainImage ? (
+                <motion.div
+                  key={imageIndex}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="absolute inset-0"
+                >
+                  <Image
+                    src={mainImage}
+                    alt={`${profile.displayName} - ${imageIndex + 1}`}
+                    fill
+                    sizes="100vw"
+                    className={`object-cover transition-all duration-300 ${
+                      canShowContact ? "" : "blur-md"
+                    }`}
+                    priority={isTop}
+                    draggable={false}
+                  />
+                </motion.div>
+              ) : (
+                <div
+                  key="no-image"
+                  className="flex h-full items-center justify-center bg-zinc-800 text-zinc-500"
+                >
+                  <span className="text-sm uppercase tracking-widest">
+                    No image
+                  </span>
+                </div>
+              )}
+            </AnimatePresence>
+
+            {images.length > 1 && (
+              <>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    goToImage(-1);
+                  }}
+                  className="absolute left-2 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm transition hover:bg-black/70 disabled:opacity-30"
+                  aria-label="Previous image"
+                >
+                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    goToImage(1);
+                  }}
+                  className="absolute right-2 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm transition hover:bg-black/70 disabled:opacity-30"
+                  aria-label="Next image"
+                >
+                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+                <div className="absolute bottom-2 left-1/2 z-10 flex -translate-x-1/2 gap-1.5">
+                  {images.map((_, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setImageIndex(i);
+                      }}
+                      className={`h-1.5 w-1.5 rounded-full transition ${
+                        i === imageIndex
+                          ? "w-4 bg-white"
+                          : "bg-white/50 hover:bg-white/70"
+                      }`}
+                      aria-label={`Image ${i + 1}`}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
 
           {!canShowContact && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/50 px-4">
@@ -114,6 +205,11 @@ export function SwipeCard({
             </h2>
             {profile.city && (
               <p className="mt-1 text-sm text-zinc-300">{profile.city}</p>
+            )}
+            {images.length > 1 && (
+              <p className="mt-1 text-xs text-zinc-400">
+                {imageIndex + 1} / {images.length}
+              </p>
             )}
           </div>
         </div>

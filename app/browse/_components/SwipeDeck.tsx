@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { motion } from "framer-motion";
 import type { PublicEscort } from "@/lib/escorts";
 import { useSwipe } from "./useSwipe";
 import { SwipeCard } from "./SwipeCard";
@@ -8,19 +9,19 @@ import { TelegramButton } from "@/app/_components/TelegramButton";
 import Link from "next/link";
 
 const SWIPE_OUT_X = 500;
+const SWIPE_ANIM_MS = 300;
 
 type SwipeDeckProps = {
   profiles: PublicEscort[];
   hasActiveSubscription: boolean;
 };
 
-const SWIPE_ANIM_MS = 350;
-
 export function SwipeDeck({
   profiles,
   hasActiveSubscription,
 }: SwipeDeckProps) {
   const [exitX, setExitX] = useState(0);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   const { index, goNext, goPrev } = useSwipe({
     count: profiles.length,
@@ -28,22 +29,50 @@ export function SwipeDeck({
 
   const handleDragEnd = useCallback(
     (_: unknown, info: { offset: { x: number } }) => {
+      if (isAnimating) return;
       const x = info.offset.x;
       if (x > 120) {
+        setIsAnimating(true);
         setExitX(SWIPE_OUT_X);
         setTimeout(() => {
-          goPrev();
           setExitX(0);
+          goPrev();
+          setIsAnimating(false);
         }, SWIPE_ANIM_MS);
       } else if (x < -120) {
+        setIsAnimating(true);
         setExitX(-SWIPE_OUT_X);
         setTimeout(() => {
-          goNext();
           setExitX(0);
+          goNext();
+          setIsAnimating(false);
         }, SWIPE_ANIM_MS);
       }
     },
-    [goNext, goPrev]
+    [goNext, goPrev, isAnimating]
+  );
+
+  const handleNavClick = useCallback(
+    (dir: "prev" | "next") => {
+      if (isAnimating) return;
+      setIsAnimating(true);
+      if (dir === "prev") {
+        setExitX(SWIPE_OUT_X);
+        setTimeout(() => {
+          setExitX(0);
+          goPrev();
+          setIsAnimating(false);
+        }, SWIPE_ANIM_MS);
+      } else {
+        setExitX(-SWIPE_OUT_X);
+        setTimeout(() => {
+          setExitX(0);
+          goNext();
+          setIsAnimating(false);
+        }, SWIPE_ANIM_MS);
+      }
+    },
+    [goNext, goPrev, isAnimating]
   );
 
   if (profiles.length === 0) {
@@ -93,12 +122,15 @@ export function SwipeDeck({
 
       <div className="absolute inset-4 top-16 bottom-4 flex items-center justify-center">
         <div
-          className="relative h-full w-full max-w-md"
+          className="relative h-full w-full max-w-md overflow-hidden"
           style={{ perspective: "1000px" }}
         >
-          {nextProfile && (
-            <div
-              className="absolute inset-0 scale-[0.92]"
+          {nextProfile && !isAnimating && (
+            <motion.div
+              key={`next-${nextProfile.id}`}
+              initial={{ scale: 0.92, opacity: 0.9 }}
+              animate={{ scale: 0.92, opacity: 0.9 }}
+              className="absolute inset-0"
               style={{ zIndex: 1 }}
             >
               <SwipeCard
@@ -108,18 +140,26 @@ export function SwipeDeck({
                 onDragEnd={() => {}}
                 exitX={0}
               />
-            </div>
+            </motion.div>
           )}
 
           {currentProfile && (
-            <SwipeCard
-              key={`${currentProfile.id}-${index}`}
-              profile={currentProfile}
-              isTop
-              hasActiveSubscription={hasActiveSubscription}
-              onDragEnd={handleDragEnd}
-              exitX={exitX}
-            />
+            <motion.div
+              key={`current-${currentProfile.id}-${index}`}
+              initial={{ scale: 0.92, opacity: 0.9 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="absolute inset-0"
+              style={{ zIndex: 10 }}
+            >
+              <SwipeCard
+                profile={currentProfile}
+                isTop={!isAnimating}
+                hasActiveSubscription={hasActiveSubscription}
+                onDragEnd={handleDragEnd}
+                exitX={exitX}
+              />
+            </motion.div>
           )}
         </div>
       </div>
@@ -132,9 +172,9 @@ export function SwipeDeck({
       <div className="absolute bottom-8 left-0 right-0 z-20 flex justify-center gap-6 px-4 safe-area-inset-bottom">
         <button
           type="button"
-          onClick={goPrev}
-          disabled={index <= 0}
-          className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-zinc-600 bg-black/50 text-zinc-400 backdrop-blur-sm transition hover:border-zinc-500 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
+          onClick={() => handleNavClick("prev")}
+          disabled={index <= 0 || isAnimating}
+          className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-zinc-600 bg-black/50 text-zinc-400 backdrop-blur-sm transition hover:border-zinc-500 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-zinc-600 disabled:hover:text-zinc-400"
           aria-label="Previous"
         >
           <svg
@@ -153,9 +193,9 @@ export function SwipeDeck({
         </button>
         <button
           type="button"
-          onClick={goNext}
-          disabled={index >= profiles.length - 1}
-          className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-zinc-600 bg-black/50 text-zinc-400 backdrop-blur-sm transition hover:border-zinc-500 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
+          onClick={() => handleNavClick("next")}
+          disabled={index >= profiles.length - 1 || isAnimating}
+          className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-zinc-600 bg-black/50 text-zinc-400 backdrop-blur-sm transition hover:border-zinc-500 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-zinc-600 disabled:hover:text-zinc-400"
           aria-label="Next"
         >
           <svg
