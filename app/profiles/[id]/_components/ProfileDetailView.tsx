@@ -52,13 +52,13 @@ export function ProfileDetailView({
                 fill
                 sizes="100vw"
                 className={`object-cover transition-all duration-500 ${
-                  canShowContact ? "" : "blur-md"
+                  hasActiveSubscription ? "" : "blur-lg"
                 }`}
                 priority
               />
               {!canShowContact && (
                 <div
-                  className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-black/50 px-4"
+                  className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 bg-black/50 px-4"
                   aria-hidden="false"
                 >
                   <div className="flex h-14 w-14 items-center justify-center rounded-full border border-zinc-500/80 bg-zinc-900/90">

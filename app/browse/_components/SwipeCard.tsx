@@ -114,7 +114,7 @@ export function SwipeCard({
                     fill
                     sizes="100vw"
                     className={`object-cover transition-all duration-300 ${
-                      canShowContact ? "" : "blur-md"
+                      hasActiveSubscription ? "" : "blur-lg"
                     }`}
                     priority={isTop}
                     draggable={false}
@@ -183,7 +183,11 @@ export function SwipeCard({
           </div>
 
           {!canShowContact && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/50 px-4">
+            <div
+              className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-black/50 px-4"
+              onClick={(e) => e.stopPropagation()}
+              onPointerDown={(e) => e.stopPropagation()}
+            >
               <div className="flex h-12 w-12 items-center justify-center rounded-full border border-zinc-500/80 bg-zinc-900/90">
                 <LockIcon className="h-6 w-6 text-zinc-400" />
               </div>
@@ -192,7 +196,9 @@ export function SwipeCard({
               </p>
               <Link
                 href="/pricing"
-                className="rounded-xl bg-emerald-500 px-5 py-2.5 text-sm font-semibold text-emerald-950 hover:bg-emerald-400"
+                className="rounded-xl bg-emerald-500 px-5 py-2.5 text-sm font-semibold text-emerald-950 transition hover:bg-emerald-400"
+                onClick={(e) => e.stopPropagation()}
+                onPointerDown={(e) => e.stopPropagation()}
               >
                 Upgrade
               </Link>
@@ -214,7 +220,11 @@ export function SwipeCard({
           </div>
         </div>
 
-        <div className="flex gap-3 border-t border-zinc-800 bg-black/90 p-4">
+        <div
+          className="relative z-30 flex gap-3 border-t border-zinc-800 bg-black/90 p-4"
+          onClick={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
+        >
           <Link
             href={`/profiles/${profile.id}`}
             className="flex-1 rounded-xl border border-zinc-600 py-3 text-center text-sm font-semibold text-zinc-200 transition hover:bg-zinc-800"

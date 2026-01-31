@@ -33,7 +33,7 @@ export function BlurGate({
       aria-hidden={false}
     >
       <div
-        className="select-none transition-all duration-300 will-change-[filter] [&_img]:blur-[4px]"
+        className="select-none transition-all duration-300 will-change-[filter] [&_img]:blur-lg"
         aria-hidden="true"
       >
         {children}
