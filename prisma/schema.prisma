@@ -82,6 +82,9 @@ model User {
   consentRecords        ConsentRecord[]
   reportsFiled          Report[]       @relation("ReportReporter")
   subscriptionPlan      SubscriptionPlan? @relation(fields: [subscriptionPlanId], references: [id], onDelete: SetNull)
+  payments              Payment[]
+  chatRooms             ChatRoom[]     @relation("ChatRoomOwner")
+  chatMessages          Message[]      @relation("MessageSender")
 
   @@index([subscriptionEndDate])
   @@index([subscriptionStatus])
@@ -95,6 +98,8 @@ model EscortProfile {
   displayName        String
   bio                String?
   city               String?
+  price              Int?
+  available          Boolean      @default(true)
   images             Json         @default("[]")
   phone              String?
   telegram           String?
@@ -214,6 +219,7 @@ model SubscriptionPlan {
   updatedAt     DateTime     @updatedAt
   users         User[]
   subscriptions Subscription[]
+  paymentRecords Payment[]         @relation("PlanPayments")
 
   @@index([slug])
   @@index([isActive, deletedAt])
@@ -269,6 +275,39 @@ model Booking {
   @@map("bookings")
 }
 
+enum PaymentStatus {
+  pending
+  approved
+  rejected
+}
+
+enum PaymentMethod {
+  telebirr
+  cbe
+  bank
+}
+
+model Payment {
+  id             String        @id @default(cuid())
+  userId         String
+  planId         String
+  amount         Float
+  receiptUrl     String
+  paymentMethod  PaymentMethod
+  status         PaymentStatus @default(pending)
+  rejectionReason String?
+  approvedAt     DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan           SubscriptionPlan  @relation("PlanPayments", fields: [planId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@index([planId])
+  @@map("payments")
+}
+
 model DepositPayment {
   id             String              @id @default(cuid())
   bookingId      String
@@ -288,4 +327,37 @@ model DepositPayment {
   @@index([userId])
   @@index([status])
   @@map("deposit_payments")
+}
+
+model ChatRoom {
+  id        String    @id @default(cuid())
+  userId    String
+  resolved  Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  user     User      @relation("ChatRoomOwner", fields: [userId], references: [id], onDelete: Cascade)
+  messages Message[]
+
+  @@index([userId])
+  @@index([resolved])
+  @@index([updatedAt(sort: Desc)])
+  @@map("chat_rooms")
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  roomId    String
+  senderId  String
+  text      String?
+  image     String?
+  createdAt DateTime @default(now())
+
+  room   ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  sender User     @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([roomId])
+  @@index([senderId])
+  @@index([createdAt])
+  @@map("messages")
 }

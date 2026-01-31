@@ -8,11 +8,14 @@ export async function proxy(request: NextRequest) {
   if (
     pathname.startsWith("/dashboard") ||
     pathname.startsWith("/admin") ||
-    pathname.startsWith("/escort")
+    pathname.startsWith("/escort") ||
+    pathname.startsWith("/upload-proof") ||
+    pathname.startsWith("/support")
   ) {
     if (!token) {
       const url = request.nextUrl.clone();
       url.pathname = "/auth/login";
+      url.searchParams.set("callbackUrl", request.nextUrl.pathname + request.nextUrl.search);
       return NextResponse.redirect(url);
     }
   }
@@ -37,5 +40,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/admin/:path*", "/escort/:path*"],
+  matcher: ["/dashboard/:path*", "/admin/:path*", "/escort/:path*", "/upload-proof", "/support"],
 };

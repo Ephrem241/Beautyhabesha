@@ -1,5 +1,5 @@
 -- CreateTable
-CREATE TABLE "payment_accounts" (
+CREATE TABLE IF NOT EXISTS "payment_accounts" (
     "id" TEXT NOT NULL,
     "type" TEXT NOT NULL,
     "accountName" TEXT NOT NULL,
@@ -13,10 +13,11 @@ CREATE TABLE "payment_accounts" (
     CONSTRAINT "payment_accounts_pkey" PRIMARY KEY ("id")
 );
 
-CREATE INDEX "payment_accounts_isActive_displayOrder_idx" ON "payment_accounts"("isActive", "displayOrder");
+CREATE INDEX IF NOT EXISTS "payment_accounts_isActive_displayOrder_idx" ON "payment_accounts"("isActive", "displayOrder");
 
--- Seed initial payment accounts
+-- Seed initial payment accounts (skip if already exist)
 INSERT INTO "payment_accounts" ("id", "type", "accountName", "accountNumber", "provider", "displayOrder", "isActive", "createdAt", "updatedAt")
 VALUES
   ('pa_bank_001', 'bank', 'Beautyhabesha', '1000510638798', NULL, 0, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-  ('pa_telebirr_001', 'mobile_money', 'Beautyhabesha', '0912 696 090', 'TeleBirr', 1, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+  ('pa_telebirr_001', 'mobile_money', 'Beautyhabesha', '0912 696 090', 'TeleBirr', 1, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+ON CONFLICT (id) DO NOTHING;

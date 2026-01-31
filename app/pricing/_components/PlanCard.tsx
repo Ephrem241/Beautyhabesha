@@ -59,7 +59,7 @@ export default function PlanCard({ plan }: PlanCardProps) {
 
       {isPaid ? (
         <ButtonLink
-          href={`/payment-instructions?plan=${plan.slug}`}
+          href={`/payment-instructions/${plan.slug}`}
           fullWidth
           size="md"
           className="mt-6"

@@ -24,6 +24,8 @@ export type PublicEscort = {
   bio?: string;
   city?: string;
   images: string[];
+  /** Telegram handle (e.g. @feven) - always present when escort has one, for TelegramButton visibility */
+  telegram?: string | null;
   contact?: {
     phone?: string;
     telegram?: string;
@@ -66,6 +68,7 @@ export async function getPublicEscorts(): Promise<PublicEscort[]> {
       bio: profile.bio ?? undefined,
       city: profile.city ?? undefined,
       images: limitedImages,
+      telegram: profile.telegram ?? undefined,
       contact: access.canShowContact
         ? {
             phone: profile.phone ?? undefined,
@@ -163,6 +166,7 @@ export async function getPublicEscortsOptimized(
       bio: viewerHasAccess ? (profile.bio ?? undefined) : undefined,
       city: profile.city ?? undefined,
       images: viewerHasAccess ? limitedImages : (limitedImages.length > 0 ? [limitedImages[0]] : []),
+      telegram: profile.telegram ?? undefined,
       contact:
         viewerHasAccess && canShowContact
           ? {
@@ -207,6 +211,109 @@ export async function getFeaturedEscorts(
 ): Promise<PublicEscort[]> {
   const escorts = await getPublicEscortsOptimized(options);
   return escorts.filter((escort) => escort.planId === "Platinum").slice(0, limit);
+}
+
+/** Fetch profiles for browse/swipe. Approved only, 50 limit, createdAt desc. */
+export async function getBrowseProfiles(
+  options?: GetEscortsOptions & { filters?: import("@/lib/browse-filters").BrowseFilters }
+): Promise<PublicEscort[]> {
+  const { countActiveFilters } = await import("@/lib/browse-filters");
+  if (options?.filters && countActiveFilters(options.filters) > 0) {
+    return getBrowseProfilesFiltered(options as Parameters<typeof getBrowseProfilesFiltered>[0]);
+  }
+  const escorts = await getPublicEscortsOptimized(options);
+  return escorts.slice(0, 50);
+}
+
+export async function getBrowseProfilesFiltered(
+  options: GetEscortsOptions & { filters: import("@/lib/browse-filters").BrowseFilters }
+): Promise<PublicEscort[]> {
+  const { buildBrowseWhere } = await import("@/lib/browse-filters");
+  await expireStaleSubscriptions();
+
+  const viewerUserId = options.viewerUserId ?? null;
+  const viewerHasAccess = await getViewerHasActiveSubscription(viewerUserId);
+  const where = buildBrowseWhere(options.filters);
+
+  const now = new Date();
+  const graceCutoff = getGraceCutoff(now);
+  const profiles = await prisma.escortProfile.findMany({
+    where,
+    include: {
+      user: {
+        include: {
+          subscriptions: {
+            where: {
+              status: "active",
+              OR: [{ endDate: { gte: graceCutoff } }, { endDate: null }],
+            },
+            orderBy: [{ startDate: "desc" }, { createdAt: "desc" }],
+            take: 1,
+          },
+        },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+    take: 50,
+  });
+
+  const { planMap, fallbackMap } = await getPlanPriorityMap();
+  type WithRanking = PublicEscort & RankedEscortPayload;
+
+  const escorts: WithRanking[] = profiles.map((profile) => {
+    const subscription = profile.user.subscriptions[0];
+    const subscriptionPlanId = normalizePlanId(
+      subscription?.planId ?? "Normal"
+    ) as PlanId;
+    const displayPlanId = getDisplayPlanId(
+      profile.manualPlanId,
+      subscriptionPlanId
+    );
+    const planPriority =
+      PLAN_PRIORITY[displayPlanId] ?? planMap.get(displayPlanId)?.priority ?? 1;
+    const canShowContact = displayPlanId !== "Normal";
+    const allImages = extractImageUrls(profile.images);
+    const limitedImages = limitImagesForPlan(displayPlanId, allImages);
+
+    return {
+      id: profile.id,
+      displayName: profile.displayName,
+      bio: viewerHasAccess ? (profile.bio ?? undefined) : undefined,
+      city: profile.city ?? undefined,
+      images: viewerHasAccess
+        ? limitedImages
+        : limitedImages.length > 0
+          ? [limitedImages[0]]
+          : [],
+      telegram: profile.telegram ?? undefined,
+      contact:
+        viewerHasAccess && canShowContact
+          ? {
+              phone: profile.phone ?? undefined,
+              telegram: profile.telegram ?? undefined,
+              whatsapp: profile.whatsapp ?? undefined,
+            }
+          : undefined,
+      planId: displayPlanId,
+      planPriority,
+      canShowContact,
+      createdAt: profile.createdAt,
+      displayPlanId,
+      rankingPriority: 0,
+      lastActiveAt: profile.lastActiveAt,
+      completenessScore: 0,
+    };
+  });
+
+  return sortByRanking(escorts).map(
+    ({
+      rankingPriority: _rp,
+      lastActiveAt: _la,
+      completenessScore: _cs,
+      displayPlanId: _dp,
+      ...rest
+    }) => rest
+  );
 }
 
 /** Lightweight fetch of approved escort IDs for sitemap. */
@@ -282,6 +389,7 @@ export async function getPublicEscortById(
       bio: viewerHasAccess ? (profile.bio ?? undefined) : undefined,
       city: profile.city ?? undefined,
       images: viewerHasAccess ? limitedImages : (limitedImages.length > 0 ? [limitedImages[0]] : []),
+      telegram: profile.telegram ?? undefined,
       contact:
         viewerHasAccess && access.canShowContact
           ? {

@@ -7,7 +7,7 @@ import { getViewerHasActiveSubscription } from "@/lib/viewer-access";
 import { getSiteUrl } from "@/lib/site-url";
 import { BlurGate } from "@/app/_components/BlurGate";
 import { Breadcrumbs } from "@/app/_components/Breadcrumbs";
-import { ChatFloatingButton } from "@/app/_components/ChatFloatingButton";
+import { TelegramButton } from "@/app/_components/TelegramButton";
 import { PlanBadge } from "@/app/_components/PlanBadge";
 import { ProfileAvatar } from "@/app/_components/ProfileAvatar";
 import { ProtectedEscortImage } from "@/app/_components/ProtectedEscortImage";
@@ -200,11 +200,9 @@ export default async function EscortDetailPage({ params }: EscortDetailPageProps
           />
         </div>
 
-        <ChatFloatingButton
-          telegramUsername={escort.contact?.telegram ?? null}
-          whatsappNumber={escort.contact?.whatsapp ?? null}
-          isAllowed={Boolean(viewerHasAccess && escort.canShowContact)}
-          ariaLabel={`Chat with ${escort.displayName}`}
+        <TelegramButton
+          telegram={escort.telegram}
+          locked={!viewerHasAccess || !escort.canShowContact}
         />
       </div>
     </div>

@@ -8,6 +8,8 @@ import { getRenewalDashboardData } from "@/app/dashboard/actions";
 import { AutoRenewSection } from "@/app/dashboard/_components/AutoRenewSection";
 import { MyBookingsSection } from "@/app/dashboard/_components/MyBookingsSection";
 import { EscortBookingsSection } from "@/app/dashboard/_components/EscortBookingsSection";
+import { SuccessBanner } from "@/app/dashboard/_components/SuccessBanner";
+import { PendingApprovalBanner } from "@/app/dashboard/_components/PendingApprovalBanner";
 
 type DashboardPageProps = {
   searchParams: Promise<{
@@ -41,14 +43,25 @@ export default async function DashboardPage({
       : null;
   const escortBookings =
     escortProfile?.id ? await getBookingsForEscort(escortProfile.id) : [];
+  const pendingPayment =
+    userId
+      ? await prisma.payment.findFirst({
+          where: { userId, status: "pending" },
+          include: { plan: { select: { name: true, slug: true } } },
+        })
+      : null;
 
   return (
     <main className="min-h-screen bg-black px-4 py-12 text-white sm:px-6 sm:py-16">
       <div className="mx-auto max-w-3xl">
         {showSuccess ? (
-          <div className="rounded-2xl border border-emerald-500/40 bg-emerald-500/10 p-4 text-sm text-emerald-200">
-            Payment proof submitted. We will review and activate your plan soon.
-          </div>
+          <SuccessBanner message="Payment proof submitted. We will review and activate your plan soon." />
+        ) : null}
+        {pendingPayment && !showSuccess ? (
+          <PendingApprovalBanner
+            planName={pendingPayment.plan.name}
+            planSlug={pendingPayment.plan.slug}
+          />
         ) : null}
         {showProfileUpdated ? (
           <div className="mt-4 rounded-2xl border border-emerald-500/40 bg-emerald-500/10 p-4 text-sm text-emerald-200">
@@ -72,6 +85,14 @@ export default async function DashboardPage({
           >
             View plans
           </Link>
+          {role !== "admin" ? (
+            <Link
+              href="/support"
+              className="rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-4 text-sm text-zinc-200 transition hover:border-emerald-400 hover:text-emerald-300"
+            >
+              Support chat
+            </Link>
+          ) : null}
           {plan ? (
             <div className="rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-4 text-sm text-zinc-200">
               <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">
@@ -82,7 +103,7 @@ export default async function DashboardPage({
               </p>
               {plan.planId === "Normal" ? (
                 <Link
-                  href="/payment-instructions?plan=vip"
+                  href="/payment-instructions/vip"
                   className="mt-3 inline-flex text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300"
                 >
                   Upgrade for more visibility
@@ -157,6 +178,12 @@ export default async function DashboardPage({
                 className="rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-4 text-sm text-zinc-200 transition hover:border-emerald-400 hover:text-emerald-300"
               >
                 Manage escorts
+              </Link>
+              <Link
+                href="/admin/chats"
+                className="rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-4 text-sm text-zinc-200 transition hover:border-emerald-400 hover:text-emerald-300"
+              >
+                Support chats
               </Link>
               <Link
                 href="/dashboard/admin/escorts/create"

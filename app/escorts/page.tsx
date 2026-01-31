@@ -52,13 +52,20 @@ export default async function EscortListingPage() {
           <p className="text-xs font-semibold uppercase tracking-[0.4em] text-emerald-300">
             Escort listings
           </p>
-          <h1 className="text-2xl font-semibold sm:text-3xl">
-            Discover premium profiles
-          </h1>
-          <p className="text-sm text-zinc-400">
-            Platinum profiles appear first, followed by VIP, then Normal.
-            Subscribe to view full profiles.
-          </p>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h1 className="text-2xl font-semibold sm:text-3xl">
+                Discover premium profiles
+              </h1>
+              <p className="mt-1 text-sm text-zinc-400">
+                Platinum profiles appear first, followed by VIP, then Normal.
+                Subscribe to view full profiles.
+              </p>
+            </div>
+            <ButtonLink href="/browse">
+              Swipe to browse
+            </ButtonLink>
+          </div>
         </header>
 
         <div className="mt-6 grid gap-4 sm:mt-8 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -135,13 +142,19 @@ export default async function EscortListingPage() {
                 </div>
               </BlurGate>
 
-              <div className="border-t border-zinc-800 p-4 sm:p-6">
+              <div className="flex flex-col gap-2 border-t border-zinc-800 p-4 sm:p-6">
+                <ButtonLink
+                  href={`/profiles/${escort.id}`}
+                  className="w-full"
+                >
+                  View profile
+                </ButtonLink>
                 <ButtonLink
                   href={`/escorts/${escort.id}`}
                   variant="outline"
                   className="w-full"
                 >
-                  View profile
+                  Full details
                 </ButtonLink>
               </div>
             </article>

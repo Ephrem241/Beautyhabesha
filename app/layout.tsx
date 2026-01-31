@@ -5,6 +5,7 @@ import SiteHeader from "./_components/SiteHeader";
 import SiteFooter from "./_components/SiteFooter";
 import { AgeGate } from "./_components/AgeGate";
 import { FloatingContactButtons } from "./_components/FloatingContactButtons";
+import { ChatWidget } from "./support/_components/ChatWidget";
 import { WebVitals } from "./_components/WebVitals";
 import { getSiteUrl } from "@/lib/site-url";
 
@@ -83,6 +84,7 @@ export default function RootLayout({
             </main>
             <SiteFooter />
             <FloatingContactButtons />
+            <ChatWidget />
           </div>
         </AgeGate>
       </body>

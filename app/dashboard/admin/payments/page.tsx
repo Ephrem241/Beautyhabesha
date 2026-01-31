@@ -3,9 +3,21 @@ import { redirect } from "next/navigation";
 import { getAuthSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 
-import PaymentsTable from "./_components/PaymentsTable";
+import { PaymentRecordsTable } from "./_components/PaymentRecordsTable";
+import { SubscriptionPaymentsTable } from "./_components/SubscriptionPaymentsTable";
 
-type PendingPayment = {
+type PendingPaymentRecord = {
+  id: string;
+  userName?: string;
+  userEmail?: string;
+  planName: string;
+  amount: number;
+  paymentMethod: string;
+  submittedAt: string;
+  proofUrl: string;
+};
+
+type SubscriptionPayment = {
   id: string;
   userName?: string;
   userEmail?: string;
@@ -13,15 +25,6 @@ type PendingPayment = {
   paymentMethod: string;
   submittedAt: string;
   proofUrl: string;
-};
-
-type SubscriptionWithUser = {
-  id: string;
-  planId: string;
-  paymentMethod: string;
-  paymentProofUrl: string;
-  createdAt: Date;
-  user: { name: string | null; email: string | null; username: string | null };
 };
 
 async function requireAdmin() {
@@ -34,24 +37,47 @@ async function requireAdmin() {
 export default async function AdminPaymentsPage() {
   await requireAdmin();
 
-  const pendingPayments = await prisma.subscription.findMany({
-    where: { status: "pending" },
-    orderBy: { createdAt: "desc" },
-    include: {
-      user: {
-        select: { name: true, email: true, username: true },
+  const [paymentRecords, subscriptionPayments] = await Promise.all([
+    prisma.payment.findMany({
+      where: { status: "pending" },
+      orderBy: { createdAt: "desc" },
+      include: {
+        user: {
+          select: { name: true, email: true, username: true },
+        },
+        plan: { select: { name: true } },
       },
-    },
-  });
+    }),
+    prisma.subscription.findMany({
+      where: { status: "pending" },
+      orderBy: { createdAt: "desc" },
+      include: {
+        user: {
+          select: { name: true, email: true, username: true },
+        },
+      },
+    }),
+  ]);
 
-  const payments: PendingPayment[] = pendingPayments.map((payment: SubscriptionWithUser) => ({
-    id: payment.id,
-    userName: payment.user.name ?? undefined,
-    userEmail: payment.user.email ?? payment.user.username ?? "—",
-    planName: payment.planId,
-    paymentMethod: payment.paymentMethod,
-    submittedAt: payment.createdAt.toLocaleString(),
-    proofUrl: payment.paymentProofUrl,
+  const payments: PendingPaymentRecord[] = paymentRecords.map((p) => ({
+    id: p.id,
+    userName: p.user.name ?? undefined,
+    userEmail: p.user.email ?? p.user.username ?? "—",
+    planName: p.plan.name,
+    amount: p.amount,
+    paymentMethod: p.paymentMethod,
+    submittedAt: p.createdAt.toLocaleString(),
+    proofUrl: p.receiptUrl,
+  }));
+
+  const subscriptions: SubscriptionPayment[] = subscriptionPayments.map((s) => ({
+    id: s.id,
+    userName: s.user.name ?? undefined,
+    userEmail: s.user.email ?? s.user.username ?? "—",
+    planName: s.planId,
+    paymentMethod: s.paymentMethod,
+    submittedAt: s.createdAt.toLocaleString(),
+    proofUrl: s.paymentProofUrl,
   }));
 
   return (
@@ -63,11 +89,39 @@ export default async function AdminPaymentsPage() {
           </p>
           <h1 className="text-2xl font-semibold sm:text-3xl">Pending payments</h1>
           <p className="text-sm text-zinc-400">
-            Review payment proofs and approve or reject subscription upgrades.
+            Review payment proofs and approve or reject subscriptions.
           </p>
         </header>
 
-        <PaymentsTable payments={payments} />
+        {payments.length > 0 && (
+          <section className="mt-8">
+            <h2 className="text-lg font-semibold text-zinc-200">
+              Pay-first payments
+            </h2>
+            <p className="mt-1 text-sm text-zinc-500">
+              New users who paid first and uploaded proof.
+            </p>
+            <PaymentRecordsTable payments={payments} />
+          </section>
+        )}
+
+        {subscriptions.length > 0 && (
+          <section className="mt-12">
+            <h2 className="text-lg font-semibold text-zinc-200">
+              Subscription upgrades
+            </h2>
+            <p className="mt-1 text-sm text-zinc-500">
+              Existing users upgrading their plan.
+            </p>
+            <SubscriptionPaymentsTable payments={subscriptions} />
+          </section>
+        )}
+
+        {payments.length === 0 && subscriptions.length === 0 && (
+          <div className="mt-8 rounded-2xl border border-zinc-800 bg-zinc-950 p-8 text-center text-sm text-zinc-500">
+            No pending payments.
+          </div>
+        )}
       </div>
     </main>
   );
