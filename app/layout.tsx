@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import SiteHeader from "./_components/SiteHeader";
-import SiteFooter from "./_components/SiteFooter";
+import { ConditionalFooter } from "./_components/ConditionalFooter";
 import { AgeGate } from "./_components/AgeGate";
 import { FloatingContactButtons } from "./_components/FloatingContactButtons";
 import { ChatWidget } from "./support/_components/ChatWidget";
@@ -82,7 +82,7 @@ export default function RootLayout({
             <main id="main-content" className="min-h-0 min-w-0 flex-1" tabIndex={-1}>
               {children}
             </main>
-            <SiteFooter />
+            <ConditionalFooter />
             <FloatingContactButtons />
             <ChatWidget />
           </div>

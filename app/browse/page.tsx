@@ -52,7 +52,7 @@ export default async function BrowsePage({ searchParams }: BrowsePageProps) {
   ]);
 
   return (
-    <div className="flex h-full min-h-0 flex-1 flex-col bg-black">
+    <div className="fixed inset-0 top-16 flex flex-col bg-black">
       <Suspense fallback={<div className="h-14 shrink-0" />}>
         <BrowseContent
           profiles={profiles}
