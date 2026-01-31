@@ -274,6 +274,16 @@ export async function getBrowseProfilesFiltered(
     const canShowContact = displayPlanId !== "Normal";
     const allImages = extractImageUrls(profile.images);
     const limitedImages = limitImagesForPlan(displayPlanId, allImages);
+    const rankingPriority = getRankingPriority(
+      displayPlanId,
+      profile.rankingSuspended,
+      profile.rankingBoostUntil
+    );
+    const completenessScore = computeProfileCompleteness(
+      profile.bio,
+      profile.city,
+      allImages.length
+    );
 
     return {
       id: profile.id,
@@ -299,9 +309,9 @@ export async function getBrowseProfilesFiltered(
       canShowContact,
       createdAt: profile.createdAt,
       displayPlanId,
-      rankingPriority: 0,
+      rankingPriority,
       lastActiveAt: profile.lastActiveAt,
-      completenessScore: 0,
+      completenessScore,
     };
   });
 
