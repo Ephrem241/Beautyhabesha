@@ -7,7 +7,7 @@ export type MessageBubbleProps = {
   id: string;
   text: string | null;
   image: string | null;
-  createdAt: Date;
+  createdAt: string | Date;
   isOwn: boolean;
   senderName: string;
   isAdmin?: boolean;
