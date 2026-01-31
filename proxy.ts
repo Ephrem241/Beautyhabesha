@@ -8,7 +8,8 @@ export async function proxy(request: NextRequest) {
   if (
     pathname.startsWith("/dashboard") ||
     pathname.startsWith("/admin") ||
-    pathname.startsWith("/escort")
+    pathname.startsWith("/escort") ||
+    pathname.startsWith("/support")
   ) {
     if (!token) {
       const url = request.nextUrl.clone();
@@ -33,9 +34,22 @@ export async function proxy(request: NextRequest) {
     }
   }
 
+  if (pathname.startsWith("/support")) {
+    if (token?.role !== "user") {
+      const url = request.nextUrl.clone();
+      url.pathname = "/";
+      return NextResponse.redirect(url);
+    }
+  }
+
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/admin/:path*", "/escort/:path*"],
+  matcher: [
+    "/dashboard/:path*",
+    "/admin/:path*",
+    "/escort/:path*",
+    "/support/:path*",
+  ],
 };
