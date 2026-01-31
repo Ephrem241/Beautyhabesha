@@ -37,11 +37,8 @@ export type PublicEscort = {
   createdAt: Date;
 };
 
-function limitImagesForPlan(planId: PlanId, images: string[]): string[] {
-  if (images.length === 0) return images;
-  if (planId === "Normal") return images.slice(0, 3);
-  if (planId === "VIP") return images.slice(0, 10);
-  // Platinum (and any other paid tier) can show all images
+/** Returns all images for every escort - blur and carousel apply to Platinum, VIP, and Normal alike. */
+function limitImagesForPlan(_planId: PlanId, images: string[]): string[] {
   return images;
 }
 

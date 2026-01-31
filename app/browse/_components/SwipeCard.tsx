@@ -140,7 +140,8 @@ export function SwipeCard({
                     e.stopPropagation();
                     goToImage(-1);
                   }}
-                  className="absolute left-2 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm transition hover:bg-black/70 disabled:opacity-30"
+                  onPointerDown={(e) => e.stopPropagation()}
+                  className="absolute left-2 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm transition hover:bg-black/70 disabled:opacity-30"
                   aria-label="Previous image"
                 >
                   <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -153,14 +154,15 @@ export function SwipeCard({
                     e.stopPropagation();
                     goToImage(1);
                   }}
-                  className="absolute right-2 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm transition hover:bg-black/70 disabled:opacity-30"
+                  onPointerDown={(e) => e.stopPropagation()}
+                  className="absolute right-2 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm transition hover:bg-black/70 disabled:opacity-30"
                   aria-label="Next image"
                 >
                   <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </button>
-                <div className="absolute bottom-2 left-1/2 z-10 flex -translate-x-1/2 gap-1.5">
+                <div className="absolute bottom-2 left-1/2 z-30 flex -translate-x-1/2 gap-1.5">
                   {images.map((_, i) => (
                     <button
                       key={i}
@@ -169,6 +171,7 @@ export function SwipeCard({
                         e.stopPropagation();
                         setImageIndex(i);
                       }}
+                      onPointerDown={(e) => e.stopPropagation()}
                       className={`h-1.5 w-1.5 rounded-full transition ${
                         i === imageIndex
                           ? "w-4 bg-white"
