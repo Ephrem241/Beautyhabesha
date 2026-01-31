@@ -10,7 +10,8 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith("/admin") ||
     pathname.startsWith("/escort") ||
     pathname.startsWith("/upload-proof") ||
-    pathname.startsWith("/support")
+    pathname.startsWith("/support") ||
+    pathname.startsWith("/chat")
   ) {
     if (!token) {
       const url = request.nextUrl.clone();
@@ -40,5 +41,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/admin/:path*", "/escort/:path*", "/upload-proof", "/support"],
+  matcher: ["/dashboard/:path*", "/admin/:path*", "/escort/:path*", "/upload-proof", "/support", "/chat/:path*"],
 };
