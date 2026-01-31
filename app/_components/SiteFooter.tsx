@@ -25,8 +25,8 @@ export default function SiteFooter() {
           <div className="mt-4 flex flex-wrap items-center gap-3 text-zinc-400">
             <a
               href="tel:0912696090"
-              aria-label="Call us"
-              title="0912696090"
+              aria-label="Call Abenezer z"
+              title="Abenezer z • 0912696090"
               className="flex h-10 w-10 items-center justify-center rounded-full border border-zinc-700 transition hover:border-emerald-500/50 hover:bg-emerald-500/10 hover:text-emerald-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
             >
               <Phone className="h-5 w-5" />
@@ -35,8 +35,8 @@ export default function SiteFooter() {
               href="https://t.me/abeni_agent"
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="Chat on Telegram"
-              title="@abeni_agent"
+              aria-label="Chat with Abenezer z on Telegram"
+              title="Abenezer z • @abeni_agent"
               className="flex h-10 w-10 items-center justify-center rounded-full border border-zinc-700 transition hover:border-[#0088cc]/50 hover:bg-[#0088cc]/10 hover:text-[#0088cc] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
             >
               <TelegramIcon className="h-5 w-5" />

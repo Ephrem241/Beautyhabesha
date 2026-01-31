@@ -18,6 +18,6 @@ CREATE INDEX IF NOT EXISTS "payment_accounts_isActive_displayOrder_idx" ON "paym
 -- Seed initial payment accounts (skip if already exist)
 INSERT INTO "payment_accounts" ("id", "type", "accountName", "accountNumber", "provider", "displayOrder", "isActive", "createdAt", "updatedAt")
 VALUES
-  ('pa_bank_001', 'bank', 'Beautyhabesha', '1000510638798', NULL, 0, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-  ('pa_telebirr_001', 'mobile_money', 'Beautyhabesha', '0912 696 090', 'TeleBirr', 1, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+  ('pa_bank_001', 'bank', 'Abenezer z', '1000510638798', NULL, 0, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  ('pa_telebirr_001', 'mobile_money', 'Abenezer z', '0912 696 090', 'TeleBirr', 1, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
 ON CONFLICT (id) DO NOTHING;

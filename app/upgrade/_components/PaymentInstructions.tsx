@@ -14,7 +14,7 @@ export default function PaymentInstructions() {
             Bank transfer
           </p>
             <p className="mt-3 text-sm text-zinc-300">
-              Account name: Beautyhabesha
+              Account name: Abenezer z
             </p>
           <p className="text-sm text-zinc-300">Account number: 1000510638798</p>
         </div>

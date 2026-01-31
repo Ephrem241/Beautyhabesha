@@ -94,7 +94,7 @@ export function PaymentAccountForm({ account, onSuccess }: PaymentAccountFormPro
               required
               defaultValue={account?.accountName}
               className="mt-1 w-full rounded-lg border border-zinc-700 bg-black px-3 py-2 text-sm text-white"
-              placeholder="Beautyhabesha"
+              placeholder="Abenezer z"
             />
           </div>
 
