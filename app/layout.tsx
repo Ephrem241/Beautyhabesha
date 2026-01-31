@@ -79,7 +79,7 @@ export default function RootLayout({
           </a>
           <div className="flex min-h-screen min-w-0 flex-col">
             <SiteHeader />
-            <main id="main-content" className="min-w-0 flex-1" tabIndex={-1}>
+            <main id="main-content" className="min-h-0 min-w-0 flex-1" tabIndex={-1}>
               {children}
             </main>
             <SiteFooter />

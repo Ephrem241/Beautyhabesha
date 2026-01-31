@@ -16,8 +16,6 @@ export const metadata: Metadata = {
 type BrowsePageProps = {
   searchParams: Promise<{
     city?: string;
-    minPrice?: string;
-    maxPrice?: string;
     minAge?: string;
     maxAge?: string;
     available?: string;
@@ -30,8 +28,6 @@ function parseFilters(
 ): import("@/lib/browse-filters").BrowseFilters {
   return {
     city: params.city?.trim() || undefined,
-    minPrice: params.minPrice != null ? parseInt(params.minPrice, 10) : undefined,
-    maxPrice: params.maxPrice != null ? parseInt(params.maxPrice, 10) : undefined,
     minAge: params.minAge != null ? parseInt(params.minAge, 10) : undefined,
     maxAge: params.maxAge != null ? parseInt(params.maxAge, 10) : undefined,
     available:
@@ -56,7 +52,7 @@ export default async function BrowsePage({ searchParams }: BrowsePageProps) {
   ]);
 
   return (
-    <main className="fixed inset-0 flex flex-col bg-black">
+    <div className="flex h-full min-h-0 flex-1 flex-col bg-black">
       <Suspense fallback={<div className="h-14 shrink-0" />}>
         <BrowseContent
           profiles={profiles}
@@ -65,6 +61,6 @@ export default async function BrowsePage({ searchParams }: BrowsePageProps) {
           filters={filters}
         />
       </Suspense>
-    </main>
+    </div>
   );
 }

@@ -2,8 +2,6 @@ import type { Prisma } from "@prisma/client";
 
 export type BrowseFilters = {
   city?: string;
-  minPrice?: number;
-  maxPrice?: number;
   minAge?: number;
   maxAge?: number;
   available?: boolean;
@@ -22,16 +20,6 @@ export function buildBrowseWhere(
       contains: filters.city.trim(),
       mode: "insensitive",
     };
-  }
-
-  if (filters.minPrice != null || filters.maxPrice != null) {
-    where.price = {};
-    if (filters.minPrice != null) {
-      (where.price as Prisma.IntFilter).gte = filters.minPrice;
-    }
-    if (filters.maxPrice != null) {
-      (where.price as Prisma.IntFilter).lte = filters.maxPrice;
-    }
   }
 
   if (filters.available === true) {
@@ -58,8 +46,6 @@ export function buildBrowseWhere(
 export function countActiveFilters(f: BrowseFilters): number {
   let n = 0;
   if (f.city?.trim()) n++;
-  if (f.minPrice != null) n++;
-  if (f.maxPrice != null) n++;
   if (f.minAge != null) n++;
   if (f.maxAge != null) n++;
   if (f.available === true) n++;

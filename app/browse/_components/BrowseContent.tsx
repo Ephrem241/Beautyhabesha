@@ -40,8 +40,6 @@ export function BrowseContent({
         }
       };
       if ("city" in updates) apply("city", updates.city);
-      if ("minPrice" in updates) apply("minPrice", updates.minPrice);
-      if ("maxPrice" in updates) apply("maxPrice", updates.maxPrice);
       if ("minAge" in updates) apply("minAge", updates.minAge);
       if ("maxAge" in updates) apply("maxAge", updates.maxAge);
       if ("available" in updates) apply("available", updates.available);

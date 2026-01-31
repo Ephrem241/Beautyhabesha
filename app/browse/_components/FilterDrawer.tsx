@@ -13,8 +13,6 @@ type FilterDrawerProps = {
   onReset: () => void;
 };
 
-const PRICE_MIN = 0;
-const PRICE_MAX = 10000;
 const AGE_MIN = 18;
 const AGE_MAX = 99;
 
@@ -98,43 +96,6 @@ export function FilterDrawer({
                     </option>
                   ))}
                 </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-zinc-300">
-                  Price range (ETB)
-                </label>
-                <div className="mt-2 flex items-center gap-2">
-                  <input
-                    type="number"
-                    placeholder="Min"
-                    min={PRICE_MIN}
-                    max={PRICE_MAX}
-                    value={filters.minPrice ?? ""}
-                    onChange={(e) => {
-                      const v = e.target.value
-                        ? parseInt(e.target.value, 10)
-                        : undefined;
-                      onUpdate({ minPrice: v });
-                    }}
-                    className="flex-1 rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-3 text-white placeholder-zinc-500 focus:border-emerald-500/50 focus:outline-none"
-                  />
-                  <span className="text-zinc-500">–</span>
-                  <input
-                    type="number"
-                    placeholder="Max"
-                    min={PRICE_MIN}
-                    max={PRICE_MAX}
-                    value={filters.maxPrice ?? ""}
-                    onChange={(e) => {
-                      const v = e.target.value
-                        ? parseInt(e.target.value, 10)
-                        : undefined;
-                      onUpdate({ maxPrice: v });
-                    }}
-                    className="flex-1 rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-3 text-white placeholder-zinc-500 focus:border-emerald-500/50 focus:outline-none"
-                  />
-                </div>
               </div>
 
               <div>

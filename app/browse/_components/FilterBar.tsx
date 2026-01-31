@@ -11,8 +11,6 @@ type FilterBarProps = {
   onOpenDrawer?: () => void;
 };
 
-const PRICE_MIN = 0;
-const PRICE_MAX = 10000;
 const AGE_MIN = 18;
 const AGE_MAX = 99;
 
@@ -37,8 +35,6 @@ export function FilterBar({
         }
       };
       if ("city" in updates) apply("city", updates.city);
-      if ("minPrice" in updates) apply("minPrice", updates.minPrice);
-      if ("maxPrice" in updates) apply("maxPrice", updates.maxPrice);
       if ("minAge" in updates) apply("minAge", updates.minAge);
       if ("maxAge" in updates) apply("maxAge", updates.maxAge);
       if ("available" in updates) apply("available", updates.available);
@@ -93,35 +89,6 @@ export function FilterBar({
               </option>
             ))}
           </select>
-
-          <div className="flex items-center gap-2 rounded-xl border border-zinc-700 bg-zinc-900/80 px-3 py-2">
-            <input
-              type="number"
-              placeholder="Min"
-              min={PRICE_MIN}
-              max={PRICE_MAX}
-              value={filters.minPrice ?? ""}
-              onChange={(e) => {
-                const v = e.target.value ? parseInt(e.target.value, 10) : undefined;
-                updateParams({ minPrice: v });
-              }}
-              className="w-20 rounded border-0 bg-transparent text-sm text-white placeholder-zinc-500 focus:ring-0"
-            />
-            <span className="text-zinc-500">–</span>
-            <input
-              type="number"
-              placeholder="Max"
-              min={PRICE_MIN}
-              max={PRICE_MAX}
-              value={filters.maxPrice ?? ""}
-              onChange={(e) => {
-                const v = e.target.value ? parseInt(e.target.value, 10) : undefined;
-                updateParams({ maxPrice: v });
-              }}
-              className="w-20 rounded border-0 bg-transparent text-sm text-white placeholder-zinc-500 focus:ring-0"
-            />
-            <span className="text-xs text-zinc-500">ETB</span>
-          </div>
 
           <div className="flex items-center gap-2 rounded-xl border border-zinc-700 bg-zinc-900/80 px-3 py-2">
             <input
