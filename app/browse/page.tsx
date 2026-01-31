@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { getAuthSession } from "@/lib/auth";
 import { getBrowseProfiles } from "@/lib/escorts";
 import { getViewerHasActiveSubscription } from "@/lib/viewer-access";
-import { getBrowseCities } from "@/lib/browse-filters";
+import { getBrowseCities } from "@/lib/browse-filters-server";
 import { SwipeDeck } from "./_components/SwipeDeck";
 import { BrowseContent } from "./_components/BrowseContent";
 

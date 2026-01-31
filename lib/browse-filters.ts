@@ -1,4 +1,3 @@
-import { prisma } from "@/lib/db";
 import type { Prisma } from "@prisma/client";
 
 export type BrowseFilters = {
@@ -66,17 +65,4 @@ export function countActiveFilters(f: BrowseFilters): number {
   if (f.available === true) n++;
   if (f.search?.trim()) n++;
   return n;
-}
-
-export async function getBrowseCities(): Promise<string[]> {
-  const rows = await prisma.escortProfile.findMany({
-    where: { status: "approved", city: { not: null } },
-    select: { city: true },
-    distinct: ["city"],
-    orderBy: { city: "asc" },
-  });
-  return rows
-    .map((r) => r.city)
-    .filter((c): c is string => Boolean(c?.trim()))
-    .sort((a, b) => a.localeCompare(b));
 }
