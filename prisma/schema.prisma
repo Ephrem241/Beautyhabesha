@@ -82,6 +82,8 @@ model User {
   consentRecords        ConsentRecord[]
   reportsFiled          Report[]       @relation("ReportReporter")
   subscriptionPlan      SubscriptionPlan? @relation(fields: [subscriptionPlanId], references: [id], onDelete: SetNull)
+  chatRooms             ChatRoom[]
+  messages              Message[]
 
   @@index([subscriptionEndDate])
   @@index([subscriptionStatus])
@@ -288,4 +290,33 @@ model DepositPayment {
   @@index([userId])
   @@index([status])
   @@map("deposit_payments")
+}
+
+model ChatRoom {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  resolved  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages Message[]
+
+  @@index([resolved, createdAt(sort: Desc)])
+  @@map("chat_rooms")
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  roomId    String
+  senderId  String
+  text      String?
+  image     String?
+  createdAt DateTime @default(now())
+
+  room   ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  sender User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([roomId, createdAt(sort: Asc)])
+  @@index([senderId])
+  @@map("messages")
 }
