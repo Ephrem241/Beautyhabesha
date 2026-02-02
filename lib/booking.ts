@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { cursorPageResult } from "@/lib/pagination";
 
 export type BookingWithRelations = Awaited<
   ReturnType<typeof getBookingById>
@@ -67,4 +68,30 @@ export async function getBookingsForAdmin() {
     },
     orderBy: { createdAt: "desc" },
   });
+}
+
+export type GetBookingsForAdminCursorResult = {
+  items: Awaited<ReturnType<typeof getBookingsForAdmin>>;
+  nextCursor: string | null;
+};
+
+export async function getBookingsForAdminCursor(options?: {
+  cursor?: string;
+  take?: number;
+}): Promise<GetBookingsForAdminCursorResult> {
+  const take = Math.min(options?.take ?? 50, 100);
+  const rawTake = take + 1;
+
+  const rows = await prisma.booking.findMany({
+    include: {
+      user: { select: { id: true, email: true, username: true, name: true } },
+      escortProfile: { select: { id: true, displayName: true } },
+      depositPayments: { orderBy: { createdAt: "desc" } },
+    },
+    orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+    take: rawTake,
+    cursor: options?.cursor ? { id: options.cursor } : undefined,
+  });
+
+  return cursorPageResult(rows, take);
 }

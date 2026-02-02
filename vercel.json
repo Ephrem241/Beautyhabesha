@@ -1,5 +1,9 @@
 {
   "framework": "nextjs",
   "installCommand": "npm install",
-  "buildCommand": "npm run build"
+  "buildCommand": "npm run build",
+  "crons": [
+    { "path": "/api/cron/expire-subscriptions", "schedule": "0 * * * *" },
+    { "path": "/api/cron/archive-data", "schedule": "0 3 * * 0" }
+  ]
 }

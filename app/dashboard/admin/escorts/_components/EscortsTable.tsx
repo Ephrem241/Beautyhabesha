@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
+import { useVirtualizer } from "@tanstack/react-virtual";
 import { ProfileAvatar } from "@/app/_components/ProfileAvatar";
 import ReviewModal from "./ReviewModal";
 
@@ -23,6 +24,15 @@ type EscortsTableProps = {
 
 export default function EscortsTable({ escorts }: EscortsTableProps) {
   const [selectedEscort, setSelectedEscort] = useState<Escort | null>(null);
+  const parentRef = useRef<HTMLDivElement>(null);
+  const rowHeight = 72;
+  const useVirtual = escorts.length > 25;
+  const virtualizer = useVirtualizer({
+    count: escorts.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => rowHeight,
+    overscan: 5,
+  });
 
   const getStatusBadgeColor = (status: string) => {
     switch (status) {
@@ -37,6 +47,56 @@ export default function EscortsTable({ escorts }: EscortsTableProps) {
     }
   };
 
+  const renderRow = (escort: Escort) => (
+    <tr
+      key={escort.id}
+      className="cursor-pointer hover:bg-zinc-900/50"
+      onClick={() => setSelectedEscort(escort)}
+    >
+      <td className="px-4 py-3 sm:px-6 sm:py-4">
+        <div className="flex items-center gap-3">
+          <ProfileAvatar
+            src={escort.profileImageUrl}
+            alt={escort.displayName}
+            size={36}
+            className="shrink-0"
+          />
+          <span className="text-sm text-zinc-200">{escort.displayName}</span>
+        </div>
+      </td>
+      <td className="px-4 py-3 sm:px-6 sm:py-4">
+        <span
+          className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium ${
+            escort.hasImage
+              ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-300"
+              : "border-amber-500/40 bg-amber-500/10 text-amber-300"
+          }`}
+          title={escort.hasImage ? "Has profile picture" : "No picture — add before approve"}
+        >
+          {escort.hasImage ? "✓ Yes" : "No"}
+        </span>
+      </td>
+      <td className="px-4 py-3 text-sm text-zinc-400 sm:px-6 sm:py-4">
+        {escort.city || "—"}
+      </td>
+      <td className="px-4 py-3 sm:px-6 sm:py-4">
+        <span
+          className={`inline-flex rounded-full border px-2.5 py-0.5 text-xs font-medium ${getStatusBadgeColor(
+            escort.status
+          )}`}
+        >
+          {escort.status}
+        </span>
+      </td>
+      <td className="px-4 py-3 text-sm text-zinc-400 sm:px-6 sm:py-4">
+        {escort.plan}
+      </td>
+      <td className="px-4 py-3 text-sm text-zinc-400 sm:px-6 sm:py-4">
+        {new Date(escort.createdAt).toLocaleDateString()}
+      </td>
+    </tr>
+  );
+
   if (escorts.length === 0) {
     return (
       <div className="mt-8 rounded-2xl border border-zinc-800 bg-zinc-950 p-8 text-center text-sm text-zinc-400">
@@ -48,7 +108,10 @@ export default function EscortsTable({ escorts }: EscortsTableProps) {
   return (
     <>
       <div className="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950">
-        <div className="hidden overflow-x-auto md:block">
+        <div
+          className={`hidden overflow-x-auto md:block ${useVirtual ? "max-h-[70vh] overflow-y-auto" : ""}`}
+          ref={useVirtual ? parentRef : undefined}
+        >
           <table className="w-full min-w-[520px]">
             <thead>
               <tr className="border-b border-zinc-800">
@@ -72,56 +135,76 @@ export default function EscortsTable({ escorts }: EscortsTableProps) {
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-800">
-              {escorts.map((escort) => (
-                <tr
-                  key={escort.id}
-                  className="cursor-pointer hover:bg-zinc-900/50"
-                  onClick={() => setSelectedEscort(escort)}
-                >
-                  <td className="px-4 py-3 sm:px-6 sm:py-4">
-                    <div className="flex items-center gap-3">
-                      <ProfileAvatar
-                        src={escort.profileImageUrl}
-                        alt={escort.displayName}
-                        size={36}
-                        className="shrink-0"
-                      />
-                      <span className="text-sm text-zinc-200">{escort.displayName}</span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 sm:px-6 sm:py-4">
-                    <span
-                      className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium ${
-                        escort.hasImage
-                          ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-300"
-                          : "border-amber-500/40 bg-amber-500/10 text-amber-300"
-                      }`}
-                      title={escort.hasImage ? "Has profile picture" : "No picture — add before approve"}
-                    >
-                      {escort.hasImage ? "✓ Yes" : "No"}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-sm text-zinc-400 sm:px-6 sm:py-4">
-                    {escort.city || "—"}
-                  </td>
-                  <td className="px-4 py-3 sm:px-6 sm:py-4">
-                    <span
-                      className={`inline-flex rounded-full border px-2.5 py-0.5 text-xs font-medium ${getStatusBadgeColor(
-                        escort.status
-                      )}`}
-                    >
-                      {escort.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-sm text-zinc-400 sm:px-6 sm:py-4">
-                    {escort.plan}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-zinc-400 sm:px-6 sm:py-4">
-                    {new Date(escort.createdAt).toLocaleDateString()}
-                  </td>
-                </tr>
-              ))}
+            <tbody
+              className="divide-y divide-zinc-800"
+              style={useVirtual ? { position: "relative" as const } : undefined}
+            >
+              {useVirtual ? (
+                <>
+                  <tr style={{ height: `${virtualizer.getTotalSize()}px` }} aria-hidden>
+                    <td colSpan={6} className="p-0" />
+                  </tr>
+                  {virtualizer.getVirtualItems().map((virtualRow) => {
+                    const escort = escorts[virtualRow.index];
+                    return (
+                      <tr
+                        key={escort.id}
+                        className="absolute left-0 right-0 cursor-pointer border-b border-zinc-800 hover:bg-zinc-900/50"
+                        style={{
+                          height: `${rowHeight}px`,
+                          top: 0,
+                          transform: `translateY(${virtualRow.start}px)`,
+                        }}
+                        onClick={() => setSelectedEscort(escort)}
+                      >
+                        <td className="px-4 py-3 sm:px-6 sm:py-4">
+                          <div className="flex items-center gap-3">
+                            <ProfileAvatar
+                              src={escort.profileImageUrl}
+                              alt={escort.displayName}
+                              size={36}
+                              className="shrink-0"
+                            />
+                            <span className="text-sm text-zinc-200">{escort.displayName}</span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 sm:px-6 sm:py-4">
+                          <span
+                            className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium ${
+                              escort.hasImage
+                                ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-300"
+                                : "border-amber-500/40 bg-amber-500/10 text-amber-300"
+                            }`}
+                            title={escort.hasImage ? "Has profile picture" : "No picture — add before approve"}
+                          >
+                            {escort.hasImage ? "✓ Yes" : "No"}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-sm text-zinc-400 sm:px-6 sm:py-4">
+                          {escort.city || "—"}
+                        </td>
+                        <td className="px-4 py-3 sm:px-6 sm:py-4">
+                          <span
+                            className={`inline-flex rounded-full border px-2.5 py-0.5 text-xs font-medium ${getStatusBadgeColor(
+                              escort.status
+                            )}`}
+                          >
+                            {escort.status}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-sm text-zinc-400 sm:px-6 sm:py-4">
+                          {escort.plan}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-zinc-400 sm:px-6 sm:py-4">
+                          {new Date(escort.createdAt).toLocaleDateString()}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </>
+              ) : (
+                escorts.map((escort) => renderRow(escort))
+              )}
             </tbody>
           </table>
         </div>

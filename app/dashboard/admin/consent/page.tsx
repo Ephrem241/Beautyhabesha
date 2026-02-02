@@ -1,8 +1,15 @@
+import dynamic from "next/dynamic";
 import { redirect } from "next/navigation";
 
 import { getAuthSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import ConsentHistoryTable from "./_components/ConsentHistoryTable";
+import { TableSkeleton } from "@/app/_components/ui/TableSkeleton";
+
+const ConsentHistoryTable = dynamic(() => import("./_components/ConsentHistoryTable"), {
+  loading: () => <TableSkeleton rows={8} cols={5} />,
+});
+
+export const dynamic = "force-dynamic";
 
 async function requireAdmin() {
   const session = await getAuthSession();

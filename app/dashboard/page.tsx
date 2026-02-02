@@ -11,6 +11,8 @@ import { EscortBookingsSection } from "@/app/dashboard/_components/EscortBooking
 import { SuccessBanner } from "@/app/dashboard/_components/SuccessBanner";
 import { PendingApprovalBanner } from "@/app/dashboard/_components/PendingApprovalBanner";
 
+export const dynamic = "force-dynamic";
+
 type DashboardPageProps = {
   searchParams: Promise<{
     payment?: string;

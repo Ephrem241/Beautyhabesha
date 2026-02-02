@@ -1,6 +1,5 @@
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import GoogleProvider from "next-auth/providers/google";
 import { getServerSession } from "next-auth";
 import bcrypt from "bcrypt";
 
@@ -20,10 +19,6 @@ export const authOptions: NextAuthOptions = {
   secret: env.NEXTAUTH_SECRET,
   session: { strategy: "jwt" },
   providers: [
-    GoogleProvider({
-      clientId: env.GOOGLE_CLIENT_ID,
-      clientSecret: env.GOOGLE_CLIENT_SECRET,
-    }),
     CredentialsProvider({
       name: "Credentials",
       credentials: {
@@ -81,48 +76,12 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async signIn({ user, account }) {
-      // Handle Google OAuth sign in
-      if (account?.provider === "google") {
-        if (!user.email) {
-          return false;
-        }
-
-        const existingUser = await prisma.user.findUnique({
-          where: { email: user.email.toLowerCase() },
-        });
-
-        if (existingUser?.bannedAt) {
-          return false;
-        }
-
-        if (!existingUser) {
-          // Create new user from Google account
-          await prisma.user.create({
-            data: {
-              email: user.email.toLowerCase(),
-              name: user.name ?? undefined,
-              role: "user",
-              currentPlan: "Normal",
-              subscriptionStatus: "inactive",
-              // No password for OAuth users
-            },
-          });
-        }
-      }
-      return true;
-    },
-    async jwt({ token, user, account }) {
+    async jwt({ token, user }) {
       if (user) {
         let dbUser: { id: string; role: string } | null = null;
-        if (account?.provider === "credentials" && user.id) {
+        if (user.id) {
           dbUser = await prisma.user.findUnique({
             where: { id: user.id },
-            select: { id: true, role: true },
-          });
-        } else if (user.email?.includes("@")) {
-          dbUser = await prisma.user.findUnique({
-            where: { email: user.email.toLowerCase() },
             select: { id: true, role: true },
           });
         }

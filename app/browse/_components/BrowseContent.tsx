@@ -1,13 +1,21 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
+import dynamic from "next/dynamic";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import type { PublicEscort } from "@/lib/escorts";
 import type { BrowseFilters } from "@/lib/browse-filters";
 import { countActiveFilters } from "@/lib/browse-filters";
 import { FilterBar } from "./FilterBar";
 import { FilterDrawer } from "./FilterDrawer";
-import { SwipeDeck } from "./SwipeDeck";
+import { TelegramButton } from "@/app/_components/TelegramButton";
+import { mapPublicEscortToProfile } from "./mapProfile";
+import { SkeletonCardStack } from "@/app/_components/ui/SkeletonCard";
+
+const SwipeDeck = dynamic(
+  () => import("@/app/_components/swipe/SwipeDeck").then((m) => m.SwipeDeck),
+  { loading: () => <div className="min-h-0 flex-1 flex items-center justify-center px-4"><SkeletonCardStack /></div> }
+);
 
 type BrowseContentProps = {
   profiles: PublicEscort[];
@@ -23,9 +31,19 @@ export function BrowseContent({
   filters,
 }: BrowseContentProps) {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  const swipeProfiles = useMemo(
+    () => profiles.map(mapPublicEscortToProfile),
+    [profiles]
+  );
+
+  const currentPublicProfile = profiles[currentIndex] ?? null;
+  const canShowContact =
+    hasActiveSubscription && (currentPublicProfile?.canShowContact ?? false);
 
   const activeCount = countActiveFilters(filters);
 
@@ -54,6 +72,13 @@ export function BrowseContent({
     setDrawerOpen(false);
   }, [pathname, router]);
 
+  const handleViewProfile = useCallback(
+    (profile: { id: string }) => {
+      router.push(`/profiles/${profile.id}`);
+    },
+    [router]
+  );
+
   return (
     <>
       <FilterBar
@@ -64,10 +89,17 @@ export function BrowseContent({
       />
       <div className="min-h-0 flex-1">
         <SwipeDeck
-          profiles={profiles}
-          hasActiveSubscription={hasActiveSubscription}
+          profiles={swipeProfiles}
+          onViewProfile={handleViewProfile}
+          onIndexChange={setCurrentIndex}
         />
       </div>
+      {currentPublicProfile && (
+        <TelegramButton
+          telegram={currentPublicProfile.telegram}
+          locked={!canShowContact}
+        />
+      )}
       <FilterDrawer
         isOpen={drawerOpen}
         onClose={() => setDrawerOpen(false)}

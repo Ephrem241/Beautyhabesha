@@ -5,8 +5,8 @@ import SiteHeader from "./_components/SiteHeader";
 import { ConditionalFooter } from "./_components/ConditionalFooter";
 import { AgeGate } from "./_components/AgeGate";
 import { FloatingContactButtons } from "./_components/FloatingContactButtons";
-import { ChatWidget } from "./support/_components/ChatWidget";
-import { WebVitals } from "./_components/WebVitals";
+import { WebVitalsClient } from "./_components/WebVitalsClient";
+import { ChatWidgetClient } from "./support/_components/ChatWidgetClient";
 import { getSiteUrl } from "@/lib/site-url";
 
 const geistSans = Geist({
@@ -72,7 +72,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} min-h-screen antialiased`}
       >
-        <WebVitals />
+        <WebVitalsClient />
         <AgeGate>
           <a href="#main-content" className="skip-link">
             Skip to main content
@@ -84,7 +84,7 @@ export default function RootLayout({
             </main>
             <ConditionalFooter />
             <FloatingContactButtons />
-            <ChatWidget />
+            <ChatWidgetClient />
           </div>
         </AgeGate>
       </body>

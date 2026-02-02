@@ -1,78 +1,64 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { motion } from "framer-motion";
-import type { PublicEscort } from "@/lib/escorts";
-import { useSwipe } from "./useSwipe";
-import { SwipeCard } from "./SwipeCard";
-import { TelegramButton } from "@/app/_components/TelegramButton";
 import Link from "next/link";
+import type { Profile } from "./types";
+import type { SwipeOutcome } from "./SwipeCard";
+import { ProfileSwipeCard } from "@/app/_components/profile/ProfileSwipeCard";
+import { useSwipe } from "./useSwipe";
 
-const SWIPE_OUT_X = 500;
-const SWIPE_ANIM_MS = 300;
+const SWIPE_ANIM_MS = 350;
 
-type SwipeDeckProps = {
-  profiles: PublicEscort[];
-  hasActiveSubscription: boolean;
+export type SwipeDeckProps = {
+  profiles: Profile[];
+  onLike?: (profile: Profile) => void;
+  onReject?: (profile: Profile) => void;
+  onViewProfile?: (profile: Profile) => void;
+  onIndexChange?: (index: number) => void;
 };
 
 export function SwipeDeck({
   profiles,
-  hasActiveSubscription,
+  onLike,
+  onReject,
+  onViewProfile,
+  onIndexChange,
 }: SwipeDeckProps) {
-  const [exitX, setExitX] = useState(0);
+  const [exitOutcome, setExitOutcome] = useState<SwipeOutcome>(null);
   const [isAnimating, setIsAnimating] = useState(false);
 
-  const { index, goNext, goPrev } = useSwipe({
-    count: profiles.length,
-  });
+  const { index, goNext } = useSwipe({ count: profiles.length });
 
-  const handleDragEnd = useCallback(
-    (_: unknown, info: { offset: { x: number } }) => {
-      if (isAnimating) return;
-      const x = info.offset.x;
-      if (x > 120) {
-        setIsAnimating(true);
-        setExitX(SWIPE_OUT_X);
-        setTimeout(() => {
-          setExitX(0);
-          goPrev();
-          setIsAnimating(false);
-        }, SWIPE_ANIM_MS);
-      } else if (x < -120) {
-        setIsAnimating(true);
-        setExitX(-SWIPE_OUT_X);
-        setTimeout(() => {
-          setExitX(0);
-          goNext();
-          setIsAnimating(false);
-        }, SWIPE_ANIM_MS);
-      }
-    },
-    [goNext, goPrev, isAnimating]
-  );
+  useEffect(() => {
+    onIndexChange?.(index);
+  }, [index, onIndexChange]);
 
-  const handleNavClick = useCallback(
-    (dir: "prev" | "next") => {
-      if (isAnimating) return;
+  const handleSwipeEnd = useCallback(
+    (outcome: SwipeOutcome) => {
+      if (isAnimating || outcome === null) return;
+      const current = profiles[index];
+      if (!current) return;
+
       setIsAnimating(true);
-      if (dir === "prev") {
-        setExitX(SWIPE_OUT_X);
-        setTimeout(() => {
-          setExitX(0);
-          goPrev();
-          setIsAnimating(false);
-        }, SWIPE_ANIM_MS);
-      } else {
-        setExitX(-SWIPE_OUT_X);
-        setTimeout(() => {
-          setExitX(0);
-          goNext();
-          setIsAnimating(false);
-        }, SWIPE_ANIM_MS);
-      }
+      setExitOutcome(outcome);
+
+      const timer = setTimeout(() => {
+        setExitOutcome(null);
+        if (outcome === "view") {
+          onViewProfile?.(current);
+        } else if (outcome === "like") {
+          onLike?.(current);
+        } else {
+          onReject?.(current);
+        }
+        goNext();
+        setIsAnimating(false);
+      }, SWIPE_ANIM_MS);
+
+      return () => clearTimeout(timer);
     },
-    [goNext, goPrev, isAnimating]
+    [index, profiles, isAnimating, goNext, onLike, onReject, onViewProfile]
   );
 
   if (profiles.length === 0) {
@@ -91,7 +77,6 @@ export function SwipeDeck({
 
   const currentProfile = profiles[index];
   const nextProfile = profiles[index + 1];
-  const canShowContact = hasActiveSubscription && currentProfile.canShowContact;
 
   return (
     <div className="relative flex h-full min-h-0 w-full flex-col overflow-hidden">
@@ -128,17 +113,16 @@ export function SwipeDeck({
           {nextProfile && !isAnimating && (
             <motion.div
               key={`next-${nextProfile.id}`}
-              initial={{ scale: 0.92, opacity: 0.9 }}
-              animate={{ scale: 0.92, opacity: 0.9 }}
+              initial={{ scale: 0.95, opacity: 0.9 }}
+              animate={{ scale: 0.95, opacity: 0.9 }}
               className="absolute inset-0"
               style={{ zIndex: 1 }}
             >
-              <SwipeCard
+              <ProfileSwipeCard
                 profile={nextProfile}
                 isTop={false}
-                hasActiveSubscription={hasActiveSubscription}
                 onDragEnd={() => {}}
-                exitX={0}
+                exitOutcome={null}
               />
             </motion.div>
           )}
@@ -146,36 +130,30 @@ export function SwipeDeck({
           {currentProfile && (
             <motion.div
               key={`current-${currentProfile.id}-${index}`}
-              initial={{ scale: 0.92, opacity: 0.9 }}
+              initial={{ scale: 0.95, opacity: 0.9 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
               className="absolute inset-0"
               style={{ zIndex: 10 }}
             >
-              <SwipeCard
+              <ProfileSwipeCard
                 profile={currentProfile}
                 isTop={!isAnimating}
-                hasActiveSubscription={hasActiveSubscription}
-                onDragEnd={handleDragEnd}
-                exitX={exitX}
+                onDragEnd={handleSwipeEnd}
+                exitOutcome={exitOutcome}
               />
             </motion.div>
           )}
         </div>
       </div>
 
-      <TelegramButton
-        telegram={currentProfile.telegram}
-        locked={!canShowContact}
-      />
-
       <div className="absolute bottom-8 left-0 right-0 z-20 flex justify-center gap-6 px-4 safe-area-inset-bottom">
         <button
           type="button"
-          onClick={() => handleNavClick("prev")}
-          disabled={index <= 0 || isAnimating}
-          className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-zinc-600 bg-black/50 text-zinc-400 backdrop-blur-sm transition hover:border-zinc-500 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-zinc-600 disabled:hover:text-zinc-400"
-          aria-label="Previous"
+          onClick={() => handleSwipeEnd("reject")}
+          disabled={!currentProfile || isAnimating}
+          className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-zinc-600 bg-black/50 text-zinc-400 backdrop-blur-sm transition hover:border-red-500/60 hover:text-red-400 disabled:opacity-30 disabled:cursor-not-allowed"
+          aria-label="Reject"
         >
           <svg
             className="h-6 w-6"
@@ -187,16 +165,16 @@ export function SwipeDeck({
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth={2}
-              d="M15 19l-7-7 7-7"
+              d="M6 18L18 6M6 6l12 12"
             />
           </svg>
         </button>
         <button
           type="button"
-          onClick={() => handleNavClick("next")}
-          disabled={index >= profiles.length - 1 || isAnimating}
-          className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-zinc-600 bg-black/50 text-zinc-400 backdrop-blur-sm transition hover:border-zinc-500 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-zinc-600 disabled:hover:text-zinc-400"
-          aria-label="Next"
+          onClick={() => handleSwipeEnd("like")}
+          disabled={!currentProfile || isAnimating}
+          className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-zinc-600 bg-black/50 text-zinc-400 backdrop-blur-sm transition hover:border-emerald-500/60 hover:text-emerald-400 disabled:opacity-30 disabled:cursor-not-allowed"
+          aria-label="Like"
         >
           <svg
             className="h-6 w-6"
@@ -208,7 +186,7 @@ export function SwipeDeck({
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth={2}
-              d="M9 5l7 7-7 7"
+              d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
             />
           </svg>
         </button>

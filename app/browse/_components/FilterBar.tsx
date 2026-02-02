@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useState, useEffect, useRef } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import type { BrowseFilters } from "@/lib/browse-filters";
 
@@ -13,6 +13,7 @@ type FilterBarProps = {
 
 const AGE_MIN = 18;
 const AGE_MAX = 99;
+const SEARCH_DEBOUNCE_MS = 300;
 
 export function FilterBar({
   cities,
@@ -23,6 +24,12 @@ export function FilterBar({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const [searchInput, setSearchInput] = useState(filters.search ?? "");
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    setSearchInput(filters.search ?? "");
+  }, [filters.search]);
 
   const updateParams = useCallback(
     (updates: Partial<BrowseFilters>) => {
@@ -44,8 +51,24 @@ export function FilterBar({
     [pathname, router, searchParams]
   );
 
+  useEffect(() => {
+    if (searchInput === (filters.search ?? "")) return;
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      const current = searchInput.trim() || undefined;
+      if (current !== (filters.search ?? "")) {
+        updateParams({ search: current });
+      }
+      debounceRef.current = null;
+    }, SEARCH_DEBOUNCE_MS);
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [searchInput, filters.search, updateParams]);
+
   const reset = useCallback(() => {
     router.push(pathname, { scroll: false });
+    setSearchInput("");
   }, [pathname, router]);
 
   return (
@@ -56,10 +79,8 @@ export function FilterBar({
             <input
               type="search"
               placeholder="Search by name..."
-              value={filters.search ?? ""}
-              onChange={(e) =>
-                updateParams({ search: e.target.value || undefined })
-              }
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
               className="min-w-0 flex-1 rounded-xl border border-zinc-700 bg-zinc-900/80 px-4 py-2.5 text-sm text-white placeholder-zinc-500 focus:border-emerald-500/50 focus:outline-none"
             />
           </div>

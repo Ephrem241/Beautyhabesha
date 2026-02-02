@@ -25,8 +25,7 @@ async function assignFirstAdmin(email: string) {
       console.error(`❌ User with email "${email}" not found.`);
       console.log("\n💡 Available options:");
       console.log("   1. Create a new account at /auth/register");
-      console.log("   2. Sign in with Google OAuth to auto-create account");
-      console.log("   3. Check the email address and try again");
+      console.log("   2. Check the email address and try again");
       await prisma.$disconnect();
       process.exit(1);
     }
@@ -71,9 +70,7 @@ if (!email) {
   console.log("\nUsage: npx tsx scripts/assign-first-admin.ts <email>");
   console.log("\nExample: npx tsx scripts/assign-first-admin.ts admin@example.com");
   console.log("\n💡 Tip: Use an email that already exists in the database.");
-  console.log("   You can create one by:");
-  console.log("   - Registering at /auth/register");
-  console.log("   - Or signing in with Google OAuth");
+  console.log("   You can create one by registering at /auth/register");
   process.exit(1);
 }
 

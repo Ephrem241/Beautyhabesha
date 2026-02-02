@@ -1,11 +1,17 @@
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { redirect } from "next/navigation";
 
 import { getAuthSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { extractImageUrls } from "@/lib/image-helpers";
+import { TableSkeleton } from "@/app/_components/ui/TableSkeleton";
 
-import EscortsTable from "./_components/EscortsTable";
+const EscortsTable = dynamic(() => import("./_components/EscortsTable"), {
+  loading: () => <TableSkeleton rows={8} cols={6} />,
+});
+
+export const dynamic = "force-dynamic";
 
 async function requireAdmin() {
   const session = await getAuthSession();
@@ -14,15 +20,23 @@ async function requireAdmin() {
   }
 }
 
-type Props = { searchParams: Promise<{ created?: string; username?: string }> };
+const DEFAULT_PAGE_SIZE = 50;
+const MAX_PAGE_SIZE = 100;
+
+type Props = { searchParams: Promise<{ created?: string; username?: string; page?: string; limit?: string }> };
 
 export default async function AdminEscortsPage({ searchParams }: Props) {
   await requireAdmin();
   const params = await searchParams;
   const showCreated = params.created === "1";
   const createdUsername = params.username ?? null;
+  const page = Math.max(1, parseInt(params.page ?? "1", 10) || 1);
+  const limit = Math.min(MAX_PAGE_SIZE, Math.max(1, parseInt(params.limit ?? String(DEFAULT_PAGE_SIZE), 10) || DEFAULT_PAGE_SIZE));
+  const skip = (page - 1) * limit;
 
   const escorts = await prisma.escortProfile.findMany({
+    skip,
+    take: limit,
     select: {
       id: true,
       displayName: true,

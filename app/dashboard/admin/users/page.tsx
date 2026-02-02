@@ -1,9 +1,13 @@
+import dynamic from "next/dynamic";
 import { redirect } from "next/navigation";
 
 import { getAuthSession } from "@/lib/auth";
-import { prisma } from "@/lib/db";
+import { listUsersCursor } from "@/lib/admin-cursor";
+import { TableSkeleton } from "@/app/_components/ui/TableSkeleton";
 
-import UsersTable from "./_components/UsersTable";
+const UsersTable = dynamic(() => import("./_components/UsersTable"), {
+  loading: () => <TableSkeleton rows={8} cols={5} />,
+});
 
 type UserRow = {
   id: string;
@@ -19,6 +23,8 @@ type UserRow = {
   createdAt: Date;
 };
 
+export const dynamic = "force-dynamic";
+
 async function requireAdmin() {
   const session = await getAuthSession();
   if (!session?.user || session.user.role !== "admin") {
@@ -29,22 +35,7 @@ async function requireAdmin() {
 export default async function AdminUsersPage() {
   await requireAdmin();
 
-  const users = await prisma.user.findMany({
-    select: {
-      id: true,
-      email: true,
-      username: true,
-      name: true,
-      role: true,
-      currentPlan: true,
-      autoRenew: true,
-      renewalAttempts: true,
-      lastRenewalAttempt: true,
-      bannedAt: true,
-      createdAt: true,
-    },
-    orderBy: { createdAt: "desc" },
-  });
+  const { items: users } = await listUsersCursor({ take: 50 });
 
   const formattedUsers = users.map((user: UserRow) => ({
     id: user.id,

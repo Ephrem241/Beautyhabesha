@@ -27,10 +27,12 @@ export function buildBrowseWhere(
   }
 
   if (filters.search?.trim()) {
-    where.displayName = {
-      contains: filters.search.trim(),
-      mode: "insensitive",
-    };
+    const q = filters.search.trim();
+    where.OR = [
+      { displayName: { contains: q, mode: "insensitive" } },
+      { city: { contains: q, mode: "insensitive" } },
+      { bio: { contains: q, mode: "insensitive" } },
+    ];
   }
 
   if (filters.minAge != null || filters.maxAge != null) {

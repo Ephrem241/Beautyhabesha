@@ -1,9 +1,18 @@
+import dynamic from "next/dynamic";
 import { redirect } from "next/navigation";
 
 import { getAuthSession } from "@/lib/auth";
-import { getBookingsForAdmin, getPendingDepositsForAdmin } from "@/lib/booking";
-import BookingsTable from "./_components/BookingsTable";
-import PendingDepositsPanel from "./_components/PendingDepositsPanel";
+import { getBookingsForAdminCursor, getPendingDepositsForAdmin } from "@/lib/booking";
+import { TableSkeleton } from "@/app/_components/ui/TableSkeleton";
+
+const BookingsTable = dynamic(() => import("./_components/BookingsTable"), {
+  loading: () => <TableSkeleton rows={8} cols={6} />,
+});
+const PendingDepositsPanel = dynamic(() => import("./_components/PendingDepositsPanel"), {
+  loading: () => <TableSkeleton rows={3} cols={4} />,
+});
+
+export const dynamic = "force-dynamic";
 
 async function requireAdmin() {
   const session = await getAuthSession();
@@ -15,8 +24,8 @@ async function requireAdmin() {
 export default async function AdminBookingsPage() {
   await requireAdmin();
 
-  const [bookings, pendingDeposits] = await Promise.all([
-    getBookingsForAdmin(),
+  const [{ items: bookings }, pendingDeposits] = await Promise.all([
+    getBookingsForAdminCursor({ take: 50 }),
     getPendingDepositsForAdmin(),
   ]);
 

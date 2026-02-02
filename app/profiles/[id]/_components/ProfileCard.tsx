@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { BLUR_PLACEHOLDER } from "@/lib/image-utils";
 
 type ProfileCardProps = {
   name: string;
@@ -47,6 +48,9 @@ export function ProfileCard({ name, city, imageUrl }: ProfileCardProps) {
           alt=""
           width={40}
           height={40}
+          sizes="40px"
+          placeholder="blur"
+          blurDataURL={BLUR_PLACEHOLDER}
           className="h-10 w-10 shrink-0 rounded-full object-cover"
         />
       ) : (

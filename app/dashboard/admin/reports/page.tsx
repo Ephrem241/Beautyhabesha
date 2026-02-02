@@ -1,8 +1,15 @@
+import dynamic from "next/dynamic";
 import { redirect } from "next/navigation";
 
 import { getAuthSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import ReportsTable from "./_components/ReportsTable";
+import { TableSkeleton } from "@/app/_components/ui/TableSkeleton";
+
+const ReportsTable = dynamic(() => import("./_components/ReportsTable"), {
+  loading: () => <TableSkeleton rows={6} cols={5} />,
+});
+
+export const dynamic = "force-dynamic";
 
 async function requireAdmin() {
   const session = await getAuthSession();

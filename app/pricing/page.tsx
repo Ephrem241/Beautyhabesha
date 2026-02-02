@@ -5,6 +5,8 @@ import { getActiveSubscriptionPlans } from "@/lib/subscription-plans";
 import PlanCard from "./_components/PlanCard";
 import PricingHeader from "./_components/PricingHeader";
 
+export const revalidate = 60;
+
 export const metadata: Metadata = {
   title: "Pricing",
   description: "Compare Normal, VIP, and Platinum membership plans.",

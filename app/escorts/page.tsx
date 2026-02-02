@@ -3,6 +3,7 @@ import type { PlanId } from "@/lib/plans";
 import { getAuthSession } from "@/lib/auth";
 import { getPublicEscortsOptimized } from "@/lib/escorts";
 import { getViewerHasActiveSubscription } from "@/lib/viewer-access";
+import { withCache } from "@/lib/cache";
 import { ButtonLink } from "@/app/_components/ui/Button";
 import { BlurGate } from "@/app/_components/BlurGate";
 import { Breadcrumbs } from "@/app/_components/Breadcrumbs";
@@ -25,6 +26,8 @@ function escortCardClassName(planId: PlanId): string {
   return base + "border-zinc-800 hover:border-emerald-500/60";
 }
 
+export const revalidate = 60;
+
 export const metadata: Metadata = {
   title: "Escort Listings",
   description: "Browse premium escort profiles by membership visibility.",
@@ -42,7 +45,11 @@ export default async function EscortListingPage() {
   const session = await getAuthSession();
   const viewerUserId = session?.user?.id ?? null;
   const viewerHasAccess = await getViewerHasActiveSubscription(viewerUserId);
-  const escorts = await getPublicEscortsOptimized({ viewerUserId });
+  const escorts = await withCache(
+    `public-escorts:${viewerUserId ?? "anon"}`,
+    () => getPublicEscortsOptimized({ viewerUserId }),
+    { revalidate: 60 }
+  );
 
   return (
     <div className="min-h-screen bg-black px-4 pb-16 pt-16 text-white sm:px-6 sm:pb-20 sm:pt-20">

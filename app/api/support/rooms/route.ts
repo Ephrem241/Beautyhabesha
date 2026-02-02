@@ -1,8 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupportAuth } from "@/lib/support-auth";
 import { prisma } from "@/lib/db";
+import { rateLimitCheck, getRateLimitKey } from "@/lib/rate-limit";
 
 export async function GET(req: NextRequest) {
+  const key = `support:${getRateLimitKey(req)}`;
+  const limit = rateLimitCheck(key, { windowMs: 60_000, max: 60 });
+  if (!limit.ok) {
+    return NextResponse.json(
+      { error: "Too many requests", retryAfter: limit.retryAfter },
+      { status: 429, headers: { "Retry-After": String(limit.retryAfter) } }
+    );
+  }
   const auth = await getSupportAuth(req);
   if (!auth) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -66,6 +75,14 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const key = `support:post:${getRateLimitKey(req)}`;
+  const limit = rateLimitCheck(key, { windowMs: 60_000, max: 30 });
+  if (!limit.ok) {
+    return NextResponse.json(
+      { error: "Too many requests", retryAfter: limit.retryAfter },
+      { status: 429, headers: { "Retry-After": String(limit.retryAfter) } }
+    );
+  }
   const auth = await getSupportAuth(req);
   if (!auth) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

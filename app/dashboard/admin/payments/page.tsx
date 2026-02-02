@@ -1,10 +1,16 @@
+import dynamic from "next/dynamic";
 import { redirect } from "next/navigation";
 
 import { getAuthSession } from "@/lib/auth";
-import { prisma } from "@/lib/db";
+import { listPaymentsCursor, listSubscriptionsCursor } from "@/lib/admin-cursor";
+import { TableSkeleton } from "@/app/_components/ui/TableSkeleton";
 
-import { PaymentRecordsTable } from "./_components/PaymentRecordsTable";
-import { SubscriptionPaymentsTable } from "./_components/SubscriptionPaymentsTable";
+const PaymentRecordsTable = dynamic(() => import("./_components/PaymentRecordsTable").then((m) => m.PaymentRecordsTable), {
+  loading: () => <TableSkeleton rows={5} cols={6} />,
+});
+const SubscriptionPaymentsTable = dynamic(() => import("./_components/SubscriptionPaymentsTable").then((m) => m.SubscriptionPaymentsTable), {
+  loading: () => <TableSkeleton rows={5} cols={6} />,
+});
 
 type PendingPaymentRecord = {
   id: string;
@@ -27,6 +33,8 @@ type SubscriptionPayment = {
   proofUrl: string;
 };
 
+export const dynamic = "force-dynamic";
+
 async function requireAdmin() {
   const session = await getAuthSession();
   if (!session?.user || session.user.role !== "admin") {
@@ -37,29 +45,12 @@ async function requireAdmin() {
 export default async function AdminPaymentsPage() {
   await requireAdmin();
 
-  const [paymentRecords, subscriptionPayments] = await Promise.all([
-    prisma.payment.findMany({
-      where: { status: "pending" },
-      orderBy: { createdAt: "desc" },
-      include: {
-        user: {
-          select: { name: true, email: true, username: true },
-        },
-        plan: { select: { name: true } },
-      },
-    }),
-    prisma.subscription.findMany({
-      where: { status: "pending" },
-      orderBy: { createdAt: "desc" },
-      include: {
-        user: {
-          select: { name: true, email: true, username: true },
-        },
-      },
-    }),
+  const [paymentsResult, subscriptionsResult] = await Promise.all([
+    listPaymentsCursor({ status: "pending", take: 100 }),
+    listSubscriptionsCursor({ status: "pending", take: 100 }),
   ]);
 
-  const payments: PendingPaymentRecord[] = paymentRecords.map((p) => ({
+  const payments: PendingPaymentRecord[] = paymentsResult.items.map((p) => ({
     id: p.id,
     userName: p.user.name ?? undefined,
     userEmail: p.user.email ?? p.user.username ?? "—",
@@ -70,11 +61,11 @@ export default async function AdminPaymentsPage() {
     proofUrl: p.receiptUrl,
   }));
 
-  const subscriptions: SubscriptionPayment[] = subscriptionPayments.map((s) => ({
+  const subscriptions: SubscriptionPayment[] = subscriptionsResult.items.map((s) => ({
     id: s.id,
     userName: s.user.name ?? undefined,
     userEmail: s.user.email ?? s.user.username ?? "—",
-    planName: s.planId,
+    planName: s.subscriptionPlan?.name ?? s.planId,
     paymentMethod: s.paymentMethod,
     submittedAt: s.createdAt.toLocaleString(),
     proofUrl: s.paymentProofUrl,

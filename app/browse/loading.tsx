@@ -1,5 +1,12 @@
-import { BrowseSkeleton } from "./_components/BrowseSkeleton";
+import { SkeletonCardStack } from "@/app/_components/ui/SkeletonCard";
 
 export default function BrowseLoading() {
-  return <BrowseSkeleton />;
+  return (
+    <div className="fixed inset-0 top-16 flex flex-col bg-black">
+      <div className="h-14 shrink-0" />
+      <div className="min-h-0 flex-1 flex items-center justify-center px-4">
+        <SkeletonCardStack />
+      </div>
+    </div>
+  );
 }

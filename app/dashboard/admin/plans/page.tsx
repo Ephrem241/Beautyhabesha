@@ -1,7 +1,15 @@
+import dynamic from "next/dynamic";
 import { redirect } from "next/navigation";
 
 import { getAuthSession } from "@/lib/auth";
-import { AdminPlansSection } from "@/app/_components/admin/AdminPlansSection";
+import { TableSkeleton } from "@/app/_components/ui/TableSkeleton";
+
+const AdminPlansSection = dynamic(
+  () => import("@/app/_components/admin/AdminPlansSection").then((m) => m.AdminPlansSection),
+  { loading: () => <TableSkeleton rows={5} cols={5} /> }
+);
+
+export const dynamic = "force-dynamic";
 
 async function requireAdmin() {
   const session = await getAuthSession();

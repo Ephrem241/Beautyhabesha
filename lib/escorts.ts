@@ -17,6 +17,7 @@ import {
 import { getViewerHasActiveSubscription } from "@/lib/viewer-access";
 import { prisma } from "@/lib/db";
 import { extractImageUrls } from "@/lib/image-helpers";
+import { cursorPageResult } from "@/lib/pagination";
 
 export type PublicEscort = {
   id: string;
@@ -46,7 +47,19 @@ export async function getPublicEscorts(): Promise<PublicEscort[]> {
   await expireStaleSubscriptions();
 
   const profiles = await prisma.escortProfile.findMany({
-    where: { status: 'approved' },
+    where: { status: "approved" },
+    select: {
+      id: true,
+      displayName: true,
+      bio: true,
+      city: true,
+      images: true,
+      telegram: true,
+      phone: true,
+      whatsapp: true,
+      userId: true,
+      createdAt: true,
+    },
   });
   const userIds = profiles.map((profile) => profile.userId);
   const activeSubscriptions = await getActiveSubscriptionsForUsers(userIds);
@@ -210,6 +223,19 @@ export async function getFeaturedEscorts(
   return escorts.filter((escort) => escort.planId === "Platinum").slice(0, limit);
 }
 
+/** Search approved profiles by displayName, city, or bio (case-insensitive). Returns up to 50. */
+export async function searchProfiles(
+  query: string,
+  options?: GetEscortsOptions
+): Promise<PublicEscort[]> {
+  const q = query?.trim();
+  if (!q) return getBrowseProfiles(options);
+  return getBrowseProfilesFiltered({
+    ...options,
+    filters: { search: q },
+  });
+}
+
 /** Fetch profiles for browse/swipe. Approved only, 50 limit, createdAt desc. */
 export async function getBrowseProfiles(
   options?: GetEscortsOptions & { filters?: import("@/lib/browse-filters").BrowseFilters }
@@ -317,6 +343,124 @@ export async function getBrowseProfilesFiltered(
       ...rest
     }) => rest
   );
+}
+
+export type GetBrowseProfilesCursorOptions = GetEscortsOptions & {
+  filters?: import("@/lib/browse-filters").BrowseFilters;
+  cursor?: string;
+  take?: number;
+};
+
+export type GetBrowseProfilesCursorResult = {
+  items: PublicEscort[];
+  nextCursor: string | null;
+};
+
+/** Cursor-based browse profiles. Use for "load more" or large lists. Default take 50. */
+export async function getBrowseProfilesCursor(
+  options?: GetBrowseProfilesCursorOptions
+): Promise<GetBrowseProfilesCursorResult> {
+  const take = Math.min(options?.take ?? 50, 100);
+  const cursor = options?.cursor ?? undefined;
+  const { buildBrowseWhere, countActiveFilters } = await import("@/lib/browse-filters");
+  await expireStaleSubscriptions();
+
+  const viewerUserId = options?.viewerUserId ?? null;
+  const viewerHasAccess = await getViewerHasActiveSubscription(viewerUserId);
+  const where =
+    options?.filters && countActiveFilters(options.filters) > 0
+      ? buildBrowseWhere(options.filters)
+      : { status: "approved" as const };
+
+  const now = new Date();
+  const graceCutoff = getGraceCutoff(now);
+  const rawTake = take + 1;
+  const profiles = await prisma.escortProfile.findMany({
+    where,
+    include: {
+      user: {
+        include: {
+          subscriptions: {
+            where: {
+              status: "active",
+              OR: [{ endDate: { gte: graceCutoff } }, { endDate: null }],
+            },
+            orderBy: [{ startDate: "desc" }, { createdAt: "desc" }],
+            take: 1,
+          },
+        },
+      },
+    },
+    orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+    take: rawTake,
+    cursor: cursor ? { id: cursor } : undefined,
+  });
+
+  const { planMap, fallbackMap } = await getPlanPriorityMap();
+  type WithRanking = PublicEscort & RankedEscortPayload;
+
+  const escorts: WithRanking[] = profiles.map((profile) => {
+    const subscription = profile.user.subscriptions[0];
+    const subscriptionPlanId = normalizePlanId(
+      subscription?.planId ?? "Normal"
+    ) as PlanId;
+    const displayPlanId = getDisplayPlanId(
+      profile.manualPlanId,
+      subscriptionPlanId
+    );
+    const planPriority =
+      PLAN_PRIORITY[displayPlanId] ?? planMap.get(displayPlanId)?.priority ?? 1;
+    const canShowContact = displayPlanId !== "Normal";
+    const allImages = extractImageUrls(profile.images);
+    const limitedImages = limitImagesForPlan(displayPlanId, allImages);
+    const rankingPriority = getRankingPriority(
+      displayPlanId,
+      profile.rankingSuspended,
+      profile.rankingBoostUntil
+    );
+    const completenessScore = computeProfileCompleteness(
+      profile.bio,
+      profile.city,
+      allImages.length
+    );
+
+    return {
+      id: profile.id,
+      displayName: profile.displayName,
+      bio: viewerHasAccess ? (profile.bio ?? undefined) : undefined,
+      city: profile.city ?? undefined,
+      images: limitedImages.length > 0 ? limitedImages : [],
+      telegram: profile.telegram ?? undefined,
+      contact:
+        viewerHasAccess && canShowContact
+          ? {
+              phone: profile.phone ?? undefined,
+              telegram: profile.telegram ?? undefined,
+              whatsapp: profile.whatsapp ?? undefined,
+            }
+          : undefined,
+      planId: displayPlanId,
+      planPriority,
+      canShowContact,
+      createdAt: profile.createdAt,
+      displayPlanId,
+      rankingPriority,
+      lastActiveAt: profile.lastActiveAt,
+      completenessScore,
+    };
+  });
+
+  const sorted = sortByRanking(escorts);
+  const stripped = sorted.map(
+    ({
+      rankingPriority: _rp,
+      lastActiveAt: _la,
+      completenessScore: _cs,
+      displayPlanId: _dp,
+      ...rest
+    }) => rest
+  );
+  return cursorPageResult(stripped, take);
 }
 
 /** Lightweight fetch of approved escort IDs for sitemap. */

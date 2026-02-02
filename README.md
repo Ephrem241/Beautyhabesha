@@ -1,5 +1,19 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Database (Neon + Prisma)
+
+- **Connection pooling**: Use Neon's pooled connection string for Prisma. Set `DATABASE_POOL_URL` (or append `?pgbouncer=true&connection_limit=5` to `DATABASE_URL`) so the app uses a single pool with a low connection limit and avoids exhausting serverless connections.
+- **Production**: In Neon dashboard, disable autosuspend for production so cold starts don't add latency.
+- **Staging**: Use a Neon branch for staging; point staging env to the branch URL.
+- **Read replicas**: For heavy read endpoints, consider using Neon read replicas and a separate read URL in the future.
+
+**Migration commands:**
+- `npx prisma migrate dev --name <name>` — create and apply a migration (dev).
+- `npx prisma migrate deploy` — apply pending migrations (prod).
+- `npx prisma generate` — regenerate the client after schema changes.
+
+**Best practices:** Use `select`/`include` only as needed; prefer cursor pagination over offset for large tables; wrap public listing data in `withCache` (see `lib/cache.ts`); use `$transaction` for payment + subscription and other multi-step writes; see `lib/db-examples.ts` for patterns.
+
 ## Getting Started
 
 First, run the development server:

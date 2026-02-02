@@ -1,11 +1,17 @@
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { redirect } from "next/navigation";
 
 import { getAuthSession } from "@/lib/auth";
 import { getAllPaymentAccountsForAdmin } from "@/lib/payment-accounts";
+import { TableSkeleton } from "@/app/_components/ui/TableSkeleton";
 
-import { PaymentAccountForm } from "./_components/PaymentAccountForm";
-import { PaymentAccountsTable } from "./_components/PaymentAccountsTable";
+const PaymentAccountForm = dynamic(() => import("./_components/PaymentAccountForm"));
+const PaymentAccountsTable = dynamic(() => import("./_components/PaymentAccountsTable"), {
+  loading: () => <TableSkeleton rows={5} cols={5} />,
+});
+
+export const dynamic = "force-dynamic";
 
 async function requireAdmin() {
   const session = await getAuthSession();

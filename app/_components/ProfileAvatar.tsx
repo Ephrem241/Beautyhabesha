@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { BLUR_PLACEHOLDER } from "@/lib/image-utils";
 
 type ProfileAvatarProps = {
   src?: string | null;
@@ -28,6 +29,9 @@ export function ProfileAvatar({
         alt={alt}
         width={size}
         height={size}
+        sizes={`${size}px`}
+        placeholder="blur"
+        blurDataURL={BLUR_PLACEHOLDER}
         className={`rounded-full object-cover ${className}`}
         style={{ width: size, height: size, minWidth: size, minHeight: size }}
       />

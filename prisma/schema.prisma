@@ -86,9 +86,11 @@ model User {
   chatRooms             ChatRoom[]     @relation("ChatRoomOwner")
   chatMessages          Message[]      @relation("MessageSender")
 
+  @@index([role])
   @@index([subscriptionEndDate])
   @@index([subscriptionStatus])
   @@index([subscriptionPlanId])
+  @@index([createdAt(sort: Desc)])
   @@map("users")
 }
 
@@ -120,6 +122,8 @@ model EscortProfile {
 
   @@index([status, createdAt(sort: Desc)])
   @@index([lastActiveAt(sort: Desc)])
+  @@index([city])
+  @@index([displayName])
   @@map("escort_profiles")
 }
 
@@ -247,6 +251,7 @@ model Subscription {
 
   @@index([status, endDate])
   @@index([userId, status])
+  @@index([endDate])
   @@index([subscriptionPlanId])
   @@map("subscriptions")
 }
@@ -270,6 +275,7 @@ model Booking {
 
   @@index([userId])
   @@index([escortId])
+  @@index([escortId, date])
   @@index([status])
   @@index([date])
   @@map("bookings")
@@ -305,6 +311,7 @@ model Payment {
   @@index([userId])
   @@index([status])
   @@index([planId])
+  @@index([createdAt(sort: Desc)])
   @@map("payments")
 }
 
@@ -359,5 +366,39 @@ model Message {
   @@index([roomId])
   @@index([senderId])
   @@index([createdAt])
+  @@index([roomId, createdAt(sort: Desc)])
   @@map("messages")
+}
+
+model MessageArchive {
+  id         String   @id
+  roomId     String
+  senderId   String
+  text       String?
+  image      String?
+  createdAt  DateTime
+  archivedAt DateTime @default(now())
+
+  @@index([roomId])
+  @@index([createdAt])
+  @@map("message_archives")
+}
+
+model PaymentArchive {
+  id              String        @id
+  userId          String
+  planId          String
+  amount          Float
+  receiptUrl      String
+  paymentMethod  PaymentMethod
+  status         PaymentStatus
+  rejectionReason String?
+  approvedAt     DateTime?
+  createdAt      DateTime
+  updatedAt      DateTime
+  archivedAt     DateTime      @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+  @@map("payment_archives")
 }

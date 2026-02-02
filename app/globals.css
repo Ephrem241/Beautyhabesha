@@ -32,6 +32,19 @@
   }
 }
 
+@keyframes shimmer-card {
+  0% {
+    background-position: -400px 0;
+  }
+  100% {
+    background-position: 400px 0;
+  }
+}
+
+.animate-shimmer-card {
+  animation: shimmer-card 1.5s ease-in-out infinite;
+}
+
 /* Skip link: hidden until focused, then visible for keyboard users */
 .skip-link {
   position: absolute;

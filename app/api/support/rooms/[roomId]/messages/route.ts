@@ -27,9 +27,16 @@ export async function GET(
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const messages = await prisma.message.findMany({
+  const { searchParams } = new URL(req.url);
+  const limit = Math.min(parseInt(searchParams.get("limit") ?? "100", 10) || 100, 200);
+  const cursor = searchParams.get("cursor") ?? undefined;
+
+  const rawTake = limit + 1;
+  const rows = await prisma.message.findMany({
     where: { roomId },
-    orderBy: { createdAt: "asc" },
+    orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+    take: rawTake,
+    cursor: cursor ? { id: cursor } : undefined,
     include: {
       sender: {
         select: {
@@ -42,7 +49,12 @@ export async function GET(
     },
   });
 
-  return NextResponse.json({ messages });
+  const hasMore = rows.length > limit;
+  const chunk = hasMore ? rows.slice(0, limit) : rows;
+  const nextCursor = hasMore && chunk.length > 0 ? chunk[chunk.length - 1]!.id : null;
+  const messages = [...chunk].reverse();
+
+  return NextResponse.json({ messages, nextCursor });
 }
 
 export async function POST(

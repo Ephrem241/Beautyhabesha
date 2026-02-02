@@ -7,13 +7,13 @@ dotenv.config();
 
 const envSchema = z.object({
   DATABASE_URL: z.string().min(1),
+  /** Optional. Use Neon pooled URL (e.g. ?pgbouncer=true&connection_limit=5) for Prisma to avoid connection exhaustion. */
+  DATABASE_POOL_URL: z.string().min(1).optional(),
   CLOUDINARY_CLOUD_NAME: z.string().min(1),
   CLOUDINARY_API_KEY: z.string().min(1),
   CLOUDINARY_API_SECRET: z.string().min(1),
   NEXTAUTH_SECRET: z.string().min(1),
   NEXTAUTH_URL: z.string().min(1),
-  GOOGLE_CLIENT_ID: z.string().min(1),
-  GOOGLE_CLIENT_SECRET: z.string().min(1),
   CRON_SECRET: z.string().min(1).optional(),
   PUSHER_APP_ID: z.string().optional(),
   PUSHER_KEY: z.string().optional(),
@@ -23,13 +23,12 @@ const envSchema = z.object({
 
 const parsed = envSchema.safeParse({
   DATABASE_URL: process.env.DATABASE_URL,
+  DATABASE_POOL_URL: process.env.DATABASE_POOL_URL,
   CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
   CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
   CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
   NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
   NEXTAUTH_URL: process.env.NEXTAUTH_URL,
-  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
-  GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
   CRON_SECRET: process.env.CRON_SECRET,
   PUSHER_APP_ID: process.env.PUSHER_APP_ID,
   PUSHER_KEY: process.env.PUSHER_KEY,

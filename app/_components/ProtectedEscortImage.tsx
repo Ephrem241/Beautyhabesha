@@ -3,6 +3,7 @@
 import Image, { type ImageProps } from "next/image";
 import { useCallback } from "react";
 import { getEscortImageUrl } from "@/lib/image-watermark";
+import { BLUR_PLACEHOLDER } from "@/lib/image-utils";
 
 export type ProtectedEscortImageProps = Omit<ImageProps, "src"> & {
   src: string;
@@ -52,6 +53,8 @@ export function ProtectedEscortImage({
 
   const showWarning = showWarningOverlay && !allowFullQuality && src;
 
+  const { placeholder = "blur", blurDataURL = BLUR_PLACEHOLDER, ...imageRest } = rest;
+
   return (
     <span
       className="relative block select-none overflow-hidden [&_img]:pointer-events-none [&_img]:select-none [&_img]:drag-none"
@@ -64,7 +67,9 @@ export function ProtectedEscortImage({
         onDragStart={(e) => e.preventDefault()}
         className={className}
         unoptimized={false}
-        {...rest}
+        placeholder={placeholder}
+        blurDataURL={blurDataURL}
+        {...imageRest}
       />
       {showWarning ? (
         <span
