@@ -147,50 +147,6 @@ export function SwipeDeck({
         </div>
       </div>
 
-      <div className="absolute bottom-8 left-0 right-0 z-20 flex justify-center gap-6 px-4 safe-area-inset-bottom">
-        <button
-          type="button"
-          onClick={() => handleSwipeEnd("reject")}
-          disabled={!currentProfile || isAnimating}
-          className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-zinc-600 bg-black/50 text-zinc-400 backdrop-blur-sm transition hover:border-red-500/60 hover:text-red-400 disabled:opacity-30 disabled:cursor-not-allowed"
-          aria-label="Reject"
-        >
-          <svg
-            className="h-6 w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
-        <button
-          type="button"
-          onClick={() => handleSwipeEnd("like")}
-          disabled={!currentProfile || isAnimating}
-          className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-zinc-600 bg-black/50 text-zinc-400 backdrop-blur-sm transition hover:border-emerald-500/60 hover:text-emerald-400 disabled:opacity-30 disabled:cursor-not-allowed"
-          aria-label="Like"
-        >
-          <svg
-            className="h-6 w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-            />
-          </svg>
-        </button>
-      </div>
     </div>
   );
 }
