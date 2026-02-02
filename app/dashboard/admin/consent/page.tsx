@@ -1,11 +1,11 @@
-import dynamic from "next/dynamic";
+import nextDynamic from "next/dynamic";
 import { redirect } from "next/navigation";
 
 import { getAuthSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { TableSkeleton } from "@/app/_components/ui/TableSkeleton";
 
-const ConsentHistoryTable = dynamic(() => import("./_components/ConsentHistoryTable"), {
+const ConsentHistoryTable = nextDynamic(() => import("./_components/ConsentHistoryTable"), {
   loading: () => <TableSkeleton rows={8} cols={5} />,
 });
 

@@ -1,15 +1,18 @@
 import Link from "next/link";
-import dynamic from "next/dynamic";
+import nextDynamic from "next/dynamic";
 import { redirect } from "next/navigation";
 
 import { getAuthSession } from "@/lib/auth";
 import { getAllPaymentAccountsForAdmin } from "@/lib/payment-accounts";
 import { TableSkeleton } from "@/app/_components/ui/TableSkeleton";
 
-const PaymentAccountForm = dynamic(() => import("./_components/PaymentAccountForm"));
-const PaymentAccountsTable = dynamic(() => import("./_components/PaymentAccountsTable"), {
-  loading: () => <TableSkeleton rows={5} cols={5} />,
-});
+const PaymentAccountForm = nextDynamic(() =>
+  import("./_components/PaymentAccountForm").then((m) => m.PaymentAccountForm)
+);
+const PaymentAccountsTable = nextDynamic(
+  () => import("./_components/PaymentAccountsTable").then((m) => m.PaymentAccountsTable),
+  { loading: () => <TableSkeleton rows={5} cols={5} /> }
+);
 
 export const dynamic = "force-dynamic";
 

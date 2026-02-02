@@ -1,10 +1,10 @@
-import dynamic from "next/dynamic";
+import nextDynamic from "next/dynamic";
 import { redirect } from "next/navigation";
 
 import { getAuthSession } from "@/lib/auth";
 import { TableSkeleton } from "@/app/_components/ui/TableSkeleton";
 
-const AdminPlansSection = dynamic(
+const AdminPlansSection = nextDynamic(
   () => import("@/app/_components/admin/AdminPlansSection").then((m) => m.AdminPlansSection),
   { loading: () => <TableSkeleton rows={5} cols={5} /> }
 );

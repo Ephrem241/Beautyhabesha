@@ -1,11 +1,11 @@
-import dynamic from "next/dynamic";
+import nextDynamic from "next/dynamic";
 import { redirect } from "next/navigation";
 
 import { getAuthSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { TableSkeleton } from "@/app/_components/ui/TableSkeleton";
 
-const ReportsTable = dynamic(() => import("./_components/ReportsTable"), {
+const ReportsTable = nextDynamic(() => import("./_components/ReportsTable"), {
   loading: () => <TableSkeleton rows={6} cols={5} />,
 });
 

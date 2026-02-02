@@ -1,11 +1,11 @@
-import dynamic from "next/dynamic";
+import nextDynamic from "next/dynamic";
 import { redirect } from "next/navigation";
 
 import { getAuthSession } from "@/lib/auth";
 import { listUsersCursor } from "@/lib/admin-cursor";
 import { TableSkeleton } from "@/app/_components/ui/TableSkeleton";
 
-const UsersTable = dynamic(() => import("./_components/UsersTable"), {
+const UsersTable = nextDynamic(() => import("./_components/UsersTable"), {
   loading: () => <TableSkeleton rows={8} cols={5} />,
 });
 

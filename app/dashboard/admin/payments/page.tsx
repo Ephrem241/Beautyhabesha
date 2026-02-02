@@ -1,14 +1,14 @@
-import dynamic from "next/dynamic";
+import nextDynamic from "next/dynamic";
 import { redirect } from "next/navigation";
 
 import { getAuthSession } from "@/lib/auth";
 import { listPaymentsCursor, listSubscriptionsCursor } from "@/lib/admin-cursor";
 import { TableSkeleton } from "@/app/_components/ui/TableSkeleton";
 
-const PaymentRecordsTable = dynamic(() => import("./_components/PaymentRecordsTable").then((m) => m.PaymentRecordsTable), {
+const PaymentRecordsTable = nextDynamic(() => import("./_components/PaymentRecordsTable").then((m) => m.PaymentRecordsTable), {
   loading: () => <TableSkeleton rows={5} cols={6} />,
 });
-const SubscriptionPaymentsTable = dynamic(() => import("./_components/SubscriptionPaymentsTable").then((m) => m.SubscriptionPaymentsTable), {
+const SubscriptionPaymentsTable = nextDynamic(() => import("./_components/SubscriptionPaymentsTable").then((m) => m.SubscriptionPaymentsTable), {
   loading: () => <TableSkeleton rows={5} cols={6} />,
 });
 

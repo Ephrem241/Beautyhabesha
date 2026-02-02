@@ -1,14 +1,14 @@
-import dynamic from "next/dynamic";
+import nextDynamic from "next/dynamic";
 import { redirect } from "next/navigation";
 
 import { getAuthSession } from "@/lib/auth";
 import { getBookingsForAdminCursor, getPendingDepositsForAdmin } from "@/lib/booking";
 import { TableSkeleton } from "@/app/_components/ui/TableSkeleton";
 
-const BookingsTable = dynamic(() => import("./_components/BookingsTable"), {
+const BookingsTable = nextDynamic(() => import("./_components/BookingsTable"), {
   loading: () => <TableSkeleton rows={8} cols={6} />,
 });
-const PendingDepositsPanel = dynamic(() => import("./_components/PendingDepositsPanel"), {
+const PendingDepositsPanel = nextDynamic(() => import("./_components/PendingDepositsPanel"), {
   loading: () => <TableSkeleton rows={3} cols={4} />,
 });
 

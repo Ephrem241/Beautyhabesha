@@ -1,5 +1,5 @@
 import Link from "next/link";
-import dynamic from "next/dynamic";
+import nextDynamic from "next/dynamic";
 import { redirect } from "next/navigation";
 
 import { getAuthSession } from "@/lib/auth";
@@ -7,7 +7,7 @@ import { prisma } from "@/lib/db";
 import { extractImageUrls } from "@/lib/image-helpers";
 import { TableSkeleton } from "@/app/_components/ui/TableSkeleton";
 
-const EscortsTable = dynamic(() => import("./_components/EscortsTable"), {
+const EscortsTable = nextDynamic(() => import("./_components/EscortsTable"), {
   loading: () => <TableSkeleton rows={8} cols={6} />,
 });
 
