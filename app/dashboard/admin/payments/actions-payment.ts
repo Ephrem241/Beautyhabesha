@@ -77,6 +77,21 @@ export async function approvePaymentRecord(
       },
     });
 
+    await tx.subscription.create({
+      data: {
+        userId: payment.userId,
+        planId: payment.plan.name,
+        subscriptionPlanId: payment.planId,
+        status: "active",
+        paymentMethod: payment.paymentMethod,
+        paymentProofUrl: payment.receiptUrl,
+        paymentProofPublicId: "",
+        startDate,
+        endDate,
+        approvedAt: new Date(),
+      },
+    });
+
     if (payment.user.escortProfile) {
       await tx.escortProfile.update({
         where: { userId: payment.userId },

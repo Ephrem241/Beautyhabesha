@@ -147,8 +147,10 @@ export async function getPublicEscortsOptimized(
 
   const escorts: WithRanking[] = profiles.map((profile) => {
     const subscription = profile.user.subscriptions[0];
+    const planIdFromSub = subscription?.planId;
+    const planIdFromUser = profile.user.currentPlan;
     const subscriptionPlanId = normalizePlanId(
-      subscription?.planId ?? "Normal"
+      planIdFromSub ?? planIdFromUser ?? "Normal"
     ) as PlanId;
     const displayPlanId = getDisplayPlanId(
       profile.manualPlanId,
@@ -285,8 +287,10 @@ export async function getBrowseProfilesFiltered(
 
   const escorts: WithRanking[] = profiles.map((profile) => {
     const subscription = profile.user.subscriptions[0];
+    const planIdFromSub = subscription?.planId;
+    const planIdFromUser = profile.user.currentPlan;
     const subscriptionPlanId = normalizePlanId(
-      subscription?.planId ?? "Normal"
+      planIdFromSub ?? planIdFromUser ?? "Normal"
     ) as PlanId;
     const displayPlanId = getDisplayPlanId(
       profile.manualPlanId,
@@ -401,8 +405,10 @@ export async function getBrowseProfilesCursor(
 
   const escorts: WithRanking[] = profiles.map((profile) => {
     const subscription = profile.user.subscriptions[0];
+    const planIdFromSub = subscription?.planId;
+    const planIdFromUser = profile.user.currentPlan;
     const subscriptionPlanId = normalizePlanId(
-      subscription?.planId ?? "Normal"
+      planIdFromSub ?? planIdFromUser ?? "Normal"
     ) as PlanId;
     const displayPlanId = getDisplayPlanId(
       profile.manualPlanId,
@@ -513,6 +519,7 @@ export async function getPublicEscortById(
 
     const profile = await prisma.escortProfile.findUnique({
       where: { id: profileId },
+      include: { user: { select: { currentPlan: true } } },
     });
 
     if (!profile || profile.status !== "approved") {
@@ -524,8 +531,11 @@ export async function getPublicEscortById(
     ]);
     const { planMap, fallbackMap } = await getPlanPriorityMap();
 
-    const planId =
-      activeSubscriptions.get(profile.userId)?.planId ?? ("Normal" as PlanId);
+    const planIdFromSub = activeSubscriptions.get(profile.userId)?.planId;
+    const planIdFromUser = profile.user?.currentPlan;
+    const planId = normalizePlanId(
+      planIdFromSub ?? planIdFromUser ?? "Normal"
+    ) as PlanId;
     const access = resolvePlanAccess(planId, planMap, fallbackMap);
     const allImages = extractImageUrls(profile.images);
     const limitedImages = limitImagesForPlan(access.planId, allImages);
