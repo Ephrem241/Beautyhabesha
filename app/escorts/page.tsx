@@ -33,12 +33,12 @@ export const metadata: Metadata = {
   description: "Browse premium escort profiles by membership visibility.",
   alternates: { canonical: "/escorts" },
   openGraph: {
-    title: "Escort Listings • Beautyhabesha",
+    title: "Escort Listings • Abenezer z",
     description: "Browse premium escort profiles by membership visibility.",
     type: "website",
     url: "/escorts",
   },
-  twitter: { card: "summary_large_image", title: "Escort Listings • Beautyhabesha" },
+  twitter: { card: "summary_large_image", title: "Escort Listings • Abenezer z" },
 };
 
 export default async function EscortListingPage() {
@@ -150,18 +150,15 @@ export default async function EscortListingPage() {
               </BlurGate>
 
               <div className="flex flex-col gap-2 border-t border-zinc-800 p-4 sm:p-6">
-                <ButtonLink
-                  href={`/profiles/${escort.id}`}
-                  className="w-full"
-                >
+                <ButtonLink href={`/profiles/${escort.id}`} className="w-full">
                   View profile
                 </ButtonLink>
                 <ButtonLink
-                  href={`/escorts/${escort.id}`}
+                  href={`/profiles/${escort.id}/availability`}
                   variant="outline"
                   className="w-full"
                 >
-                  Full details
+                  Availability & Booking
                 </ButtonLink>
               </div>
             </article>

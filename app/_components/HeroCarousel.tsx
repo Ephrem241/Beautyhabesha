@@ -98,7 +98,7 @@ export function HeroCarousel({
 
   useEffect(() => {
     if (!emblaApi) return;
-    onSelect(emblaApi);
+    queueMicrotask(() => onSelect(emblaApi));
     emblaApi.on("select", onSelect);
     return () => {
       emblaApi.off("select", onSelect);

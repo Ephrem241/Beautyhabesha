@@ -2,7 +2,6 @@
 
 type ContactButtonProps = {
   profileId: string;
-  displayName: string;
   telegram?: string | null;
   phone?: string | null;
   disabled: boolean;
@@ -10,7 +9,6 @@ type ContactButtonProps = {
 
 export function ContactButton({
   profileId,
-  displayName,
   telegram,
   phone,
   disabled,

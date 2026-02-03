@@ -17,7 +17,8 @@ const pool = new Pool({
   connectionString,
   max: poolMax,
   idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 10000,
+  // increase connection timeout slightly to accommodate cold starts
+  connectionTimeoutMillis: 20000,
 });
 
 // Handle pool errors
@@ -36,18 +37,63 @@ const basePrisma = new PrismaClient({
 });
 
 // Extend with slow-query logging: log any query taking longer than SLOW_QUERY_MS
+// Transient DB error messages to retry on
+const TRANSIENT_ERROR_MESSAGES = [
+  "connection terminated unexpectedly",
+  "connection terminated due to connection timeout",
+  "econnreset",
+  "connection reset by peer",
+  "terminating connection due to administrator command",
+];
+
 const prismaWithSlowLog = basePrisma.$extends({
   name: "slow-query-log",
   query: {
-    $allOperations({ model, operation, args, query }) {
+    async $allOperations({ model, operation, args, query }) {
       const start = Date.now();
-      return query(args).then((result) => {
-        const ms = Date.now() - start;
-        if (ms > SLOW_QUERY_MS) {
-          console.warn(`[Prisma slow query] ${model ?? "root"}.${operation} took ${ms}ms`);
+      const maxAttempts = 3;
+      let attempt = 0;
+      while (true) {
+        try {
+          const result = await query(args);
+          const ms = Date.now() - start;
+          if (ms > SLOW_QUERY_MS) {
+            console.warn(`[Prisma slow query] ${model ?? "root"}.${operation} took ${ms}ms`);
+          }
+          return result;
+        } catch (err: unknown) {
+          attempt += 1;
+
+          // Safely extract message/code from unknown error
+          let rawMsg = "";
+          let rawCode = "";
+          if (typeof err === "string") {
+            rawMsg = err;
+          } else if (err && typeof err === "object") {
+            const e = err as Record<string, unknown>;
+            if (typeof e.message === "string") rawMsg = e.message;
+            if (typeof e.code === "string") rawCode = e.code;
+          } else {
+            rawMsg = String(err);
+          }
+
+          const msg = rawMsg.toLowerCase();
+          const code = rawCode.toLowerCase();
+
+          const matchedList = TRANSIENT_ERROR_MESSAGES.some((t) => msg.includes(t) || code.includes(t));
+          const genericTransient = /timeout|connection terminated|connection reset|econnreset/.test(msg) || /timeout|connection terminated|connection reset|econnreset/.test(code);
+          const isTransient = matchedList || genericTransient;
+
+          if (!isTransient || attempt >= maxAttempts) throw err;
+
+          const backoffMs = 100 * Math.pow(2, attempt - 1);
+          console.warn(
+            `[Prisma retry] transient DB error, attempt ${attempt}/${maxAttempts}, retrying in ${backoffMs}ms: ${rawMsg || rawCode}`
+          );
+          await new Promise((res) => setTimeout(res, backoffMs));
+          // loop to retry
         }
-        return result;
-      });
+      }
     },
   },
 });
@@ -59,6 +105,8 @@ export const prisma =
   (prismaWithSlowLog as unknown as PrismaClient);
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+
+// Retry logic has been moved into the $extends query hook above.
 
 // Legacy function name for compatibility during migration
 export default async function connectDb() {

@@ -38,10 +38,16 @@ export function TelegramFloatingButton({
   tooltip = "Chat on Telegram",
   ariaLabel = "Chat on Telegram",
 }: TelegramFloatingButtonProps) {
-  const [reduceMotion, setReduceMotion] = useState(false);
+  const [reduceMotion, setReduceMotion] = useState<boolean>(() => {
+    try {
+      return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    } catch {
+      return false;
+    }
+  });
+
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setReduceMotion(mq.matches);
     const h = () => setReduceMotion(mq.matches);
     mq.addEventListener("change", h);
     return () => mq.removeEventListener("change", h);

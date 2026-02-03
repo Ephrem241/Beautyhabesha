@@ -12,7 +12,7 @@ export function AgeGate({ children }: { children: React.ReactNode }) {
   const [accepted, setAcceptedState] = useState<boolean | null>(null);
 
   useEffect(() => {
-    setAcceptedState(getAgeGateAccepted());
+    queueMicrotask(() => setAcceptedState(getAgeGateAccepted()));
   }, []);
 
   const isLegalPath = LEGAL_PATHS.some((p) => pathname?.startsWith(p));

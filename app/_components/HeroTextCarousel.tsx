@@ -48,19 +48,25 @@ export function HeroTextCarousel() {
   });
 
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [reducedMotion, setReducedMotion] = useState(false);
   const autoPlayTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const resumeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pauseUntilRef = useRef<number>(0);
   const isPausedByUserRef = useRef(false);
 
+  const [reducedMotion, setReducedMotion] = useState<boolean>(() => {
+    try {
+      return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    } catch {
+      return false;
+    }
+  });
+
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setReducedMotion(mq.matches);
     const handler = () => setReducedMotion(mq.matches);
     mq.addEventListener("change", handler);
     return () => mq.removeEventListener("change", handler);
-  }, []);
+  }, [setReducedMotion]);
 
   const scrollTo = useCallback(
     (index: number) => {
@@ -112,7 +118,7 @@ export function HeroTextCarousel() {
 
   useEffect(() => {
     if (!emblaApi) return;
-    onSelect(emblaApi);
+    queueMicrotask(() => onSelect(emblaApi));
     emblaApi.on("select", onSelect);
     return () => {
       emblaApi.off("select", onSelect);

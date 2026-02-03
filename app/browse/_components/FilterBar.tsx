@@ -28,7 +28,7 @@ export function FilterBar({
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    setSearchInput(filters.search ?? "");
+    queueMicrotask(() => setSearchInput(filters.search ?? ""));
   }, [filters.search]);
 
   const updateParams = useCallback(

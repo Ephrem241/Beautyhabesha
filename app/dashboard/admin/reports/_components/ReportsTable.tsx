@@ -144,7 +144,7 @@ export default function ReportsTable({ reports }: ReportsTableProps) {
                         </>
                       )}
                       <Link
-                        href={`/escorts/${r.escortId}`}
+                        href={`/profiles/${r.escortId}`}
                         className="rounded-lg border border-zinc-600 bg-zinc-800 px-2 py-1 text-xs text-zinc-300 hover:bg-zinc-700"
                       >
                         View profile

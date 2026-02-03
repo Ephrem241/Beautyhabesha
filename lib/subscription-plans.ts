@@ -28,11 +28,42 @@ const PLAN_LIST_WHERE = {
 } as const;
 
 export async function getActiveSubscriptionPlans(): Promise<SubscriptionPlanDoc[]> {
-  const rows = await prisma.subscriptionPlan.findMany({
-    where: PLAN_LIST_WHERE,
-    orderBy: [{ price: "asc" }, { createdAt: "asc" }],
-  });
-  return rows.map(rowToDoc);
+  const maxAttempts = 3;
+  let attempt = 0;
+  while (true) {
+    try {
+      const rows = await prisma.subscriptionPlan.findMany({
+        where: PLAN_LIST_WHERE,
+        orderBy: [{ price: "asc" }, { createdAt: "asc" }],
+      });
+      return rows.map(rowToDoc);
+    } catch (err: unknown) {
+      attempt += 1;
+
+      // Safely extract message/code
+      let rawMsg = "";
+      if (typeof err === "string") rawMsg = err;
+      else if (err && typeof err === "object") {
+        const e = err as Record<string, unknown>;
+        if (typeof e.message === "string") rawMsg = e.message;
+        else rawMsg = String(err);
+      } else {
+        rawMsg = String(err);
+      }
+
+      const msg = rawMsg.toLowerCase();
+      const isTransient = /connection terminated|connection reset|econnreset|timeout/.test(msg);
+
+      if (!isTransient || attempt >= maxAttempts) throw err;
+
+      const backoffMs = 100 * Math.pow(2, attempt - 1);
+      console.warn(
+        `[subscription-plans retry] transient DB error, attempt ${attempt}/${maxAttempts}, retrying in ${backoffMs}ms: ${rawMsg}`
+      );
+      await new Promise((res) => setTimeout(res, backoffMs));
+      // loop to retry
+    }
+  }
 }
 
 export async function getSubscriptionPlanBySlug(

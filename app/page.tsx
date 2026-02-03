@@ -111,7 +111,7 @@ export default async function Home() {
                       {escort.bio ?? "Premium spotlight profile."}
                     </p>
                     <ButtonLink
-                      href={`/escorts/${escort.id}`}
+                      href={`/profiles/${escort.id}`}
                       variant="ghost"
                       className="mt-4"
                     >

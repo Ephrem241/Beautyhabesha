@@ -34,7 +34,7 @@ export function PublicAvailabilityCalendar({
     } else {
       next.set("mode", mode);
     }
-    router.push(`/escorts/${escortId}/availability?${next.toString()}`);
+    router.push(`/profiles/${escortId}/availability?${next.toString()}`);
   };
 
   const groupedByDate = slots.reduce<Record<string, Slot[]>>((acc, s) => {
@@ -152,7 +152,7 @@ export function PublicAvailabilityCalendar({
 
       <div className="mt-6 rounded-2xl border border-zinc-800 bg-zinc-950 p-4 text-center text-sm text-zinc-400">
         To request a booking with {escortName}, go to{" "}
-        <a href={`/escorts/${escortId}`} className="font-medium text-emerald-400 hover:text-emerald-300">
+        <a href={`/profiles/${escortId}`} className="font-medium text-emerald-400 hover:text-emerald-300">
           {escortName}&apos;s profile
         </a>{" "}
         and use &quot;Request booking&quot;.

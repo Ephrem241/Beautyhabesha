@@ -58,7 +58,7 @@ export default async function EscortAvailabilityPage({ params, searchParams }: P
             </p>
           </header>
           <Link
-            href={`/escorts/${id}`}
+            href={`/profiles/${id}`}
             className="shrink-0 rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-800"
           >
             Back to profile

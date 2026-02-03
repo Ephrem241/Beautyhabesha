@@ -1,7 +1,7 @@
 import "server-only";
 
 import { prisma } from "@/lib/db";
-import { getGraceCutoff } from "@/lib/subscription-grace";
+// import { getGraceCutoff } from "@/lib/subscription-grace"; // unused
 import {
   sendAutoRenewInitiated,
   sendPaymentPendingApproval,
@@ -23,7 +23,7 @@ export type AutoRenewResult = {
 export async function processAutoRenewals(): Promise<AutoRenewResult> {
   const now = new Date();
   const inOneDay = new Date(now.getTime() + 24 * 60 * 60 * 1000);
-  const graceCutoff = getGraceCutoff(now);
+  // const graceCutoff = getGraceCutoff(now); // unused for now
 
   const expiringSoon = await prisma.subscription.findMany({
     where: {
@@ -62,7 +62,7 @@ export async function processAutoRenewals(): Promise<AutoRenewResult> {
       }
 
       await prisma.$transaction(async (tx) => {
-        const created = await tx.subscription.create({
+        await tx.subscription.create({
           data: {
             userId: sub.userId,
             planId: sub.planId,

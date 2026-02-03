@@ -5,6 +5,8 @@ export type PlanBadgeProps = {
   /** Show "Featured" for Platinum. */
   showFeatured?: boolean;
   className?: string;
+  /** When true, show a short benefits hint next to the badge. */
+  showBenefits?: boolean;
 };
 
 /**
@@ -14,10 +16,10 @@ export function PlanBadge({
   planId,
   showFeatured = false,
   className = "",
+  showBenefits = false,
 }: PlanBadgeProps) {
   const isPlatinum = planId === "Platinum";
   const isVIP = planId === "VIP";
-  const isNormal = planId === "Normal";
 
   return (
     <div className={`flex flex-wrap items-center gap-2 ${className}`}>
@@ -41,6 +43,17 @@ export function PlanBadge({
           Featured
         </span>
       ) : null}
+      {showBenefits ? <BenefitsHint planId={planId} /> : null}
     </div>
   );
+}
+
+function BenefitsHint({ planId }: { planId: PlanId }) {
+  if (planId === "Platinum") {
+    return <span className="text-xs text-zinc-400">Phone & Telegram access</span>;
+  }
+  if (planId === "VIP") {
+    return <span className="text-xs text-zinc-400">Priority listing & contact preview</span>;
+  }
+  return null;
 }

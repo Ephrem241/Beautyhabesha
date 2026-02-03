@@ -30,7 +30,6 @@ export function ProtectedEscortImage({
   escortId,
   showWarningOverlay = true,
   onContextMenu,
-  draggable,
   className = "",
   ...rest
 }: ProtectedEscortImageProps) {
@@ -53,7 +52,7 @@ export function ProtectedEscortImage({
 
   const showWarning = showWarningOverlay && !allowFullQuality && src;
 
-  const { placeholder = "blur", blurDataURL = BLUR_PLACEHOLDER, ...imageRest } = rest;
+  const { placeholder = "blur", blurDataURL = BLUR_PLACEHOLDER, alt = "", ...imageRest } = rest;
 
   return (
     <span
@@ -63,12 +62,12 @@ export function ProtectedEscortImage({
     >
       <Image
         src={finalSrc}
-        draggable={false}
         onDragStart={(e) => e.preventDefault()}
         className={className}
         unoptimized={false}
         placeholder={placeholder}
         blurDataURL={blurDataURL}
+        alt={alt}
         {...imageRest}
       />
       {showWarning ? (

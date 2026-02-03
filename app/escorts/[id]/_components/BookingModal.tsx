@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useRef, useEffect } from "react";
 import { createBooking, uploadDeposit, type BookingActionResult } from "@/app/booking/actions";
 
 type BookingModalProps = {
@@ -58,13 +58,81 @@ export function BookingModal({
 
   const minDate = new Date().toISOString().slice(0, 10);
 
+  const modalRef = useRef<HTMLDivElement | null>(null);
+
+  // Focus trap + ESC handler for accessibility
+  useEffect(() => {
+    const node = modalRef.current;
+    if (!node) return;
+
+    const prevActive = document.activeElement as HTMLElement | null;
+
+    // Focus the first focusable element in the modal, or the container
+    const focusableSelector = 'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])';
+    const focusables = Array.from(node.querySelectorAll<HTMLElement>(focusableSelector)).filter(
+      (el) => !el.hasAttribute("disabled")
+    );
+    if (focusables.length > 0) {
+      focusables[0].focus();
+    } else {
+      node.focus();
+    }
+
+      function onKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onClose();
+        return;
+      }
+      if (e.key === "Tab") {
+        // Basic focus trap
+        const root = modalRef.current;
+        if (!root) return;
+        const focusable = Array.from(root.querySelectorAll<HTMLElement>(focusableSelector)).filter(
+          (el) => !el.hasAttribute("disabled")
+        );
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey) {
+          if (document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+          }
+        } else {
+          if (document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+          }
+        }
+      }
+    }
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      if (prevActive) prevActive.focus();
+    };
+  }, [onClose]);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/70 p-4">
-      <div className="my-4 w-full max-w-md rounded-2xl border border-zinc-800 bg-zinc-950 p-6 shadow-xl">
+      <div
+        ref={modalRef}
+        role="dialog"
+        aria-modal="true"
+        tabIndex={-1}
+        className="my-4 w-full max-w-md rounded-2xl border border-zinc-800 bg-zinc-950 p-6 shadow-xl"
+      >
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-white">
-            {step === "form" ? "Request booking" : "Pay deposit"}
-          </h2>
+          <div>
+            <h2 className="text-lg font-semibold text-white">
+              {step === "form" ? "Request booking" : "Pay deposit"}
+            </h2>
+            <div className="text-xs text-zinc-400">
+              {step === "form" ? "Step 1 of 2" : "Step 2 of 2"}
+            </div>
+          </div>
           <button
             type="button"
             onClick={onClose}

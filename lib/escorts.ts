@@ -63,7 +63,7 @@ export async function getPublicEscorts(): Promise<PublicEscort[]> {
   });
   const userIds = profiles.map((profile) => profile.userId);
   const activeSubscriptions = await getActiveSubscriptionsForUsers(userIds);
-  const { planMap, fallbackMap } = await getPlanPriorityMap();
+  const { planMap, fallbackMap: _fallbackMap } = await getPlanPriorityMap();
 
   const escorts = profiles.map((profile) => {
     const planId =
@@ -141,7 +141,7 @@ export async function getPublicEscortsOptimized(
     orderBy: { createdAt: "desc" },
   });
 
-  const { planMap, fallbackMap } = await getPlanPriorityMap();
+  const { planMap, fallbackMap: _fallbackMap } = await getPlanPriorityMap();
 
   type WithRanking = PublicEscort & RankedEscortPayload;
 
@@ -200,13 +200,13 @@ export async function getPublicEscortsOptimized(
 
   const sorted = sortByRanking(escorts);
   return sorted.map(
-    ({
-      rankingPriority: _rp,
-      lastActiveAt: _la,
-      completenessScore: _cs,
-      displayPlanId: _dp,
-      ...rest
-    }) => rest
+    ({ rankingPriority, lastActiveAt, completenessScore, displayPlanId, ...rest }) => {
+      void rankingPriority;
+      void lastActiveAt;
+      void completenessScore;
+      void displayPlanId;
+      return rest;
+    }
   );
 }
 
@@ -282,7 +282,7 @@ export async function getBrowseProfilesFiltered(
     take: 50,
   });
 
-  const { planMap, fallbackMap } = await getPlanPriorityMap();
+  const { planMap, fallbackMap: _fallbackMap } = await getPlanPriorityMap();
   type WithRanking = PublicEscort & RankedEscortPayload;
 
   const escorts: WithRanking[] = profiles.map((profile) => {

@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 
 import { getAuthSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import type { Prisma } from "@prisma/client";
 import { getUserPlan } from "@/lib/plan-access";
 import { hasEscortConsentComplete } from "@/lib/consent";
 import {
@@ -17,7 +18,6 @@ import { DEFAULT_ESCORT_TELEGRAM, DEFAULT_ESCORT_WHATSAPP } from "@/lib/escort-d
 
 const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
 const MIN_IMAGES = 3;
-const MAX_IMAGES = 12;
 
 const profileSchema = z.object({
   displayName: z.string().min(2).max(60),
@@ -173,7 +173,7 @@ export async function upsertEscortProfile(
       displayName: parsed.data.displayName,
       bio: parsed.data.bio || null,
       city: parsed.data.city || null,
-      images: allImages as unknown as any,
+      images: allImages as unknown as Prisma.JsonObject | Prisma.JsonArray,
       lastActiveAt: new Date(),
     },
     create: {
@@ -181,7 +181,7 @@ export async function upsertEscortProfile(
       displayName: parsed.data.displayName,
       bio: parsed.data.bio || null,
       city: parsed.data.city || null,
-      images: allImages as unknown as any,
+      images: allImages as unknown as Prisma.JsonObject | Prisma.JsonArray,
       status: "pending",
       telegram: DEFAULT_ESCORT_TELEGRAM,
       whatsapp: DEFAULT_ESCORT_WHATSAPP,

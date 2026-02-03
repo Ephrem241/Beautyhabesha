@@ -6,7 +6,6 @@ import { submitPaymentProof, type UploadProofState } from "../actions";
 type UploadProofFormProps = {
   planSlug: string;
   planId: string;
-  paymentAccounts: { id: string }[];
 };
 
 const initialState: UploadProofState = {};

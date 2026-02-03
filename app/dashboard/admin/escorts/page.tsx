@@ -64,7 +64,7 @@ export default async function AdminEscortsPage({ searchParams }: Props) {
     orderBy: { createdAt: "desc" },
   });
 
-  const formattedEscorts = escorts.map((escort: any) => {
+  const formattedEscorts = escorts.map((escort) => {
     const urls = extractImageUrls(escort.images);
     return {
       id: escort.id,

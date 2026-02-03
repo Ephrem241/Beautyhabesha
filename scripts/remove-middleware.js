@@ -2,8 +2,8 @@
  * Removes middleware.ts/js files to avoid conflict with proxy.ts in Next.js 16+.
  * Next.js throws: "Both middleware file and proxy file are detected. Please use proxy.ts only."
  */
-const fs = require("fs");
-const path = require("path");
+import fs from "fs";
+import path from "path";
 const root = process.cwd();
 const files = [
   "middleware.ts",
@@ -18,7 +18,7 @@ for (const f of files) {
       fs.unlinkSync(filePath);
       console.log(`Removed ${f} (use proxy.ts instead)`);
     }
-  } catch (e) {
+  } catch {
     // ignore
   }
 }

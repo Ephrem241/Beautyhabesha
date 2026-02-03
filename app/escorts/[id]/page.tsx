@@ -36,7 +36,7 @@ export async function generateMetadata({
     160
   );
   const base = getSiteUrl();
-  const canonical = `${base}/escorts/${id}`;
+  const canonical = `${base}/profiles/${id}`;
   const ogImage = meta.image
     ? { url: meta.image, width: 800, height: 600, alt: meta.displayName }
     : undefined;
@@ -174,7 +174,7 @@ export default async function EscortDetailPage({ params }: EscortDetailPageProps
               )}
 
               <div className="mt-6 rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-3">
-                <PlanBadge planId={escort.planId} showFeatured />
+                <PlanBadge planId={escort.planId} showFeatured showBenefits />
               </div>
               <a
                 href={`/escorts/${escort.id}/availability`}

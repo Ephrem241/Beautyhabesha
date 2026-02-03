@@ -6,7 +6,7 @@ import { SupportChatPanel } from "@/app/support/_components/SupportChatPanel";
 
 export function AdminChatDashboard({ userId }: { userId: string }) {
   const chat = useSupportChat({ userId });
-  const { rooms, roomId, setRoomId, currentRoom, setResolved, fetchRooms } = chat;
+  const { rooms, roomId, setRoomId, currentRoom, setResolved } = chat;
 
   return (
     <div className="flex h-screen flex-col">

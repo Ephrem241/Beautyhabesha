@@ -28,10 +28,7 @@ export function BlurGate({
   }
 
   return (
-    <div
-      className={`relative overflow-hidden ${className}`.trim()}
-      aria-hidden={false}
-    >
+    <div className={`relative overflow-hidden ${className}`.trim()}>
       <div
         className="select-none transition-all duration-300 will-change-[filter] [&_img]:blur-sm [&_img]:brightness-75"
         aria-hidden="true"
@@ -40,7 +37,8 @@ export function BlurGate({
       </div>
       <div
         className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-linear-to-b from-black/20 via-black/10 to-black/20 px-4 py-6"
-        role="presentation"
+        role="region"
+        aria-label="Subscription required"
       >
         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-zinc-500/80 bg-zinc-900/90 text-zinc-400">
           <LockIcon className="h-6 w-6" />
@@ -67,7 +65,7 @@ function LockIcon({ className }: { className?: string }) {
       viewBox="0 0 24 24"
       stroke="currentColor"
       strokeWidth={1.5}
-      aria-hidden
+      aria-hidden="true"
     >
       <path
         strokeLinecap="round"

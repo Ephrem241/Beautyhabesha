@@ -7,10 +7,9 @@ import { uploadDeposit, type BookingActionResult } from "@/app/booking/actions";
 type DepositFormProps = {
   bookingId: string;
   amount: number;
-  escortName: string;
 };
 
-export function DepositForm({ bookingId, amount, escortName }: DepositFormProps) {
+export function DepositForm({ bookingId, amount }: DepositFormProps) {
   const [pending, startTransition] = useTransition();
   const [result, setResult] = useState<BookingActionResult | null>(null);
 

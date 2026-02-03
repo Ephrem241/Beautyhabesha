@@ -27,7 +27,7 @@ export function ImageCarousel({
   const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
-    setActiveIndex(0);
+    queueMicrotask(() => setActiveIndex(0));
   }, [images.length]);
 
   const goTo = useCallback(
