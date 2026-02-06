@@ -21,13 +21,14 @@ async function requireAdmin() {
   if (!session?.user || session.user.role !== "admin") {
     redirect("/");
   }
+  return session;
 }
 
 export async function updateUserRole(
   _prevState: UserActionResult,
   formData: FormData
 ): Promise<UserActionResult> {
-  await requireAdmin();
+  const session = await requireAdmin();
 
   const parsed = updateRoleSchema.safeParse({
     userId: formData.get("userId"),
@@ -38,14 +39,28 @@ export async function updateUserRole(
     return { ok: false, error: "Invalid request." };
   }
 
-  const user = await prisma.user.update({
+  // Prevent an admin from removing their own admin role
+  if (session.user && session.user.id === parsed.data.userId && parsed.data.role !== "admin") {
+    return { ok: false, error: "You cannot remove your own admin role." };
+  }
+
+  const targetUser = await prisma.user.findUnique({ where: { id: parsed.data.userId } });
+  if (!targetUser) {
+    return { ok: false, error: "User not found." };
+  }
+
+  // If we're demoting an admin, ensure there will still be at least one admin left
+  if (targetUser.role === "admin" && parsed.data.role !== "admin") {
+    const adminCount = await prisma.user.count({ where: { role: "admin" } });
+    if (adminCount <= 1) {
+      return { ok: false, error: "Cannot remove the last admin." };
+    }
+  }
+
+  await prisma.user.update({
     where: { id: parsed.data.userId },
     data: { role: parsed.data.role },
   });
-  
-  if (!user) {
-    return { ok: false, error: "User not found." };
-  }
 
   return { ok: true };
 }
