@@ -17,7 +17,22 @@ export async function checkUserNotBanned(userId: string): Promise<void> {
 
 export const authOptions: NextAuthOptions = {
   secret: env.NEXTAUTH_SECRET,
-  session: { strategy: "jwt" },
+  session: {
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+    updateAge: 24 * 60 * 60, // Update session every 24 hours
+  },
+  cookies: {
+    sessionToken: {
+      name: `__Secure-next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production", // HTTPS only in production
+      },
+    },
+  },
   providers: [
     CredentialsProvider({
       name: "Credentials",

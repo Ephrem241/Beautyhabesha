@@ -11,6 +11,7 @@ import {
   sendEscortNewBooking,
   sendBookingCompleted,
 } from "@/lib/email";
+import { rateLimitCheck } from "@/lib/rate-limit";
 
 export type BookingActionResult = { ok: boolean; error?: string; bookingId?: string };
 
@@ -30,6 +31,19 @@ export async function createBooking(
   const session = await getAuthSession();
   if (!session?.user?.id) {
     return { ok: false, error: "You must be signed in to book." };
+  }
+
+  // Rate limiting: max 10 bookings per hour
+  const rateLimitResult = rateLimitCheck(`booking-create:${session.user.id}`, {
+    max: 10,
+    windowMs: 60 * 60 * 1000, // 1 hour
+  });
+
+  if (!rateLimitResult.ok) {
+    return {
+      ok: false,
+      error: `Too many booking requests. Please try again in ${rateLimitResult.retryAfter} seconds.`,
+    };
   }
 
   const parsed = createBookingSchema.safeParse({

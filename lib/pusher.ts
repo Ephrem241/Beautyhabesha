@@ -14,8 +14,12 @@ const pusher =
 
 export { pusher };
 
+/**
+ * Get Pusher channel name for support room
+ * Uses private channels for security (requires authorization)
+ */
 export function getPusherChannel(roomId: string): string {
-  return `support-room-${roomId}`;
+  return `private-support-room-${roomId}`;
 }
 
 export function triggerMessage(roomId: string, message: unknown): boolean {

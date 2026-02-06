@@ -8,6 +8,7 @@ import { prisma } from "@/lib/db";
 import { getSubscriptionPlanBySlug } from "@/lib/subscription-plans";
 import { getGraceCutoff } from "@/lib/subscription-grace";
 import { uploadImage } from "@/lib/cloudinary-utils";
+import { rateLimitCheck } from "@/lib/rate-limit";
 
 export type PaymentFormState = {
   error?: string;
@@ -30,6 +31,18 @@ export async function submitPaymentProof(
 
   if (!userId) {
     return { error: "Please sign in to upload a payment proof." };
+  }
+
+  // Rate limiting: max 5 payment submissions per hour
+  const rateLimitResult = rateLimitCheck(`payment-submit:${userId}`, {
+    max: 5,
+    windowMs: 60 * 60 * 1000, // 1 hour
+  });
+
+  if (!rateLimitResult.ok) {
+    return {
+      error: `Too many payment submissions. Please try again in ${rateLimitResult.retryAfter} seconds.`,
+    };
   }
 
   const result = formSchema.safeParse({
