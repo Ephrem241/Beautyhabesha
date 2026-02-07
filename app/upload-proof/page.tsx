@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import Link from "next/link";
 
 import { getAuthSession } from "@/lib/auth";
@@ -21,6 +22,9 @@ type UploadProofPageProps = {
 export default async function UploadProofPage({
   searchParams,
 }: UploadProofPageProps) {
+  // Access request data first to make this route dynamic and avoid prerender timing issues
+  await headers();
+
   const session = await getAuthSession();
   if (!session?.user) {
     redirect(`/auth/login?callbackUrl=${encodeURIComponent("/upload-proof")}`);

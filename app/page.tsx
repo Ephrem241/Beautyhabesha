@@ -7,8 +7,6 @@ import { HeroTextCarousel } from "@/app/_components/HeroTextCarousel";
 import { ProfileAvatar } from "@/app/_components/ProfileAvatar";
 import { ProtectedEscortImage } from "@/app/_components/ProtectedEscortImage";
 
-export const revalidate = 60;
-
 export const metadata: Metadata = {
   title: "Home",
   description:

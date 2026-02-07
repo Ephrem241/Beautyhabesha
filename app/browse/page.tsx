@@ -8,8 +8,6 @@ import { withCache } from "@/lib/cache";
 import { BrowseContent } from "./_components/BrowseContent";
 import { SkeletonCardStack } from "@/app/_components/ui/SkeletonCard";
 
-export const revalidate = 60;
-
 export const metadata: Metadata = {
   title: "Browse",
   description: "Swipe through premium profiles.",

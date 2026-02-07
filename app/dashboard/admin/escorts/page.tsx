@@ -1,6 +1,7 @@
 import Link from "next/link";
 import nextDynamic from "next/dynamic";
 import { redirect } from "next/navigation";
+import { unstable_noStore } from "next/cache";
 
 import { getAuthSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
@@ -10,8 +11,6 @@ import { TableSkeleton } from "@/app/_components/ui/TableSkeleton";
 const EscortsTable = nextDynamic(() => import("./_components/EscortsTable"), {
   loading: () => <TableSkeleton rows={8} cols={6} />,
 });
-
-export const dynamic = "force-dynamic";
 
 async function requireAdmin() {
   const session = await getAuthSession();
@@ -26,6 +25,9 @@ const MAX_PAGE_SIZE = 100;
 type Props = { searchParams: Promise<{ created?: string; username?: string; page?: string; limit?: string }> };
 
 export default async function AdminEscortsPage({ searchParams }: Props) {
+  // Opt into dynamic rendering for admin dashboard
+  unstable_noStore();
+
   await requireAdmin();
   const params = await searchParams;
   const showCreated = params.created === "1";

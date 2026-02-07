@@ -36,7 +36,6 @@ const basePrisma = new PrismaClient({
   log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
 });
 
-// Extend with slow-query logging: log any query taking longer than SLOW_QUERY_MS
 // Transient DB error messages to retry on
 const TRANSIENT_ERROR_MESSAGES = [
   "connection terminated unexpectedly",
@@ -46,20 +45,17 @@ const TRANSIENT_ERROR_MESSAGES = [
   "terminating connection due to administrator command",
 ];
 
-const prismaWithSlowLog = basePrisma.$extends({
-  name: "slow-query-log",
+// Retry logic extension (without timing to avoid Next.js prerender issues)
+const prismaWithRetry = basePrisma.$extends({
+  name: "retry-logic",
   query: {
     async $allOperations({ model, operation, args, query }) {
-      const start = Date.now();
       const maxAttempts = 3;
       let attempt = 0;
+
       while (true) {
         try {
           const result = await query(args);
-          const ms = Date.now() - start;
-          if (ms > SLOW_QUERY_MS) {
-            console.warn(`[Prisma slow query] ${model ?? "root"}.${operation} took ${ms}ms`);
-          }
           return result;
         } catch (err: unknown) {
           attempt += 1;
@@ -98,11 +94,11 @@ const prismaWithSlowLog = basePrisma.$extends({
   },
 });
 
-export type ExtendedPrisma = typeof prismaWithSlowLog;
+export type ExtendedPrisma = typeof prismaWithRetry;
 
 export const prisma =
   globalForPrisma.prisma ??
-  (prismaWithSlowLog as unknown as PrismaClient);
+  (prismaWithRetry as unknown as PrismaClient);
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 

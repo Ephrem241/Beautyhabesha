@@ -2,12 +2,22 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { getAgeGateAccepted, setAgeGateAccepted } from "@/lib/age-gate-client";
 
 const LEGAL_PATHS = ["/terms", "/privacy", "/consent", "/18-plus"];
 
-export function AgeGate({ children }: { children: React.ReactNode }) {
+// Loading fallback for Suspense boundary
+function AgeGateLoading() {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-black">
+      <div className="h-8 w-8 animate-spin rounded-full border-2 border-emerald-500 border-t-transparent" />
+    </div>
+  );
+}
+
+// Inner component that uses usePathname()
+function AgeGateInner({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [accepted, setAcceptedState] = useState<boolean | null>(null);
 
@@ -21,11 +31,7 @@ export function AgeGate({ children }: { children: React.ReactNode }) {
   }
 
   if (accepted === null) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-black">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-emerald-500 border-t-transparent" />
-      </div>
-    );
+    return <AgeGateLoading />;
   }
 
   if (accepted) {
@@ -73,5 +79,14 @@ export function AgeGate({ children }: { children: React.ReactNode }) {
         </div>
       </div>
     </div>
+  );
+}
+
+// Wrapper component with Suspense boundary
+export function AgeGate({ children }: { children: React.ReactNode }) {
+  return (
+    <Suspense fallback={<AgeGateLoading />}>
+      <AgeGateInner>{children}</AgeGateInner>
+    </Suspense>
   );
 }

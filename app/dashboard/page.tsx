@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { unstable_noStore } from "next/cache";
 
 import { getAuthSession, checkUserNotBanned } from "@/lib/auth";
 import { getUserPlan, hasFeatureAccess } from "@/lib/plan-access";
@@ -11,8 +12,6 @@ import { EscortBookingsSection } from "@/app/dashboard/_components/EscortBooking
 import { SuccessBanner } from "@/app/dashboard/_components/SuccessBanner";
 import { PendingApprovalBanner } from "@/app/dashboard/_components/PendingApprovalBanner";
 
-export const dynamic = "force-dynamic";
-
 type DashboardPageProps = {
   searchParams: Promise<{
     payment?: string;
@@ -24,6 +23,9 @@ type DashboardPageProps = {
 export default async function DashboardPage({
   searchParams,
 }: DashboardPageProps) {
+  // Opt into dynamic rendering for user-specific dashboard
+  unstable_noStore();
+
   const params = await searchParams;
   const showSuccess = params.payment === "success";
   const showProfileUpdated = params.profile === "updated";

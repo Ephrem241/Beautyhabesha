@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { headers } from "next/headers";
 
 import {
   getSubscriptionPlanBySlug,
@@ -21,22 +22,29 @@ export async function generateMetadata({
   params,
 }: PaymentInstructionsPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const plan = await getSubscriptionPlanBySlug(slug);
-  if (!plan) return { title: "Payment Instructions" };
-  return {
-    title: `Payment Instructions – ${plan.name}`,
-    description: `Complete your payment for the ${plan.name} plan.`,
-  };
+  try {
+    const plan = await getSubscriptionPlanBySlug(slug);
+    if (!plan) return { title: "Payment Instructions" };
+    return {
+      title: `Payment Instructions – ${plan.name}`,
+      description: `Complete your payment for the ${plan.name} plan.`,
+    };
+  } catch (error) {
+    // Fallback metadata if database is not accessible
+    console.warn('[generateMetadata] Database error, using fallback metadata:', error);
+    return { title: "Payment Instructions" };
+  }
 }
 
-export async function generateStaticParams() {
-  const plans = await getActiveSubscriptionPlans();
-  return plans.map((p) => ({ slug: p.slug }));
-}
+// Removed generateStaticParams() to make this route fully dynamic
+// This avoids prerender timing issues with Prisma queries during build
 
 export default async function PaymentInstructionsSlugPage({
   params,
 }: PaymentInstructionsPageProps) {
+  // Access request data first to make this route dynamic and avoid prerender timing issues
+  await headers();
+
   const { slug } = await params;
   const [session, plan, allPlans, paymentAccounts] = await Promise.all([
     getAuthSession(),

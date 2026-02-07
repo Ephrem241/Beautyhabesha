@@ -1,5 +1,6 @@
 import nextDynamic from "next/dynamic";
 import { redirect } from "next/navigation";
+import { unstable_noStore } from "next/cache";
 
 import { getAuthSession } from "@/lib/auth";
 import { getBookingsForAdminCursor, getPendingDepositsForAdmin } from "@/lib/booking";
@@ -12,8 +13,6 @@ const PendingDepositsPanel = nextDynamic(() => import("./_components/PendingDepo
   loading: () => <TableSkeleton rows={3} cols={4} />,
 });
 
-export const dynamic = "force-dynamic";
-
 async function requireAdmin() {
   const session = await getAuthSession();
   if (!session?.user || session.user.role !== "admin") {
@@ -22,6 +21,9 @@ async function requireAdmin() {
 }
 
 export default async function AdminBookingsPage() {
+  // Opt into dynamic rendering for admin dashboard
+  unstable_noStore();
+
   await requireAdmin();
 
   const [{ items: bookings }, pendingDeposits] = await Promise.all([

@@ -1,5 +1,6 @@
 import nextDynamic from "next/dynamic";
 import { redirect } from "next/navigation";
+import { unstable_noStore } from "next/cache";
 
 import { getAuthSession } from "@/lib/auth";
 import { listPaymentsCursor, listSubscriptionsCursor } from "@/lib/admin-cursor";
@@ -33,8 +34,6 @@ type SubscriptionPayment = {
   proofUrl: string;
 };
 
-export const dynamic = "force-dynamic";
-
 async function requireAdmin() {
   const session = await getAuthSession();
   if (!session?.user || session.user.role !== "admin") {
@@ -43,6 +42,9 @@ async function requireAdmin() {
 }
 
 export default async function AdminPaymentsPage() {
+  // Opt into dynamic rendering for admin dashboard
+  unstable_noStore();
+
   await requireAdmin();
 
   const [paymentsResult, subscriptionsResult] = await Promise.all([

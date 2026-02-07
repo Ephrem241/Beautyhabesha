@@ -26,8 +26,6 @@ function escortCardClassName(planId: PlanId): string {
   return base + "border-zinc-800 hover:border-emerald-500/60";
 }
 
-export const revalidate = 60;
-
 export const metadata: Metadata = {
   title: "Escort Listings",
   description: "Browse premium escort profiles by membership visibility.",

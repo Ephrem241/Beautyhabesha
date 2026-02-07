@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 
 import { getActiveSubscriptionPlans } from "@/lib/subscription-plans";
 
 import PlanCard from "./_components/PlanCard";
 import PricingHeader from "./_components/PricingHeader";
-
-export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "Pricing",
@@ -21,6 +20,9 @@ export const metadata: Metadata = {
 };
 
 export default async function PricingPage() {
+  // Access request data first to make this route dynamic and avoid prerender timing issues
+  await headers();
+
   const plans = await getActiveSubscriptionPlans();
 
   return (
