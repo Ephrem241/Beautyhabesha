@@ -4,6 +4,7 @@ import { getFeaturedEscorts } from "@/lib/escorts";
 import { getViewerHasActiveSubscription } from "@/lib/viewer-access";
 import { ButtonLink } from "@/app/_components/ui/Button";
 import { HeroTextCarousel } from "@/app/_components/HeroTextCarousel";
+import { HeroBackgroundCarousel } from "@/app/_components/HeroBackgroundCarousel";
 import { ProfileAvatar } from "@/app/_components/ProfileAvatar";
 import { ProtectedEscortImage } from "@/app/_components/ProtectedEscortImage";
 
@@ -22,9 +23,16 @@ export default async function Home() {
   return (
     <div className="min-h-screen bg-black px-4 pb-16 pt-16 text-white sm:px-6 sm:pb-20 sm:pt-20">
       <div className="mx-auto max-w-6xl">
-        <div className="mb-8">
-          <HeroTextCarousel />
-        </div>
+        <section className="relative mb-8 min-h-[280px] overflow-hidden rounded-2xl border border-zinc-800 sm:min-h-[320px] sm:rounded-3xl">
+          <HeroBackgroundCarousel
+            imageUrls={spotlight.map((e) => e.images[0]).filter(Boolean) as string[]}
+            intervalMs={5000}
+          />
+          <div className="absolute inset-0 z-1 bg-black/50" aria-hidden />
+          <div className="relative z-10 flex min-h-[280px] items-center sm:min-h-[320px]">
+            <HeroTextCarousel />
+          </div>
+        </section>
 
         <section className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4 sm:rounded-3xl sm:p-6 lg:p-8">
           <p className="text-xs font-semibold uppercase tracking-[0.4em] text-emerald-300">
@@ -82,7 +90,7 @@ export default async function Home() {
                         priority={idx === 0}
                       />
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-zinc-900 via-black to-emerald-950/60 text-xs uppercase tracking-[0.3em] text-zinc-500">
+                      <div className="flex h-full w-full items-center justify-center bg-linear-to-br from-zinc-900 via-black to-emerald-950/60 text-xs uppercase tracking-[0.3em] text-zinc-500">
                         No image
                       </div>
                     )}

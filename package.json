@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "next dev",
-    "prebuild": "node scripts/remove-middleware.js && prisma generate",
+    "prebuild": "node scripts/remove-middleware.js",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",

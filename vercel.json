@@ -1,12 +1,8 @@
 {
   "crons": [
-    {
-      "path": "/api/cron/expire-subscriptions",
-      "schedule": "0 0 * * *"
-    },
-    {
-      "path": "/api/cron/archive-data",
-      "schedule": "0 1 * * *"
-    }
-  ]
+    { "path": "/api/cron/expire-subscriptions", "schedule": "0 0 * * *" },
+    { "path": "/api/cron/archive-data", "schedule": "0 1 * * *" }
+  ],
+  "installCommand": "npm ci",
+  "framework": "nextjs"
 }
