@@ -76,6 +76,9 @@ export function UploadProofForm({
         <p className="mt-4 text-sm text-red-400">{state.error}</p>
       )}
 
+      <p className="mt-4 text-xs text-zinc-500">
+        Choose your receipt image above. When you submit, we&apos;ll ask you to sign in or sign up if needed.
+      </p>
       <button
         type="submit"
         className="mt-6 inline-flex w-full items-center justify-center rounded-full bg-emerald-400 px-6 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-emerald-950 transition hover:bg-emerald-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400 disabled:opacity-50"

@@ -31,7 +31,12 @@ export async function submitPaymentProof(
   const userId = session?.user?.id;
 
   if (!userId) {
-    redirect(`/auth/login?callbackUrl=${encodeURIComponent("/upload-proof")}`);
+    const planSlug = formData.get("planSlug");
+    const callbackUrl =
+      typeof planSlug === "string" && planSlug
+        ? `/upload-proof?plan=${encodeURIComponent(planSlug)}`
+        : "/upload-proof";
+    redirect(`/auth/login?callbackUrl=${encodeURIComponent(callbackUrl)}`);
   }
 
   // Rate limiting: max 5 payment submissions per hour

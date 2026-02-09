@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import Link from "next/link";
 
@@ -26,24 +25,24 @@ export default async function UploadProofPage({
   await headers();
 
   const session = await getAuthSession();
-  if (!session?.user) {
-    redirect(`/auth/login?callbackUrl=${encodeURIComponent("/upload-proof")}`);
-  }
-
   const params = await searchParams;
   const planSlug = params?.plan ?? "";
+  const uploadProofUrl = planSlug ? `/upload-proof?plan=${planSlug}` : "/upload-proof";
+
   const [plan, allPlans, paymentAccounts, pendingPayment] = await Promise.all([
     planSlug ? getSubscriptionPlanBySlug(planSlug) : null,
     getActiveSubscriptionPlans(),
     getActivePaymentAccounts(),
-    prisma.payment.findFirst({
-      where: {
-        userId: session.user.id,
-        status: "pending",
-      },
-      orderBy: { createdAt: "desc" },
-      include: { plan: true },
-    }),
+    session?.user?.id
+      ? prisma.payment.findFirst({
+          where: {
+            userId: session.user.id,
+            status: "pending",
+          },
+          orderBy: { createdAt: "desc" },
+          include: { plan: true },
+        })
+      : Promise.resolve(null),
   ]);
 
   const selectedPlan = plan ?? (planSlug ? allPlans.find((p) => p.slug === planSlug) : null) ?? allPlans.find((p) => p.price > 0) ?? null;
@@ -71,7 +70,7 @@ export default async function UploadProofPage({
     );
   }
 
-  if (pendingPayment) {
+  if (session?.user && pendingPayment) {
     return (
       <main className="min-h-screen bg-black px-4 pb-16 pt-16 text-white sm:px-6">
         <div className="mx-auto max-w-lg rounded-2xl border border-amber-500/40 bg-amber-950/20 p-6 text-center">
@@ -113,9 +112,31 @@ export default async function UploadProofPage({
       <div className="mx-auto max-w-lg rounded-2xl border border-zinc-800 bg-zinc-950 p-4 sm:p-6">
         <h1 className="text-xl font-semibold sm:text-2xl">Upload payment proof</h1>
         <p className="mt-2 text-sm text-zinc-400">
-          Upload a photo or screenshot of your payment receipt for the{" "}
+          Choose your payment screenshot below for the{" "}
           <strong className="text-zinc-200">{selectedPlan.name}</strong> plan.
+          When you click Submit, we&apos;ll ask you to sign in or sign up, then your proof will be sent.
         </p>
+        {!session?.user && (
+          <div className="mt-4 rounded-xl border border-zinc-700 bg-zinc-900/50 p-4">
+            <p className="text-sm text-zinc-300">
+              You can pick your receipt image first. After you submit, we&apos;ll send you to sign in or create an account (you may need to choose your image again after returning).
+            </p>
+            <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:gap-3">
+              <Link
+                href={`/auth/login?callbackUrl=${encodeURIComponent(uploadProofUrl)}`}
+                className="inline-flex flex-1 justify-center rounded-full bg-emerald-400 px-4 py-2.5 text-sm font-semibold text-emerald-950 hover:bg-emerald-300"
+              >
+                Sign in
+              </Link>
+              <Link
+                href={`/auth/register?redirect=${encodeURIComponent(uploadProofUrl)}`}
+                className="inline-flex flex-1 justify-center rounded-full border border-zinc-600 px-4 py-2.5 text-sm font-semibold text-zinc-200 hover:bg-zinc-700"
+              >
+                Sign up
+              </Link>
+            </div>
+          </div>
+        )}
 
         <div className="mt-4 rounded-xl border border-zinc-800 bg-black p-4">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300">
