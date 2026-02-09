@@ -11,8 +11,8 @@ import { formatPrice, formatDurationDays } from "@/lib/plan-format";
 import { getAuthSession } from "@/lib/auth";
 import { getActivePaymentAccounts } from "@/lib/payment-accounts";
 
-import { IHavePaidButton } from "../_components/IHavePaidButton";
 import { CopyableAccountCard } from "../_components/CopyableAccountCard";
+import { UploadProofForm } from "@/app/upload-proof/_components/UploadProofForm";
 
 type PaymentInstructionsPageProps = {
   params: Promise<{ slug: string }>;
@@ -136,34 +136,31 @@ export default async function PaymentInstructionsSlugPage({
 
         <div className="mt-8 rounded-2xl border-2 border-emerald-500/50 bg-emerald-950/30 p-4 sm:p-6">
           <p className="text-center text-sm font-semibold text-zinc-200">
-            Already made your payment?
+            Already made your payment? Upload your receipt below.
           </p>
-          {session?.user ? (
-            <div className="mt-4">
-              <IHavePaidButton
-                href={uploadProofUrl}
-                label="I Have Paid – Upload Receipt"
-              />
-            </div>
-          ) : (
-            <div className="mt-4 space-y-3">
-              <p className="text-center text-xs text-zinc-500">
-                Sign in or create an account to upload your payment proof.
-              </p>
-              <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
-                <Link
-                  href={loginRedirect}
-                  className="inline-flex flex-1 items-center justify-center rounded-full bg-emerald-400 px-6 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-emerald-950 transition hover:bg-emerald-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400 sm:flex-initial"
-                >
-                  Sign in
-                </Link>
-                <Link
-                  href={registerRedirect}
-                  className="inline-flex flex-1 items-center justify-center rounded-full border border-zinc-600 px-6 py-3 text-sm font-semibold text-zinc-200 transition hover:bg-zinc-800 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400 sm:flex-initial"
-                >
-                  Sign up
-                </Link>
-              </div>
+          {!session?.user && (
+            <p className="mt-2 text-center text-xs text-zinc-500">
+              You can choose your screenshot first. When you submit, we&apos;ll ask you to sign in or sign up if needed.
+            </p>
+          )}
+          <UploadProofForm
+            planSlug={selectedPlan.slug}
+            planId={selectedPlan.id}
+          />
+          {!session?.user && (
+            <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-center sm:gap-3">
+              <Link
+                href={loginRedirect}
+                className="inline-flex flex-1 justify-center rounded-full bg-zinc-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-zinc-600 sm:flex-initial"
+              >
+                Sign in
+              </Link>
+              <Link
+                href={registerRedirect}
+                className="inline-flex flex-1 justify-center rounded-full border border-zinc-600 px-4 py-2.5 text-sm font-semibold text-zinc-200 hover:bg-zinc-700 sm:flex-initial"
+              >
+                Sign up
+              </Link>
             </div>
           )}
         </div>
