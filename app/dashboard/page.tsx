@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { unstable_noStore } from "next/cache";
 
 import { getAuthSession, checkUserNotBanned } from "@/lib/auth";
@@ -34,6 +35,12 @@ export default async function DashboardPage({
   const role = session?.user?.role;
   const userId = session?.user?.id ?? null;
   if (userId) await checkUserNotBanned(userId);
+
+  // Send admins straight to the admin dashboard hub
+  if (role === "admin") {
+    redirect("/dashboard/admin");
+  }
+
   const plan = userId ? await getUserPlan(userId) : null;
   const renewalData =
     role === "escort" && userId ? await getRenewalDashboardData(userId) : null;

@@ -300,10 +300,10 @@ async function main() {
   console.log("✅ Subscriptions created");
 
   console.log("\n✨ Seeding completed successfully!");
-  console.log("\n📝 Sample login credentials:");
-  console.log("   Admin (Abenezer z): admin@example.com / password123");
-  console.log("   Escort: mimi@example.com / password123");
-  console.log("   User: user1@example.com / password123");
+  console.log("\n📝 Sample login credentials (use username, not email):");
+  console.log("   Admin:  username abenezerz    / password password123");
+  console.log("   Escort: username mimi        / password password123");
+  console.log("   User:   username user1       / password password123");
 }
 
 main()

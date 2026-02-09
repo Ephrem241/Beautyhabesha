@@ -23,7 +23,9 @@ export function PlansTable({ plans: initialPlans }: PlansTableProps) {
   const [editTarget, setEditTarget] = useState<PlanDisplay | null>(null);
   const router = useRouter();
 
-  const refresh = () => router.refresh();
+  const refresh = () => {
+    setTimeout(() => router.refresh(), 0);
+  };
 
   const handleToggle = (planId: string, flag: "isActive" | "isPopular" | "isRecommended") => {
     setResult(null);

@@ -34,7 +34,7 @@ export function ReportProfileButton({ escortId, escortName, isLoggedIn }: Report
       const res = await submitReport({ ok: false }, formData);
       if (res.ok) {
         setOpen(false);
-        router.refresh();
+        setTimeout(() => router.refresh(), 0);
       } else {
         setError(res.error ?? "Something went wrong.");
       }

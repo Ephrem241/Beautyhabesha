@@ -108,7 +108,7 @@ export function FloatingContactButtons() {
 
   return (
     <div
-      className="fixed bottom-5 right-4 z-40 flex flex-col items-end gap-3 sm:bottom-6 sm:right-6 sm:gap-4"
+      className="fixed bottom-5 right-4 z-40 flex flex-col items-end gap-3 pb-[env(safe-area-inset-bottom,0)] pr-[env(safe-area-inset-right,0)] sm:bottom-6 sm:right-6 sm:gap-4"
       role="group"
       aria-label="Contact us"
     >

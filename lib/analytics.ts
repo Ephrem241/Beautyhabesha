@@ -7,10 +7,7 @@
 
 export function reportPageView(url: string, title?: string): void {
   if (typeof window === "undefined") return;
-  if (process.env.NODE_ENV === "development") {
-     
-    console.debug("[Analytics] page_view", { url, title });
-  }
+  // Skip logging in dev to keep console clean
   // Example: window.gtag?.("config", "G-XXX", { page_path: url, page_title: title });
 }
 
@@ -22,10 +19,7 @@ export function reportWebVital(metric: {
   delta: number;
 }): void {
   if (typeof window === "undefined") return;
-  if (process.env.NODE_ENV === "development") {
-     
-    console.debug("[Analytics] web_vital", metric.name, metric.value, metric.rating);
-  }
+  // Skip logging in dev to keep console clean
   // Example GA4: window.gtag?.("event", metric.name, { value: Math.round(metric.name === "CLS" ? metric.value * 1000 : metric.value), event_label: metric.id, non_interaction: true });
 }
 
@@ -34,9 +28,6 @@ export function reportEvent(
   params?: Record<string, string | number | boolean>
 ): void {
   if (typeof window === "undefined") return;
-  if (process.env.NODE_ENV === "development") {
-     
-    console.debug("[Analytics] event", name, params);
-  }
+  // Skip logging in dev to keep console clean
   // Example: window.gtag?.("event", name, params);
 }

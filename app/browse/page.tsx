@@ -54,7 +54,7 @@ export default async function BrowsePage({ searchParams }: BrowsePageProps) {
   ]);
 
   return (
-    <div className="fixed inset-0 top-16 flex flex-col bg-black">
+    <div className="fixed inset-0 browse-panel-top flex flex-col bg-black">
       <Suspense
         fallback={
           <div className="min-h-0 flex-1 flex items-center justify-center px-4">

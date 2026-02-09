@@ -24,12 +24,16 @@ export const authOptions: NextAuthOptions = {
   },
   cookies: {
     sessionToken: {
-      name: `__Secure-next-auth.session-token`,
+      // __Secure- prefix is only valid over HTTPS; use plain name in dev so cookie is set on localhost
+      name:
+        process.env.NODE_ENV === "production"
+          ? "__Secure-next-auth.session-token"
+          : "next-auth.session-token",
       options: {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        secure: process.env.NODE_ENV === "production", // HTTPS only in production
+        secure: process.env.NODE_ENV === "production",
       },
     },
   },

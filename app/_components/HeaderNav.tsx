@@ -13,7 +13,7 @@ type HeaderNavProps = {
 };
 
 const linkClass =
-  "transition hover:text-emerald-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald-400";
+  "transition hover:text-emerald-300 active:bg-transparent focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald-400";
 
 export default function HeaderNav({ isLoggedIn, role }: HeaderNavProps) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -127,7 +127,7 @@ export default function HeaderNav({ isLoggedIn, role }: HeaderNavProps) {
             aria-label="Mobile menu"
             aria-hidden={!menuOpen}
             inert={!menuOpen ? true : undefined}
-            className={`fixed inset-0 top-16 z-[60] overflow-y-auto bg-zinc-950 transition-opacity duration-200 md:hidden ${
+            className={`fixed inset-0 top-[calc(3.5rem+env(safe-area-inset-top,0))] z-60 overflow-y-auto bg-zinc-950 transition-opacity duration-200 sm:top-[calc(4rem+env(safe-area-inset-top,0))] md:hidden ${
               menuOpen ? "visible opacity-100" : "invisible opacity-0 pointer-events-none"
             }`}
             onClick={(e) => e.target === e.currentTarget && closeMenu()}
@@ -142,21 +142,21 @@ export default function HeaderNav({ isLoggedIn, role }: HeaderNavProps) {
               </p>
               <Link
                 href="/pricing"
-                className="rounded-xl px-4 py-3 text-left text-zinc-200 transition hover:bg-zinc-800 hover:text-emerald-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
+                className="rounded-xl px-4 py-3 text-left text-zinc-200 transition hover:bg-zinc-800 hover:text-emerald-300 active:bg-zinc-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
                 onClick={closeMenu}
               >
                 Pricing
               </Link>
               <Link
                 href="/escorts"
-                className="rounded-xl px-4 py-3 text-left text-zinc-200 transition hover:bg-zinc-800 hover:text-emerald-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
+                className="rounded-xl px-4 py-3 text-left text-zinc-200 transition hover:bg-zinc-800 hover:text-emerald-300 active:bg-zinc-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
                 onClick={closeMenu}
               >
                 Escorts
               </Link>
               <Link
                 href="/browse"
-                className="rounded-xl px-4 py-3 text-left text-zinc-200 transition hover:bg-zinc-800 hover:text-emerald-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
+                className="rounded-xl px-4 py-3 text-left text-zinc-200 transition hover:bg-zinc-800 hover:text-emerald-300 active:bg-zinc-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
                 onClick={closeMenu}
               >
                 Browse
@@ -164,7 +164,7 @@ export default function HeaderNav({ isLoggedIn, role }: HeaderNavProps) {
               {isLoggedIn ? (
                 <Link
                   href="/dashboard"
-                  className="rounded-xl px-4 py-3 text-left text-zinc-200 transition hover:bg-zinc-800 hover:text-emerald-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
+                  className="rounded-xl px-4 py-3 text-left text-zinc-200 transition hover:bg-zinc-800 hover:text-emerald-300 active:bg-zinc-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
                   onClick={closeMenu}
                 >
                   Dashboard
@@ -172,7 +172,7 @@ export default function HeaderNav({ isLoggedIn, role }: HeaderNavProps) {
               ) : (
                 <Link
                   href="/auth/login"
-                  className="rounded-xl px-4 py-3 text-left text-zinc-200 transition hover:bg-zinc-800 hover:text-emerald-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
+                  className="rounded-xl px-4 py-3 text-left text-zinc-200 transition hover:bg-zinc-800 hover:text-emerald-300 active:bg-zinc-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
                   onClick={closeMenu}
                 >
                   Sign in
@@ -181,7 +181,7 @@ export default function HeaderNav({ isLoggedIn, role }: HeaderNavProps) {
               {role === "escort" ? (
                 <Link
                   href="/escort/profile"
-                  className="rounded-xl px-4 py-3 text-left text-zinc-200 transition hover:bg-zinc-800 hover:text-emerald-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
+                  className="rounded-xl px-4 py-3 text-left text-zinc-200 transition hover:bg-zinc-800 hover:text-emerald-300 active:bg-zinc-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
                   onClick={closeMenu}
                 >
                   My profile
@@ -190,7 +190,7 @@ export default function HeaderNav({ isLoggedIn, role }: HeaderNavProps) {
               {role === "admin" ? (
                 <Link
                   href="/dashboard/admin/subscriptions"
-                  className="rounded-xl px-4 py-3 text-left text-zinc-200 transition hover:bg-zinc-800 hover:text-emerald-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
+                  className="rounded-xl px-4 py-3 text-left text-zinc-200 transition hover:bg-zinc-800 hover:text-emerald-300 active:bg-zinc-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
                   onClick={closeMenu}
                 >
                   Admin

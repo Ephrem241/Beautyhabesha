@@ -39,8 +39,8 @@ function AgeGateInner({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="fixed inset-0 z-[100] flex min-h-screen flex-col items-center justify-center bg-black px-4 text-white">
-      <div className="w-full max-w-md rounded-2xl border border-zinc-800 bg-zinc-950 p-6 sm:p-8 text-center">
+    <div className="fixed inset-0 z-100 flex min-h-screen flex-col items-center justify-center bg-black px-4 py-[env(safe-area-inset-top,0)] pb-[env(safe-area-inset-bottom,0)] text-white">
+      <div className="w-full max-w-md rounded-2xl border border-zinc-800 bg-zinc-950 p-6 text-center sm:p-8">
         <p className="text-xs font-semibold uppercase tracking-[0.3em] text-amber-400">
           Adults only
         </p>

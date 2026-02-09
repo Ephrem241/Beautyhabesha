@@ -2,11 +2,10 @@
 
 import Link from "next/link";
 import { signIn } from "next-auth/react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useState, Suspense } from "react";
 
 function LoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
   const error = searchParams.get("error");
@@ -35,8 +34,8 @@ function LoginForm() {
         setErrorMessage("Invalid username or password");
         setIsLoading(false);
       } else {
-        router.push(callbackUrl);
-        router.refresh();
+        // Full page redirect so the session is applied and dashboard loads correctly
+        window.location.href = callbackUrl;
       }
     } catch {
       setErrorMessage("An error occurred. Please try again.");

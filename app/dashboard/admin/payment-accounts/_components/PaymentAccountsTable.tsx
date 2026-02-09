@@ -22,7 +22,9 @@ export function PaymentAccountsTable({ accounts: initialAccounts }: PaymentAccou
   const [editTarget, setEditTarget] = useState<PaymentAccountDoc | null>(null);
   const router = useRouter();
 
-  const refresh = () => router.refresh();
+  const refresh = () => {
+    setTimeout(() => router.refresh(), 0);
+  };
 
   const handleToggleActive = (id: string) => {
     setResult(null);
