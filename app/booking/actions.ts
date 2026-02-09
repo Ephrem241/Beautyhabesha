@@ -64,7 +64,7 @@ export async function createBooking(
     include: { user: { select: { email: true, username: true } } },
   });
   if (!escort) {
-    return { ok: false, error: "Escort not found or not available." };
+    return { ok: false, error: "Model not found or not available." };
   }
 
   const date = new Date(parsed.data.date);

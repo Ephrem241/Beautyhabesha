@@ -11,7 +11,7 @@ import { ProtectedEscortImage } from "@/app/_components/ProtectedEscortImage";
 export const metadata: Metadata = {
   title: "Home",
   description:
-    "Discover premium escort profiles with Platinum spotlight placement.",
+    "Discover premium model profiles with Platinum spotlight placement.",
 };
 
 export default async function Home() {
@@ -50,7 +50,7 @@ export default async function Home() {
               View plans
             </ButtonLink>
             <ButtonLink href="/escorts" variant="outline" size="md">
-              Browse escorts
+              Browse models
             </ButtonLink>
           </div>
         </section>

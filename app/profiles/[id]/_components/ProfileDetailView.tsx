@@ -62,18 +62,32 @@ export function ProfileDetailView({
         </div>
       </motion.section>
 
-      {/* Bio section (below fold, optional) */}
-      {profile.bio && canShowContact && (
+      {/* Bio / Description (below fold, optional) */}
+      {(profile.bio || profile.description) && canShowContact && (
         <motion.section
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.2 }}
           className="px-4 py-6"
         >
-          <h2 className="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-500">
-            About
-          </h2>
-          <p className="mt-3 text-sm text-zinc-300">{profile.bio}</p>
+          {profile.bio && (
+            <>
+              <h2 className="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-500">
+                About
+              </h2>
+              <p className="mt-3 text-sm text-zinc-300">{profile.bio}</p>
+            </>
+          )}
+          {profile.description && (
+            <div className={profile.bio ? "mt-6" : ""}>
+              <h2 className="text-xs font-semibold uppercase tracking-[0.3em] text-zinc-500">
+                Description
+              </h2>
+              <p className="mt-3 whitespace-pre-line text-sm text-zinc-300">
+                {profile.description}
+              </p>
+            </div>
+          )}
         </motion.section>
       )}
 

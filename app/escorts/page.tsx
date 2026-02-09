@@ -27,16 +27,16 @@ function escortCardClassName(planId: PlanId): string {
 }
 
 export const metadata: Metadata = {
-  title: "Escort Listings",
-  description: "Browse premium escort profiles by membership visibility.",
+  title: "Model Listings",
+  description: "Browse premium model profiles by membership visibility.",
   alternates: { canonical: "/escorts" },
   openGraph: {
-    title: "Escort Listings • Abenezer z",
-    description: "Browse premium escort profiles by membership visibility.",
+    title: "Model Listings • Beautyhabesha",
+    description: "Browse premium model profiles by membership visibility.",
     type: "website",
     url: "/escorts",
   },
-  twitter: { card: "summary_large_image", title: "Escort Listings • Abenezer z" },
+  twitter: { card: "summary_large_image", title: "Model Listings • Beautyhabesha" },
 };
 
 export default async function EscortListingPage() {
@@ -53,9 +53,9 @@ export default async function EscortListingPage() {
     <div className="min-h-screen bg-black px-4 pb-16 pt-16 text-white sm:px-6 sm:pb-20 sm:pt-20">
       <div className="mx-auto max-w-6xl">
         <header className="flex flex-col gap-3">
-          <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Escorts" }]} />
+          <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Models" }]} />
           <p className="text-xs font-semibold uppercase tracking-[0.4em] text-emerald-300">
-            Escort listings
+            Model listings
           </p>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
@@ -123,7 +123,7 @@ export default async function EscortListingPage() {
                       priority={idx === 0}
                     />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-zinc-900 via-black to-emerald-950/60 text-xs uppercase tracking-[0.3em] text-zinc-500">
+                    <div className="flex h-full w-full items-center justify-center bg-linear-to-br from-zinc-900 via-black to-emerald-950/60 text-xs uppercase tracking-[0.3em] text-zinc-500">
                       No image
                     </div>
                   )}

@@ -22,6 +22,7 @@ const MIN_IMAGES = 3;
 const profileSchema = z.object({
   displayName: z.string().min(2).max(60),
   bio: z.string().max(500).optional().or(z.literal("")),
+  description: z.string().max(2000).optional().or(z.literal("")),
   city: z.string().max(60).optional().or(z.literal("")),
   existingImages: z
     .string()
@@ -54,6 +55,7 @@ export async function upsertEscortProfile(
   const parsed = profileSchema.safeParse({
     displayName: formData.get("displayName"),
     bio: formData.get("bio"),
+    description: formData.get("description"),
     city: formData.get("city"),
     existingImages: formData.get("existingImages"),
   });
@@ -172,6 +174,7 @@ export async function upsertEscortProfile(
     update: {
       displayName: parsed.data.displayName,
       bio: parsed.data.bio || null,
+      description: parsed.data.description || null,
       city: parsed.data.city || null,
       images: allImages as unknown as Prisma.JsonObject | Prisma.JsonArray,
       lastActiveAt: new Date(),
@@ -180,6 +183,7 @@ export async function upsertEscortProfile(
       userId,
       displayName: parsed.data.displayName,
       bio: parsed.data.bio || null,
+      description: parsed.data.description || null,
       city: parsed.data.city || null,
       images: allImages as unknown as Prisma.JsonObject | Prisma.JsonArray,
       status: "pending",

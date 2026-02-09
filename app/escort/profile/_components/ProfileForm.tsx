@@ -12,6 +12,7 @@ import { Button } from "@/app/_components/ui/Button";
 const profileSchema = z.object({
   displayName: z.string().min(1, "Display name is required").max(50, "Too long"),
   bio: z.string().max(500, "Bio too long").optional(),
+  description: z.string().max(2000, "Description too long").optional(),
   city: z.string().max(100, "City too long").optional(),
 });
 
@@ -20,6 +21,7 @@ type ProfileFormData = z.infer<typeof profileSchema>;
 type ProfileFormProps = {
   initialDisplayName?: string;
   initialBio?: string;
+  initialDescription?: string;
   initialCity?: string;
   initialPhone?: string;
   initialTelegram?: string;
@@ -37,6 +39,7 @@ const initialState: ProfileFormState = {};
 export default function ProfileForm({
   initialDisplayName,
   initialBio,
+  initialDescription,
   initialCity,
   initialPhone,
   initialTelegram,
@@ -58,6 +61,7 @@ export default function ProfileForm({
     defaultValues: {
       displayName: initialDisplayName || "",
       bio: initialBio || "",
+      description: initialDescription || "",
       city: initialCity || "",
     },
   });
@@ -66,6 +70,7 @@ export default function ProfileForm({
     const formData = new FormData();
     formData.append("displayName", data.displayName);
     if (data.bio) formData.append("bio", data.bio);
+    if (data.description) formData.append("description", data.description);
     if (data.city) formData.append("city", data.city);
     // Convert string[] to CloudinaryImage[] format for server
     const imagesAsCloudinaryFormat = existingImages.map(url => ({ url, publicId: `legacy_${url.split("/").pop()?.split(".")[0] || "unknown"}` }));
@@ -119,14 +124,28 @@ export default function ProfileForm({
       </div>
 
       <label className="mt-6 flex flex-col gap-2 text-sm text-zinc-200">
-        Bio
+        Short bio
         <textarea
           {...register("bio")}
-          rows={4}
-          className="rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-sm text-white"
+          rows={3}
+          placeholder="Brief tagline (max 500 characters)"
+          className="rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-sm text-white placeholder-zinc-500"
         />
         {errors.bio && (
           <span className="text-sm text-red-400">{errors.bio.message}</span>
+        )}
+      </label>
+
+      <label className="mt-6 flex flex-col gap-2 text-sm text-zinc-200">
+        Description
+        <textarea
+          {...register("description")}
+          rows={6}
+          placeholder="Full description about you (max 2000 characters)"
+          className="rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-sm text-white placeholder-zinc-500"
+        />
+        {errors.description && (
+          <span className="text-sm text-red-400">{errors.description.message}</span>
         )}
       </label>
 

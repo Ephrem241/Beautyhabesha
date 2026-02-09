@@ -54,7 +54,7 @@ export default function HeaderNav({ isLoggedIn, role }: HeaderNavProps) {
         Pricing
       </Link>
       <Link href="/escorts" className={linkClass} onClick={closeMenu}>
-        Escorts
+        Models
       </Link>
       <Link href="/browse" className={linkClass} onClick={closeMenu}>
         Browse
@@ -152,7 +152,7 @@ export default function HeaderNav({ isLoggedIn, role }: HeaderNavProps) {
                 className="rounded-xl px-4 py-3 text-left text-zinc-200 transition hover:bg-zinc-800 hover:text-emerald-300 active:bg-zinc-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
                 onClick={closeMenu}
               >
-                Escorts
+                Models
               </Link>
               <Link
                 href="/browse"

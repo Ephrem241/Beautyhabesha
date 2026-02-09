@@ -29,6 +29,7 @@ export default async function EscortProfilePage() {
       select: {
         displayName: true,
         bio: true,
+        description: true,
         city: true,
         phone: true,
         telegram: true,
@@ -79,7 +80,7 @@ export default async function EscortProfilePage() {
       <div className="mx-auto max-w-4xl">
         <header className="flex flex-col gap-3">
           <p className="text-xs font-semibold uppercase tracking-[0.4em] text-emerald-300">
-            Escort profile
+            Model profile
           </p>
           <h1 className="text-2xl font-semibold sm:text-3xl">
             {profile ? "Edit your profile" : "Create your profile"}
@@ -98,6 +99,7 @@ export default async function EscortProfilePage() {
         <ProfileForm
           initialDisplayName={profile?.displayName}
           initialBio={profile?.bio ?? undefined}
+          initialDescription={profile?.description ?? undefined}
           initialCity={profile?.city ?? undefined}
           initialPhone={profile?.phone ?? undefined}
           initialTelegram={profile?.telegram ?? undefined}

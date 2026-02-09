@@ -133,7 +133,7 @@ export default async function DashboardPage({
                 href="/escort/profile"
                 className="rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-4 text-sm text-zinc-200 transition hover:border-emerald-400 hover:text-emerald-300"
               >
-                Edit escort profile
+                Edit model profile
               </Link>
               <Link
                 href="/escort/availability"
@@ -188,7 +188,7 @@ export default async function DashboardPage({
                 href="/dashboard/admin/escorts"
                 className="rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-4 text-sm text-zinc-200 transition hover:border-emerald-400 hover:text-emerald-300"
               >
-                Manage escorts
+                Manage models
               </Link>
               <Link
                 href="/admin/chats"
@@ -200,7 +200,7 @@ export default async function DashboardPage({
                 href="/dashboard/admin/escorts/create"
                 className="rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-4 text-sm text-zinc-200 transition hover:border-emerald-400 hover:text-emerald-300"
               >
-                Create escort
+                Create model
               </Link>
               <Link
                 href="/dashboard/admin/reports"

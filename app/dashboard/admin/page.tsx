@@ -9,8 +9,8 @@ const ADMIN_SECTIONS = [
   { href: "/dashboard/admin/bookings", label: "Bookings", description: "Manage all bookings and pending deposits" },
   { href: "/dashboard/admin/subscriptions", label: "Subscriptions", description: "Review and approve subscription requests" },
   { href: "/dashboard/admin/payments", label: "Payments", description: "Pending payments and subscription payment records" },
-  { href: "/dashboard/admin/escorts", label: "Escorts", description: "Approve, reject, or suspend escort profiles" },
-  { href: "/dashboard/admin/escorts/create", label: "Create Escort", description: "Add a new escort account" },
+  { href: "/dashboard/admin/escorts", label: "Models", description: "Approve, reject, or suspend model profiles" },
+  { href: "/dashboard/admin/escorts/create", label: "Create Model", description: "Add a new model account" },
   { href: "/dashboard/admin/plans", label: "Plans", description: "Manage subscription plans (Normal, VIP, Platinum)" },
   { href: "/dashboard/admin/payment-accounts", label: "Payment Accounts", description: "Telebirr and bank details for payments" },
   { href: "/dashboard/admin/reports", label: "Profile Reports", description: "Review reports (fake, underage, abuse, scam)" },
@@ -35,7 +35,7 @@ export default async function AdminDashboardPage() {
           </p>
           <h1 className="mt-2 text-2xl font-semibold sm:text-3xl">Management</h1>
           <p className="mt-2 text-sm text-zinc-400">
-            Choose a section below to manage users, bookings, payments, escorts, and more.
+            Choose a section below to manage users, bookings, payments, models, and more.
           </p>
         </header>
 

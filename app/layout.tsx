@@ -36,12 +36,12 @@ export const metadata: Metadata = {
     template: "%s • Beautyhabesha",
   },
   description:
-    "Membership platform for premium escort profiles with verified listings.",
-  keywords: ["escort", "membership", "premium", "VIP", "Platinum", "profiles"],
+    "Membership platform for premium model profiles with verified listings.",
+  keywords: ["model", "membership", "premium", "VIP", "Platinum", "profiles"],
   openGraph: {
     title: "Beautyhabesha",
     description:
-      "Discover premium escort profiles with VIP and Platinum visibility.",
+      "Discover premium model profiles with VIP and Platinum visibility.",
     type: "website",
     siteName: "Beautyhabesha",
     locale: "en",
@@ -50,7 +50,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Beautyhabesha",
     description:
-      "Discover premium escort profiles with VIP and Platinum visibility.",
+      "Discover premium model profiles with VIP and Platinum visibility.",
   },
   alternates: {
     canonical: "/",

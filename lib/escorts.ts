@@ -23,6 +23,7 @@ export type PublicEscort = {
   id: string;
   displayName: string;
   bio?: string;
+  description?: string;
   city?: string;
   images: string[];
   /** Telegram handle (e.g. @feven) - always present when escort has one, for TelegramButton visibility */
@@ -52,6 +53,7 @@ export async function getPublicEscorts(): Promise<PublicEscort[]> {
       id: true,
       displayName: true,
       bio: true,
+      description: true,
       city: true,
       images: true,
       telegram: true,
@@ -76,6 +78,7 @@ export async function getPublicEscorts(): Promise<PublicEscort[]> {
       id: profile.id,
       displayName: profile.displayName,
       bio: profile.bio ?? undefined,
+      description: profile.description ?? undefined,
       city: profile.city ?? undefined,
       images: limitedImages,
       telegram: profile.telegram ?? undefined,
@@ -176,6 +179,7 @@ export async function getPublicEscortsOptimized(
       id: profile.id,
       displayName: profile.displayName,
       bio: viewerHasAccess ? (profile.bio ?? undefined) : undefined,
+      description: viewerHasAccess ? (profile.description ?? undefined) : undefined,
       city: profile.city ?? undefined,
       images: limitedImages.length > 0 ? limitedImages : [],
       telegram: profile.telegram ?? undefined,
@@ -316,6 +320,7 @@ export async function getBrowseProfilesFiltered(
       id: profile.id,
       displayName: profile.displayName,
       bio: viewerHasAccess ? (profile.bio ?? undefined) : undefined,
+      description: viewerHasAccess ? (profile.description ?? undefined) : undefined,
       city: profile.city ?? undefined,
       images: limitedImages.length > 0 ? limitedImages : [],
       telegram: profile.telegram ?? undefined,
@@ -434,6 +439,7 @@ export async function getBrowseProfilesCursor(
       id: profile.id,
       displayName: profile.displayName,
       bio: viewerHasAccess ? (profile.bio ?? undefined) : undefined,
+      description: viewerHasAccess ? (profile.description ?? undefined) : undefined,
       city: profile.city ?? undefined,
       images: limitedImages.length > 0 ? limitedImages : [],
       telegram: profile.telegram ?? undefined,
@@ -482,6 +488,7 @@ export type EscortMetadataForSeo = {
   displayName: string;
   city: string | null;
   bio: string | null;
+  description: string | null;
   image: string | null;
 };
 
@@ -491,7 +498,7 @@ export async function getEscortMetadataForSeo(
 ): Promise<EscortMetadataForSeo | null> {
   const profile = await prisma.escortProfile.findUnique({
     where: { id: profileId },
-    select: { displayName: true, city: true, bio: true, images: true, status: true },
+    select: { displayName: true, city: true, bio: true, description: true, images: true, status: true },
   });
   if (!profile || profile.status !== "approved") return null;
   const urls = extractImageUrls(profile.images);
@@ -499,6 +506,7 @@ export async function getEscortMetadataForSeo(
     displayName: profile.displayName,
     city: profile.city,
     bio: profile.bio,
+    description: profile.description,
     image: urls[0] ?? null,
   };
 }
@@ -544,6 +552,7 @@ export async function getPublicEscortById(
       id: profile.id,
       displayName: profile.displayName,
       bio: viewerHasAccess ? (profile.bio ?? undefined) : undefined,
+      description: viewerHasAccess ? (profile.description ?? undefined) : undefined,
       city: profile.city ?? undefined,
       images: limitedImages.length > 0 ? limitedImages : [],
       telegram: profile.telegram ?? undefined,

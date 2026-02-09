@@ -24,7 +24,7 @@ export default function AdminLayout({
             <Link href="/dashboard/admin/bookings" className="hover:text-zinc-300">Bookings</Link>
             <Link href="/dashboard/admin/subscriptions" className="hover:text-zinc-300">Subscriptions</Link>
             <Link href="/dashboard/admin/payments" className="hover:text-zinc-300">Payments</Link>
-            <Link href="/dashboard/admin/escorts" className="hover:text-zinc-300">Escorts</Link>
+            <Link href="/dashboard/admin/escorts" className="hover:text-zinc-300">Models</Link>
             <Link href="/dashboard/admin/plans" className="hover:text-zinc-300">Plans</Link>
             <Link href="/dashboard/admin/reports" className="hover:text-zinc-300">Reports</Link>
           </div>

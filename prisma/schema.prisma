@@ -99,6 +99,7 @@ model EscortProfile {
   userId             String       @unique
   displayName        String
   bio                String?
+  description        String?   @db.Text
   city               String?
   price              Int?
   available          Boolean      @default(true)

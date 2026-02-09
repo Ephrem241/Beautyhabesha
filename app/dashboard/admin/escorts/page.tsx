@@ -90,25 +90,25 @@ export default async function AdminEscortsPage({ searchParams }: Props) {
             <p className="text-xs font-semibold uppercase tracking-[0.4em] text-emerald-300">
               Admin dashboard
             </p>
-            <h1 className="text-2xl font-semibold sm:text-3xl">Escort Management</h1>
+            <h1 className="text-2xl font-semibold sm:text-3xl">Model Management</h1>
             <p className="mt-1 text-sm text-zinc-400">
-              Review and manage escort profiles. Approve, reject, or suspend escorts.
+              Review and manage model profiles. Approve, reject, or suspend models.
             </p>
           </div>
           <Link
             href="/dashboard/admin/escorts/create"
             className="mt-4 shrink-0 rounded-full bg-emerald-500 px-5 py-2.5 text-sm font-semibold uppercase tracking-[0.2em] text-emerald-950 transition hover:bg-emerald-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400 sm:mt-0"
           >
-            Create escort
+            Create model
           </Link>
         </header>
 
         {showCreated && (
           <div className="mt-6 rounded-2xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
-            Escort account created and approved.
+            Model account created and approved.
             {createdUsername && (
               <span className="mt-1 block">
-                Sign in with username <strong>{createdUsername}</strong> and the default escort password.
+                Sign in with username <strong>{createdUsername}</strong> and the default model password.
               </span>
             )}
           </div>
