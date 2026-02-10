@@ -1,6 +1,6 @@
 "use client";
 
-import { useFormState } from "react-dom";
+import { useActionState } from "react";
 
 import { submitPaymentProof, type PaymentFormState } from "../actions";
 
@@ -11,7 +11,7 @@ type PaymentFormProps = {
 const initialState: PaymentFormState = {};
 
 export default function PaymentForm({ planSlug }: PaymentFormProps) {
-  const [state, formAction] = useFormState(submitPaymentProof, initialState);
+  const [state, formAction] = useActionState(submitPaymentProof, initialState);
 
   return (
     <form

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import { memo, useCallback, useEffect, useRef } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import Image from "next/image";
 
@@ -14,7 +14,7 @@ type HeroBackgroundCarouselProps = {
   intervalMs?: number;
 };
 
-export function HeroBackgroundCarousel({
+export const HeroBackgroundCarousel = memo(function HeroBackgroundCarousel({
   imageUrls,
   intervalMs = AUTO_PLAY_MS,
 }: HeroBackgroundCarouselProps) {
@@ -59,11 +59,11 @@ export function HeroBackgroundCarousel({
 
   return (
     <div
-      className="absolute inset-0 z-0 overflow-hidden"
+      className="absolute inset-0 z-0 overflow-hidden will-change-transform"
       ref={emblaRef}
       aria-hidden
     >
-      <div className="flex h-full">
+      <div className="flex h-full will-change-transform">
         {imageUrls.map((src, i) => (
           <div
             key={`${src}-${i}`}
@@ -73,7 +73,12 @@ export function HeroBackgroundCarousel({
               src={src}
               alt=""
               fill
-              className="object-cover scale-110 blur-2xl opacity-80"
+              className="object-cover will-change-transform"
+              style={{
+                transform: "scale(1.1)",
+                filter: "blur(40px)",
+                opacity: 0.8,
+              }}
               sizes="100vw"
               placeholder="blur"
               blurDataURL={BLUR_PLACEHOLDER}
@@ -84,4 +89,4 @@ export function HeroBackgroundCarousel({
       </div>
     </div>
   );
-}
+});

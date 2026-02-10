@@ -16,9 +16,10 @@ const poolMax = isNeon ? 5 : 10;
 const pool = new Pool({
   connectionString,
   max: poolMax,
-  idleTimeoutMillis: 30000,
-  // increase connection timeout slightly to accommodate cold starts
-  connectionTimeoutMillis: 20000,
+  // Release connections before Neon idle disconnect (~5min) so we don't reuse dead connections
+  idleTimeoutMillis: 45000,
+  // Cold start / slow network: allow up to 90s per connection attempt
+  connectionTimeoutMillis: 90000,
 });
 
 // Handle pool errors
@@ -36,21 +37,23 @@ const basePrisma = new PrismaClient({
   log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
 });
 
-// Transient DB error messages to retry on
+// Transient DB error messages / codes to retry on (Neon closes idle connections → P1017)
 const TRANSIENT_ERROR_MESSAGES = [
   "connection terminated unexpectedly",
   "connection terminated due to connection timeout",
+  "server has closed the connection",
   "econnreset",
   "connection reset by peer",
   "terminating connection due to administrator command",
+  "p1017",
 ];
 
-// Retry logic extension (without timing to avoid Next.js prerender issues)
+// Retry logic extension (longer backoff for Neon cold starts / connection timeout)
 const prismaWithRetry = basePrisma.$extends({
   name: "retry-logic",
   query: {
     async $allOperations({ model, operation, args, query }) {
-      const maxAttempts = 3;
+      const maxAttempts = 5;
       let attempt = 0;
 
       while (true) {
@@ -82,7 +85,8 @@ const prismaWithRetry = basePrisma.$extends({
 
           if (!isTransient || attempt >= maxAttempts) throw err;
 
-          const backoffMs = 100 * Math.pow(2, attempt - 1);
+          // Longer backoff for serverless/cold start: 1s, 2s, 4s, 8s
+          const backoffMs = 1000 * Math.pow(2, attempt - 1);
           console.warn(
             `[Prisma retry] transient DB error, attempt ${attempt}/${maxAttempts}, retrying in ${backoffMs}ms: ${rawMsg || rawCode}`
           );

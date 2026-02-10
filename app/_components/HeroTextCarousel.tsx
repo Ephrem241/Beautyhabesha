@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 
 type BilingualSlide = {
@@ -38,7 +38,7 @@ const DEFAULT_SLIDES: HeroTextSlide[] = [
 const AUTO_PLAY_INTERVAL_MS = 4500;
 const PAUSE_AFTER_INTERACTION_MS = 8000;
 
-export function HeroTextCarousel() {
+export const HeroTextCarousel = memo(function HeroTextCarousel() {
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: true,
     align: "center",
@@ -237,4 +237,4 @@ export function HeroTextCarousel() {
       </div>
     </section>
   );
-}
+});

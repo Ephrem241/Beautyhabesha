@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode } from "react";
+import { memo, type ReactNode } from "react";
 import { LockOverlay } from "./LockOverlay";
 
 type PremiumProfileCardProps = {
@@ -11,7 +11,7 @@ type PremiumProfileCardProps = {
   variant?: "default" | "centered";
 };
 
-export function PremiumProfileCard({
+export const PremiumProfileCard = memo(function PremiumProfileCard({
   isLocked,
   children,
   upgradeHref = "/pricing",
@@ -31,10 +31,15 @@ export function PremiumProfileCard({
     <div
       className={`relative ${wrapperClass} ${className}`.trim()}
     >
-      <div className="absolute inset-0 blur-sm brightness-75 transition-all duration-300">
+      <div
+        className="absolute inset-0 transition-all duration-300 will-change-filter"
+        style={{
+          filter: "blur(4px) brightness(0.75)",
+        }}
+      >
         {children}
       </div>
       <LockOverlay upgradeHref={upgradeHref} />
     </div>
   );
-}
+});

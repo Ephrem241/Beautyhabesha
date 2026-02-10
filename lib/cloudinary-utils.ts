@@ -29,7 +29,18 @@ export async function uploadImage(
   options: UploadOptions
 ): Promise<UploadResult> {
   try {
-    // Validate file
+    // Validate file extension (prevents MIME type spoofing)
+    const allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+    const extension = file.name.toLowerCase().match(/\.[^.]+$/)?.[0];
+
+    if (!extension || !allowedExtensions.includes(extension)) {
+      return {
+        success: false,
+        error: "Invalid file type. Allowed: JPG, PNG, GIF, WebP",
+      };
+    }
+
+    // Validate MIME type (second layer of defense)
     if (!file.type.startsWith("image/")) {
       return {
         success: false,

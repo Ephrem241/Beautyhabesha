@@ -1,6 +1,6 @@
 "use client";
 
-import { useFormState } from "react-dom";
+import { useActionState } from "react";
 import { submitPaymentProof, type UploadProofState } from "../actions";
 
 type UploadProofFormProps = {
@@ -14,7 +14,7 @@ export function UploadProofForm({
   planSlug,
   planId,
 }: UploadProofFormProps) {
-  const [state, formAction] = useFormState(submitPaymentProof, initialState);
+  const [state, formAction] = useActionState(submitPaymentProof, initialState);
 
   return (
     <form

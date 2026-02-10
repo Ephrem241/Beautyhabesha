@@ -5,6 +5,8 @@
     overflow-x: hidden;
     -webkit-tap-highlight-color: transparent;
     background: #000;
+    /* Smooth scrolling for all devices */
+    scroll-behavior: smooth;
   }
   body {
     overflow-x: hidden;
@@ -19,6 +21,18 @@
   main {
     min-width: 0;
   }
+
+  /* Respect reduced motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
 }
 
 /* Safe area insets for mobile notches/home indicators */
@@ -32,9 +46,12 @@
   padding-right: env(safe-area-inset-right, 0);
 }
 
-/* Smooth horizontal scroll on touch devices (tables) */
-.overflow-x-auto {
+/* Smooth scrolling on touch devices */
+.overflow-x-auto,
+.overflow-y-auto {
   -webkit-overflow-scrolling: touch;
+  /* Enable momentum scrolling on iOS */
+  overscroll-behavior: contain;
 }
 
 /* Browse full-screen panel: start below header + safe area */
@@ -80,6 +97,55 @@
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+/* GPU-accelerated animations */
+.will-change-transform {
+  will-change: transform;
+}
+
+.will-change-opacity {
+  will-change: opacity;
+}
+
+.will-change-filter {
+  will-change: filter;
+}
+
+/* Optimize blur performance with backdrop-filter instead of filter where possible */
+.backdrop-blur-optimized {
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  /* Promote to own layer for GPU acceleration */
+  transform: translateZ(0);
+  will-change: backdrop-filter;
+}
+
+/* Smooth transitions for interactive elements */
+.transition-smooth {
+  transition-property: transform, opacity;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Optimize image rendering */
+img {
+  /* Better image rendering quality */
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+
+/* Optimize scrollable containers */
+.scroll-container {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-container {
+    scroll-behavior: auto;
+  }
 }
 .skip-link:focus {
   position: fixed;

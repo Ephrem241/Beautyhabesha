@@ -57,7 +57,7 @@ export default function HeaderNav({ isLoggedIn, role }: HeaderNavProps) {
         Models
       </Link>
       <Link href="/browse" className={linkClass} onClick={closeMenu}>
-        Browse
+        Swipe
       </Link>
       {isLoggedIn ? (
         <Link href="/dashboard" className={linkClass} onClick={closeMenu}>
@@ -75,7 +75,7 @@ export default function HeaderNav({ isLoggedIn, role }: HeaderNavProps) {
       ) : null}
       {role === "admin" ? (
         <Link
-          href="/dashboard/admin/subscriptions"
+          href="/dashboard/admin"
           className={linkClass}
           onClick={closeMenu}
         >
@@ -159,7 +159,7 @@ export default function HeaderNav({ isLoggedIn, role }: HeaderNavProps) {
                 className="rounded-xl px-4 py-3 text-left text-zinc-200 transition hover:bg-zinc-800 hover:text-emerald-300 active:bg-zinc-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
                 onClick={closeMenu}
               >
-                Browse
+                Swipe
               </Link>
               {isLoggedIn ? (
                 <Link
@@ -189,7 +189,7 @@ export default function HeaderNav({ isLoggedIn, role }: HeaderNavProps) {
               ) : null}
               {role === "admin" ? (
                 <Link
-                  href="/dashboard/admin/subscriptions"
+                  href="/dashboard/admin"
                   className="rounded-xl px-4 py-3 text-left text-zinc-200 transition hover:bg-zinc-800 hover:text-emerald-300 active:bg-zinc-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
                   onClick={closeMenu}
                 >

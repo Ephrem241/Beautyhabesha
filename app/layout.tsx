@@ -4,7 +4,6 @@ import "./globals.css";
 import SiteHeader from "./_components/SiteHeader";
 import { ConditionalFooter } from "./_components/ConditionalFooter";
 import { AgeGate } from "./_components/AgeGate";
-import { FloatingContactButtons } from "./_components/FloatingContactButtons";
 import { WebVitalsClient } from "./_components/WebVitalsClient";
 import { ChatWidgetClient } from "./support/_components/ChatWidgetClient";
 import { getSiteUrl } from "@/lib/site-url";
@@ -83,7 +82,6 @@ export default function RootLayout({
               {children}
             </main>
             <ConditionalFooter />
-            <FloatingContactButtons />
             <ChatWidgetClient />
           </div>
         </AgeGate>

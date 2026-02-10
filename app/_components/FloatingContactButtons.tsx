@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import {
   DEFAULT_ESCORT_TELEGRAM,
   DEFAULT_ESCORT_WHATSAPP,
@@ -54,7 +54,7 @@ type FloatButtonProps = {
   icon: React.ReactNode;
 };
 
-function FloatButton({ href, label, title, color, icon }: FloatButtonProps) {
+const FloatButton = memo(function FloatButton({ href, label, title, color, icon }: FloatButtonProps) {
   const [reduceMotion, setReduceMotion] = useState<boolean>(() => {
     try {
       return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -98,9 +98,9 @@ function FloatButton({ href, label, title, color, icon }: FloatButtonProps) {
       </span>
     </a>
   );
-}
+});
 
-export function FloatingContactButtons() {
+export const FloatingContactButtons = memo(function FloatingContactButtons() {
   const telegramUrl = buildTelegramUrl(DEFAULT_ESCORT_TELEGRAM);
   const whatsappUrl = buildWhatsAppUrl(DEFAULT_ESCORT_WHATSAPP);
   const hasAny = Boolean(telegramUrl || whatsappUrl);
@@ -132,4 +132,4 @@ export function FloatingContactButtons() {
       )}
     </div>
   );
-}
+});

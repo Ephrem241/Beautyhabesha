@@ -60,32 +60,38 @@ async function main() {
 
   // Create SubscriptionPlans (new subscription management)
   console.log("📦 Creating subscription plans...");
+  const normalPlan = await prisma.subscriptionPlan.create({
+    data: {
+      name: "Normal",
+      slug: "normal",
+      price: 0,
+      currency: "ETB",
+      billingCycle: "monthly",
+      durationDays: 0,
+      features: ["Public profile listing", "Up to 3 photos", "Standard listing position", "Basic support"],
+      isPopular: false,
+      isRecommended: false,
+      isActive: true,
+    },
+  });
+
+  const vipPlan = await prisma.subscriptionPlan.create({
+    data: {
+      name: "VIP",
+      slug: "vip",
+      price: 1500,
+      currency: "ETB",
+      billingCycle: "monthly",
+      durationDays: 30,
+      features: ["Priority listing", "Up to 10 photos", "Verification badge", "Priority support", "view_models", "direct_message"],
+      isPopular: true,
+      isRecommended: true,
+      isActive: true,
+    },
+  });
+
   await prisma.subscriptionPlan.createMany({
     data: [
-      {
-        name: "Normal",
-        slug: "normal",
-        price: 0,
-        currency: "ETB",
-        billingCycle: "monthly",
-        durationDays: 0,
-        features: ["Public profile listing", "Up to 3 photos", "Standard listing position", "Basic support"],
-        isPopular: false,
-        isRecommended: false,
-        isActive: true,
-      },
-      {
-        name: "VIP",
-        slug: "vip",
-        price: 1500,
-        currency: "ETB",
-        billingCycle: "monthly",
-        durationDays: 30,
-        features: ["Priority listing", "Up to 10 photos", "Verification badge", "Priority support", "view_models", "direct_message"],
-        isPopular: true,
-        isRecommended: true,
-        isActive: true,
-      },
       {
         name: "VIP Yearly",
         slug: "vip_yearly",
@@ -98,19 +104,22 @@ async function main() {
         isRecommended: true,
         isActive: true,
       },
-      {
-        name: "Platinum",
-        slug: "platinum",
-        price: 3500,
-        currency: "ETB",
-        billingCycle: "monthly",
-        durationDays: 30,
-        features: ["Top listing", "Unlimited photos", "Homepage feature", "Dedicated support", "view_models", "private_gallery", "direct_message", "live_video_call", "unlimited_downloads"],
-        isPopular: true,
-        isRecommended: true,
-        isActive: true,
-      },
     ],
+  });
+
+  const platinumPlan = await prisma.subscriptionPlan.create({
+    data: {
+      name: "Platinum",
+      slug: "platinum",
+      price: 3500,
+      currency: "ETB",
+      billingCycle: "monthly",
+      durationDays: 30,
+      features: ["Top listing", "Unlimited photos", "Homepage feature", "Dedicated support", "view_models", "private_gallery", "direct_message", "live_video_call", "unlimited_downloads"],
+      isPopular: true,
+      isRecommended: true,
+      isActive: true,
+    },
   });
   console.log("✅ Subscription plans created");
 
@@ -245,7 +254,8 @@ async function main() {
   await prisma.subscription.create({
     data: {
       userId: escortUser1.id,
-      planId: "VIP",
+      planId: vipPlan.name,
+      subscriptionPlanId: vipPlan.id,
       status: "active",
       paymentMethod: "bank",
       paymentProofUrl:
@@ -259,7 +269,8 @@ async function main() {
   await prisma.subscription.create({
     data: {
       userId: escortUser2.id,
-      planId: "VIP",
+      planId: vipPlan.name,
+      subscriptionPlanId: vipPlan.id,
       status: "active",
       paymentMethod: "mobile_money",
       paymentProofUrl:
@@ -273,7 +284,8 @@ async function main() {
   await prisma.subscription.create({
     data: {
       userId: escortUser3.id,
-      planId: "Platinum",
+      planId: platinumPlan.name,
+      subscriptionPlanId: platinumPlan.id,
       status: "active",
       paymentMethod: "bank",
       paymentProofUrl:
@@ -288,7 +300,8 @@ async function main() {
   await prisma.subscription.create({
     data: {
       userId: basicUser.id,
-      planId: "VIP",
+      planId: vipPlan.name,
+      subscriptionPlanId: vipPlan.id,
       status: "pending",
       paymentMethod: "bank",
       paymentProofUrl:

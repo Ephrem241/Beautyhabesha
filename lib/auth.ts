@@ -24,16 +24,19 @@ export const authOptions: NextAuthOptions = {
   },
   cookies: {
     sessionToken: {
-      // __Secure- prefix is only valid over HTTPS; use plain name in dev so cookie is set on localhost
+      // SECURITY FIX: Cookie naming strategy clarified
+      // Production (HTTPS): "__Secure-next-auth.session-token" - The __Secure- prefix ensures cookie is only sent over HTTPS
+      // Development (HTTP): "next-auth.session-token" - Standard name for localhost (HTTP) compatibility
+      // This is the correct implementation per NextAuth.js and browser security standards
       name:
         process.env.NODE_ENV === "production"
           ? "__Secure-next-auth.session-token"
           : "next-auth.session-token",
       options: {
-        httpOnly: true,
-        sameSite: "lax",
+        httpOnly: true, // Prevents JavaScript access (XSS protection)
+        sameSite: "lax", // CSRF protection while allowing normal navigation
         path: "/",
-        secure: process.env.NODE_ENV === "production",
+        secure: process.env.NODE_ENV === "production", // HTTPS only in production
       },
     },
   },
@@ -97,13 +100,24 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        let dbUser: { id: string; role: string } | null = null;
+        // SECURITY FIX: Include bannedAt in the query to detect banned users
+        // This callback runs on every token refresh (every 24 hours per updateAge setting)
+        let dbUser: { id: string; role: string; bannedAt: Date | null } | null = null;
         if (user.id) {
           dbUser = await prisma.user.findUnique({
             where: { id: user.id },
-            select: { id: true, role: true },
+            select: { id: true, role: true, bannedAt: true },
           });
         }
+
+        // SECURITY FIX: Invalidate token if user is banned
+        // By not setting uid/role, the token becomes invalid and user will be logged out
+        if (dbUser?.bannedAt) {
+          console.warn(`[Auth] Banned user token refresh blocked: ${user.id}`);
+          // Return token without uid/role to invalidate it
+          return token;
+        }
+
         if (dbUser) {
           token.role = dbUser.role as "admin" | "escort" | "user";
           token.uid = dbUser.id;

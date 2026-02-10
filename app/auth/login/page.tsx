@@ -5,9 +5,17 @@ import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import { useState, Suspense } from "react";
 
+/** Only allow same-origin relative paths to prevent open redirects */
+function safeCallbackUrl(value: string | null): string {
+  if (!value || typeof value !== "string") return "/dashboard";
+  const path = value.trim();
+  if (path.startsWith("/") && !path.startsWith("//")) return path;
+  return "/dashboard";
+}
+
 function LoginForm() {
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
+  const callbackUrl = safeCallbackUrl(searchParams.get("callbackUrl"));
   const error = searchParams.get("error");
   const banned = searchParams.get("banned") === "1";
 

@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 
 import { getAuthSession } from "@/lib/auth";
 
-import AdminSubscriptionsView from "@/app/admin/subscriptions/AdminSubscriptionsView";
+import AdminSubscriptionsView from "./_components/AdminSubscriptionsView";
 
 type AdminSubscriptionsPageProps = {
   searchParams?: Promise<{ status?: string; error?: string }>;

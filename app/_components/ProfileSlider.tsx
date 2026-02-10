@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { CarouselDots } from "./CarouselDots";
 import { BLUR_PLACEHOLDER } from "@/lib/image-utils";
+import { getEscortImageUrl } from "@/lib/image-watermark";
 
 type ProfileSliderProps = {
   images: string[];
@@ -13,6 +14,12 @@ type ProfileSliderProps = {
   priority?: boolean;
   className?: string;
   imageClassName?: string;
+  /** When true, full-quality images (no watermark). When false, watermark applied. Default true for backward compatibility. */
+  allowFullQuality?: boolean;
+  /** Escort display name for watermark text. */
+  displayName?: string;
+  /** Escort ID for watermark fallback. */
+  escortId?: string;
 };
 
 export function ProfileSlider({
@@ -22,44 +29,61 @@ export function ProfileSlider({
   priority = false,
   className = "",
   imageClassName = "",
+  allowFullQuality = true,
+  displayName,
+  escortId,
 }: ProfileSliderProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
+  // Process images with watermark if needed (memoized to avoid recalculation)
+  const processedImages = useMemo(() => {
+    if (allowFullQuality) {
+      return images;
+    }
+    return images.map((img) =>
+      getEscortImageUrl(img, {
+        addWatermark: true,
+        displayName,
+        escortId,
+      })
+    );
+  }, [images, allowFullQuality, displayName, escortId]);
+
   useEffect(() => {
     queueMicrotask(() => setActiveIndex(0));
-  }, [images.length]);
+  }, [processedImages.length]);
 
   const goTo = useCallback(
     (delta: number) => {
-      if (images.length <= 1) return;
+      if (processedImages.length <= 1) return;
       setActiveIndex((i) => {
         const next = i + delta;
-        if (next < 0) return images.length - 1;
-        if (next >= images.length) return 0;
+        if (next < 0) return processedImages.length - 1;
+        if (next >= processedImages.length) return 0;
         return next;
       });
     },
-    [images.length]
+    [processedImages.length]
   );
 
   const goToIndex = useCallback((index: number) => {
-    setActiveIndex((i) => (index >= 0 && index < images.length ? index : i));
-  }, [images.length]);
+    setActiveIndex((i) => (index >= 0 && index < processedImages.length ? index : i));
+  }, [processedImages.length]);
 
   useEffect(() => {
-    if (images.length <= 1 || isPaused || autoPlayInterval <= 0) return;
+    if (processedImages.length <= 1 || isPaused || autoPlayInterval <= 0) return;
     const id = setInterval(
       () =>
-        setActiveIndex((i) => (i + 1) % images.length),
+        setActiveIndex((i) => (i + 1) % processedImages.length),
       autoPlayInterval
     );
     return () => clearInterval(id);
-  }, [images.length, isPaused, autoPlayInterval]);
+  }, [processedImages.length, isPaused, autoPlayInterval]);
 
-  const mainImage = images[activeIndex] ?? images[0] ?? null;
+  const mainImage = processedImages[activeIndex] ?? processedImages[0] ?? null;
 
-  if (images.length === 0 || !mainImage) {
+  if (processedImages.length === 0 || !mainImage) {
     return (
       <div
         className={`relative flex h-full w-full items-center justify-center overflow-hidden rounded-2xl bg-zinc-800 ${className}`.trim()}
@@ -103,7 +127,7 @@ export function ProfileSlider({
           </motion.div>
         </AnimatePresence>
 
-        {images.length > 1 && (
+        {processedImages.length > 1 && (
           <>
             <button
               type="button"
@@ -155,7 +179,7 @@ export function ProfileSlider({
             </button>
             <div className="absolute bottom-2 left-1/2 z-30">
               <CarouselDots
-                count={images.length}
+                count={processedImages.length}
                 activeIndex={activeIndex}
                 onSelect={goToIndex}
               />

@@ -2,8 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
-import { BLUR_PLACEHOLDER } from "@/lib/image-utils";
+import { ProfileAvatar } from "@/app/_components/ProfileAvatar";
 
 type ProfileCardProps = {
   name: string;
@@ -42,22 +41,13 @@ export function ProfileCard({ name, city, imageUrl }: ProfileCardProps) {
         </svg>
       </button>
 
-      {imageUrl ? (
-        <Image
-          src={imageUrl}
-          alt=""
-          width={40}
-          height={40}
-          sizes="40px"
-          placeholder="blur"
-          blurDataURL={BLUR_PLACEHOLDER}
-          className="h-10 w-10 shrink-0 rounded-full object-cover"
-        />
-      ) : (
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-zinc-700 text-sm font-semibold text-zinc-300">
-          {name.slice(0, 1).toUpperCase()}
-        </span>
-      )}
+      <ProfileAvatar
+        src={imageUrl}
+        alt={name}
+        size={40}
+        greenRing
+        className="shrink-0"
+      />
 
       <div className="min-w-0 flex-1">
         <h1 className="truncate text-base font-semibold text-white">{name}</h1>

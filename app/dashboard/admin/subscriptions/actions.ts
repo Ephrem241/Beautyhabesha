@@ -28,7 +28,7 @@ export async function approveSubscription(formData: FormData) {
   });
 
   if (!result.success) {
-    redirect("/admin/subscriptions?tab=pending&error=invalid-request");
+    redirect("/dashboard/admin/subscriptions?error=invalid-request");
   }
 
   try {
@@ -103,7 +103,8 @@ export async function approveSubscription(formData: FormData) {
           subscriptionStartDate: startDate,
           subscriptionEndDate: endDate,
           subscriptionStatus: "active",
-          currentPlan: subscription.planId,
+          currentPlan: planName,
+          subscriptionPlanId: subscription.subscriptionPlanId,
         },
       });
 
@@ -125,10 +126,10 @@ export async function approveSubscription(formData: FormData) {
       };
     });
 
-    redirect("/admin/subscriptions?tab=pending&status=approved");
+    redirect("/dashboard/admin/subscriptions?status=approved");
   } catch (error) {
     console.error("Error approving subscription:", error);
-    redirect("/admin/subscriptions?tab=pending&error=processing-failed");
+    redirect("/dashboard/admin/subscriptions?error=processing-failed");
   }
 }
 
@@ -140,7 +141,7 @@ export async function rejectSubscription(formData: FormData) {
   });
 
   if (!result.success) {
-    redirect("/admin/subscriptions?tab=pending&error=invalid-request");
+    redirect("/dashboard/admin/subscriptions?error=invalid-request");
   }
 
   try {
@@ -171,9 +172,10 @@ export async function rejectSubscription(formData: FormData) {
       };
     });
 
-    redirect("/admin/subscriptions?tab=pending&status=rejected");
+    redirect("/dashboard/admin/subscriptions?status=rejected");
   } catch (error) {
     console.error("Error rejecting subscription:", error);
-    redirect("/admin/subscriptions?tab=pending&error=processing-failed");
+    redirect("/dashboard/admin/subscriptions?error=processing-failed");
   }
 }
+

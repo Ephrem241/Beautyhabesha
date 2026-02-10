@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/db";
 import { PLAN_CATALOG } from "@/lib/plans";
 
-import PendingSubscriptionsTable from "./_components/PendingSubscriptionsTable";
+import PendingSubscriptionsTable from "./PendingSubscriptionsTable";
 
 type PlanDoc = {
   name: string;
@@ -137,3 +137,4 @@ export default async function AdminSubscriptionsView({
     </>
   );
 }
+

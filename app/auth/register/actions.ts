@@ -69,61 +69,70 @@ export async function registerUser(formData: FormData): Promise<RegisterResult> 
     }
   }
 
-  const existingUser = await prisma.user.findUnique({
-    where: { username },
-  });
-
-  if (existingUser) {
-    return { error: "This username is already taken." };
-  }
-
-  // Hash password
-  const hashedPassword = await bcrypt.hash(parsed.data.password, 10);
-
-  const uploadedImages: { url: string; publicId: string }[] = [];
-  if (isEscort && photoFiles.length > 0) {
-    for (const file of photoFiles) {
-      const upload = await uploadImage(file, {
-        folder: "escort-profiles",
-        maxWidth: 1920,
-        maxHeight: 1920,
-        quality: 85,
-        format: "auto",
-      });
-      if (!upload.success || !upload.image) {
-        return {
-          error: upload.error ?? "Failed to upload an image. Please try again.",
-        };
-      }
-      uploadedImages.push(upload.image);
-    }
-  }
-
-  await prisma.$transaction(async (tx) => {
-    const user = await tx.user.create({
-      data: {
-        username,
-        age: parsed.data.age,
-        password: hashedPassword,
-        role: parsed.data.role,
-        currentPlan: "Normal",
-        subscriptionStatus: "inactive",
-      },
+  try {
+    const existingUser = await prisma.user.findUnique({
+      where: { username },
     });
 
-    if (isEscort && uploadedImages.length > 0) {
-      await tx.escortProfile.create({
+    if (existingUser) {
+      return { error: "This username is already taken." };
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(parsed.data.password, 10);
+
+    const uploadedImages: { url: string; publicId: string }[] = [];
+    if (isEscort && photoFiles.length > 0) {
+      for (const file of photoFiles) {
+        const upload = await uploadImage(file, {
+          folder: "escort-profiles",
+          maxWidth: 1920,
+          maxHeight: 1920,
+          quality: 85,
+          format: "auto",
+        });
+        if (!upload.success || !upload.image) {
+          return {
+            error: upload.error ?? "Failed to upload an image. Please try again.",
+          };
+        }
+        uploadedImages.push(upload.image);
+      }
+    }
+
+    await prisma.$transaction(async (tx) => {
+      const user = await tx.user.create({
         data: {
-          userId: user.id,
-          displayName: parsed.data.username,
-          images: uploadedImages as unknown as object,
-          status: "pending",
-          telegram: DEFAULT_ESCORT_TELEGRAM,
-          whatsapp: DEFAULT_ESCORT_WHATSAPP,
+          username,
+          age: parsed.data.age,
+          password: hashedPassword,
+          role: parsed.data.role,
+          currentPlan: "Normal",
+          subscriptionStatus: "inactive",
         },
       });
-    }
-  });
 
-  return { success: true };
+      if (isEscort && uploadedImages.length > 0) {
+        await tx.escortProfile.create({
+          data: {
+            userId: user.id,
+            displayName: parsed.data.username,
+            images: uploadedImages as unknown as object,
+            status: "pending",
+            telegram: DEFAULT_ESCORT_TELEGRAM,
+            whatsapp: DEFAULT_ESCORT_WHATSAPP,
+          },
+        });
+      }
+    });
+
+    return { success: true };
+  } catch (err) {
+    console.error("[register] Error:", err);
+    const msg = err instanceof Error ? err.message : String(err);
+    if (/timeout|connection|p1017|econnreset/i.test(msg)) {
+      return { error: "Database is temporarily unavailable. Please try again in a moment." };
+    }
+    return { error: "Something went wrong. Please try again." };
+  }
 }

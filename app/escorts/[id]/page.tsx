@@ -80,7 +80,7 @@ export default async function EscortDetailPage({ params }: EscortDetailPageProps
           <Breadcrumbs
             items={[
               { label: "Home", href: "/" },
-              { label: "Escorts", href: "/escorts" },
+              { label: "Models", href: "/escorts" },
               { label: escort.displayName },
             ]}
           />
@@ -92,6 +92,7 @@ export default async function EscortDetailPage({ params }: EscortDetailPageProps
               src={escort.images[0]}
               alt={escort.displayName}
               size={56}
+              greenRing
               className="shrink-0"
             />
             <div className="min-w-0">
@@ -122,7 +123,7 @@ export default async function EscortDetailPage({ params }: EscortDetailPageProps
                   escort.images.map((image, idx) => (
                     <div
                       key={image}
-                      className="relative h-48 overflow-hidden rounded-2xl"
+                      className="relative w-full aspect-[4/5] overflow-hidden rounded-2xl"
                     >
                       <ProtectedEscortImage
                         src={image}
@@ -139,7 +140,7 @@ export default async function EscortDetailPage({ params }: EscortDetailPageProps
                     </div>
                   ))
                 ) : (
-                  <div className="flex h-48 items-center justify-center rounded-2xl border border-dashed border-zinc-800 text-xs uppercase tracking-[0.3em] text-zinc-500">
+                  <div className="flex aspect-[4/5] w-full items-center justify-center rounded-2xl border border-dashed border-zinc-800 text-xs uppercase tracking-[0.3em] text-zinc-500">
                     No images
                   </div>
                 )}

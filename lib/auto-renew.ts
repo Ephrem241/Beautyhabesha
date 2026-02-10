@@ -66,6 +66,7 @@ export async function processAutoRenewals(): Promise<AutoRenewResult> {
           data: {
             userId: sub.userId,
             planId: sub.planId,
+            subscriptionPlanId: sub.subscriptionPlanId,
             status: "pending",
             paymentMethod: sub.paymentMethod,
             paymentProofUrl: AUTO_RENEW_PLACEHOLDER_URL,

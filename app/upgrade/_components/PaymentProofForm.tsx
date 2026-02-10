@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useFormState } from "react-dom";
+import { useActionState } from "react";
 import Image from "next/image";
 
 import { Button } from "@/app/_components/ui/Button";
@@ -15,7 +15,7 @@ type PaymentProofFormProps = {
 const initialState: UpgradeFormState = {};
 
 export default function PaymentProofForm({ planSlug }: PaymentProofFormProps) {
-  const [state, formAction] = useFormState(
+  const [state, formAction] = useActionState(
     submitUpgradePayment,
     initialState
   );

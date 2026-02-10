@@ -15,7 +15,7 @@ const ADMIN_SECTIONS = [
   { href: "/dashboard/admin/payment-accounts", label: "Payment Accounts", description: "Telebirr and bank details for payments" },
   { href: "/dashboard/admin/reports", label: "Profile Reports", description: "Review reports (fake, underage, abuse, scam)" },
   { href: "/dashboard/admin/consent", label: "Consent History", description: "View age and terms consent records" },
-  { href: "/admin/chats", label: "Support Chats", description: "Reply to user support messages" },
+  { href: "/dashboard/admin/chats", label: "Support Chats", description: "Reply to user support messages" },
 ];
 
 export default async function AdminDashboardPage() {

@@ -13,8 +13,8 @@ export default function EscortDetailLoading() {
         <div className="mt-8 grid gap-8 lg:grid-cols-[2fr_1fr]">
           <section className="rounded-3xl border border-zinc-800 bg-zinc-950 p-6">
             <div className="grid gap-4 sm:grid-cols-2">
-              <Skeleton className="h-48 w-full rounded-2xl" />
-              <Skeleton className="h-48 w-full rounded-2xl" />
+              <Skeleton className="aspect-[4/5] w-full rounded-2xl" />
+              <Skeleton className="aspect-[4/5] w-full rounded-2xl" />
             </div>
             <div className="mt-6 space-y-3">
               <Skeleton className="h-4 w-32" />

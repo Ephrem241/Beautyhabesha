@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { type ReactNode } from "react";
+import { memo, type ReactNode } from "react";
 
 type BlurGateProps = {
   /** When false, content is blurred and overlay with CTA is shown. */
@@ -13,7 +13,7 @@ type BlurGateProps = {
   upgradeHref?: string;
 };
 
-export function BlurGate({
+export const BlurGate = memo(function BlurGate({
   isAllowed,
   children,
   className = "",
@@ -30,7 +30,10 @@ export function BlurGate({
   return (
     <div className={`relative overflow-hidden ${className}`.trim()}>
       <div
-        className="select-none transition-all duration-300 will-change-[filter] [&_img]:blur-sm [&_img]:brightness-75"
+        className="select-none transition-all duration-300 will-change-filter"
+        style={{
+          filter: "blur(4px) brightness(0.75)",
+        }}
         aria-hidden="true"
       >
         {children}
@@ -55,7 +58,7 @@ export function BlurGate({
       </div>
     </div>
   );
-}
+});
 
 function LockIcon({ className }: { className?: string }) {
   return (

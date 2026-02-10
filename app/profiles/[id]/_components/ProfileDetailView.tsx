@@ -5,7 +5,6 @@ import type { PublicEscort } from "@/lib/escorts";
 
 import { ProfileCard } from "./ProfileCard";
 import { ContactButton } from "./ContactButton";
-import { TelegramButton } from "@/app/_components/TelegramButton";
 import { PremiumProfileCard } from "@/app/_components/PremiumProfileCard";
 import { ImageCarousel } from "@/app/_components/ImageCarousel";
 
@@ -56,6 +55,8 @@ export function ProfileDetailView({
                 autoPlayInterval={3000}
                 priority
                 className="h-full rounded-3xl"
+                allowFullQuality={canShowContact}
+                displayName={profile.displayName}
               />
             </div>
           </PremiumProfileCard>
@@ -90,11 +91,6 @@ export function ProfileDetailView({
           )}
         </motion.section>
       )}
-
-      <TelegramButton
-        telegram={profile.telegram}
-        locked={!canShowContact}
-      />
 
       {/* Sticky bottom CTA */}
       <ContactButton

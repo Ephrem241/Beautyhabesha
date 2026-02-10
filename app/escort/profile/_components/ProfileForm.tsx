@@ -1,6 +1,6 @@
 "use client";
 
-import { useFormState } from "react-dom";
+import { useActionState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -47,7 +47,7 @@ export default function ProfileForm({
   existingImages,
   maxImages,
 }: ProfileFormProps) {
-  const [state, formAction] = useFormState<ProfileFormState, FormData>(
+  const [state, formAction] = useActionState<ProfileFormState, FormData>(
     upsertEscortProfile,
     initialState
   );
