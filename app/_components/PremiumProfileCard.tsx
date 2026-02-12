@@ -32,7 +32,7 @@ export const PremiumProfileCard = memo(function PremiumProfileCard({
       className={`relative ${wrapperClass} ${className}`.trim()}
     >
       <div
-        className="absolute inset-0 transition-all duration-300 will-change-filter"
+        className="absolute inset-0 overflow-hidden transition-all duration-300 will-change-filter"
         style={{
           filter: "blur(2px) brightness(0.85)",
         }}

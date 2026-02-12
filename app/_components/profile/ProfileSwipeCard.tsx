@@ -8,6 +8,7 @@ import type { Profile } from "@/app/_components/swipe/types";
 import type { SwipeOutcome } from "@/app/_components/swipe/SwipeCard";
 import { OnlineBadge } from "@/app/_components/OnlineBadge";
 import { ProfileAvatar } from "@/app/_components/ProfileAvatar";
+import { BlurGate } from "@/app/_components/BlurGate";
 import { BLUR_PLACEHOLDER } from "@/lib/image-utils";
 
 const THRESHOLD_X = 100;
@@ -19,6 +20,8 @@ type ProfileSwipeCardProps = {
   isTop: boolean;
   onDragEnd: (outcome: SwipeOutcome) => void;
   exitOutcome: SwipeOutcome;
+  /** Whether the viewer has an active subscription (for blur protection). */
+  viewerHasAccess?: boolean;
 };
 
 export function ProfileSwipeCard({
@@ -26,6 +29,7 @@ export function ProfileSwipeCard({
   isTop,
   onDragEnd,
   exitOutcome,
+  viewerHasAccess,
 }: ProfileSwipeCardProps) {
   const images =
     profile.images?.length ? profile.images : profile.image ? [profile.image] : [];
@@ -119,41 +123,47 @@ export function ProfileSwipeCard({
     >
       <div className="flex h-full w-full flex-col overflow-hidden rounded-3xl bg-neutral-900 shadow-2xl">
         <div className="relative min-h-0 flex-1 w-full overflow-hidden">
-          {currentImage ? (
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.div
-                key={activeIndex}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className="absolute inset-0"
-              >
-                <Image
-                  src={currentImage}
-                  alt={`${profile.name} ${activeIndex + 1}`}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                  className="object-cover brightness-95"
-                  priority={isTop}
-                  placeholder="blur"
-                  blurDataURL={BLUR_PLACEHOLDER}
-                  draggable={false}
-                />
-              </motion.div>
-            </AnimatePresence>
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center bg-neutral-800 text-neutral-500 text-sm uppercase tracking-widest">
-              No image
-            </div>
-          )}
+          <BlurGate
+            isAllowed={viewerHasAccess ?? false}
+            className="absolute inset-0"
+            upgradeHref="/pricing"
+          >
+            {currentImage ? (
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                  key={activeIndex}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="absolute inset-0"
+                >
+                  <Image
+                    src={currentImage}
+                    alt={`${profile.name} ${activeIndex + 1}`}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="object-cover brightness-95"
+                    priority={isTop}
+                    placeholder="blur"
+                    blurDataURL={BLUR_PLACEHOLDER}
+                    draggable={false}
+                  />
+                </motion.div>
+              </AnimatePresence>
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center bg-neutral-800 text-neutral-500 text-sm uppercase tracking-widest">
+                No image
+              </div>
+            )}
+          </BlurGate>
 
           <div
             className="pointer-events-none absolute inset-x-0 bottom-0 top-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent backdrop-blur-sm"
             aria-hidden
           />
 
-          <header className="absolute left-4 top-4 z-10 flex items-center gap-3">
+          <header className="absolute left-3 top-3 z-10 flex items-center gap-3">
             <div className="relative">
               <div className="overflow-hidden rounded-full border-2 border-emerald-500">
                 <ProfileAvatar
@@ -237,7 +247,7 @@ export function ProfileSwipeCard({
                     }}
                     aria-label={`Image ${i + 1}`}
                     aria-current={isActive ? "true" : undefined}
-                    className="flex items-center justify-center p-1 outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+                    className="flex items-center justify-center p-2 outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
                   >
                     <motion.span
                       layout
@@ -254,7 +264,7 @@ export function ProfileSwipeCard({
             </div>
           )}
 
-          <div className="absolute bottom-4 left-4 right-4 z-10">
+          <div className="absolute bottom-3 left-3 right-3 z-10">
             <Link
               href={`/profiles/${profile.id}`}
               className="flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-500 py-4 text-white shadow-lg transition hover:bg-emerald-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-black"

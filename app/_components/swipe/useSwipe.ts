@@ -21,10 +21,10 @@ export function useSwipe({ count }: UseSwipeOptions) {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowLeft") {
         e.preventDefault();
-        goNext();
+        goPrev();
       } else if (e.key === "ArrowRight") {
         e.preventDefault();
-        goPrev();
+        goNext();
       }
     };
     window.addEventListener("keydown", handleKeyDown);

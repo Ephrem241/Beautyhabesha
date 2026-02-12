@@ -51,7 +51,7 @@ export const HeroBackgroundCarousel = memo(function HeroBackgroundCarousel({
   if (imageUrls.length === 0) {
     return (
       <div
-        className="absolute inset-0 z-0 bg-linear-to-br from-zinc-950 via-black to-emerald-950/30"
+        className="absolute inset-0 z-0 bg-linear-to-br from-zinc-900 via-zinc-800 to-emerald-950/50"
         aria-hidden
       />
     );

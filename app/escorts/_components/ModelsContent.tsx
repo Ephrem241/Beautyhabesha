@@ -27,7 +27,7 @@ type ModelsContentProps = {
 
 export function ModelsContent({
   escorts,
-  viewerHasAccess: _viewerHasAccess,
+  viewerHasAccess,
   filters,
   cities,
   gridViewContent,
@@ -70,17 +70,17 @@ export function ModelsContent({
 
   return (
     <>
-      {/* FilterBar: search, city, age, available, online */}
-      <FilterBar
-        cities={cities}
-        filters={filters}
-        activeCount={activeCount}
-        onOpenDrawer={() => setDrawerOpen(true)}
-      />
-
-      {/* View Switcher */}
-      <div className="mt-4 flex justify-end">
-        <ViewSwitcher currentView={viewMode} onViewChange={setViewMode} />
+      {/* FilterBar and ViewSwitcher hidden when in swipe mode to prevent background bleed-through */}
+      <div className={viewMode === "swipe" ? "hidden" : ""}>
+        <FilterBar
+          cities={cities}
+          filters={filters}
+          activeCount={activeCount}
+          onOpenDrawer={() => setDrawerOpen(true)}
+        />
+        <div className="mt-4 flex justify-end">
+          <ViewSwitcher currentView={viewMode} onViewChange={setViewMode} />
+        </div>
       </div>
 
       {/* Content Area */}
@@ -88,10 +88,12 @@ export function ModelsContent({
         {viewMode === "grid" ? (
           gridViewContent
         ) : (
-          <div className="fixed inset-0 top-[calc(3.5rem+env(safe-area-inset-top,0))] sm:top-[calc(4rem+env(safe-area-inset-top,0))] z-40 flex flex-col bg-black">
+          <div className="fixed inset-0 z-50 flex min-h-screen flex-col overflow-hidden">
             <SwipeDeck
               profiles={swipeProfiles}
               onViewProfile={handleViewProfile}
+              onBack={() => setViewMode("grid")}
+              viewerHasAccess={viewerHasAccess}
             />
           </div>
         )}

@@ -4,12 +4,12 @@ import Link from "next/link";
 import { memo, type ReactNode } from "react";
 
 type BlurGateProps = {
-  /** When false, content is blurred and overlay with CTA is shown. */
+  /** When false, content is blurred with lock overlay. */
   isAllowed: boolean;
   children: ReactNode;
-  /** Optional class for the wrapper (e.g. min-height for overlay alignment). */
+  /** Optional class for the wrapper. */
   className?: string;
-  /** CTA href. Default /pricing. */
+  /** CTA href for Upgrade Now button. */
   upgradeHref?: string;
 };
 
@@ -27,32 +27,44 @@ export const BlurGate = memo(function BlurGate({
     );
   }
 
+  // Blurred image + lock overlay - content completely unrecognizable to encourage subscriptions
   return (
-    <div className={`relative overflow-hidden ${className}`.trim()}>
+    <div className={`relative h-full w-full overflow-hidden ${className}`.trim()}>
       <div
-        className="select-none transition-all duration-300 will-change-filter"
+        className="absolute inset-0 h-full w-full overflow-hidden select-none transition-all duration-300 will-change-filter"
         style={{
-          filter: "blur(2px) brightness(0.85)",
+          filter: "blur(8px) brightness(0.50)",
         }}
         aria-hidden="true"
       >
         {children}
       </div>
+      {/* Lock overlay – centered card only, no full-screen darkening */}
       <div
-        className="absolute inset-0 flex flex-col items-center justify-end bg-linear-to-t from-black/70 via-black/30 to-transparent px-4 py-6"
-        role="region"
-        aria-label="Subscription required"
+        className="absolute inset-0 flex flex-col items-center justify-center gap-4 pointer-events-none z-10"
+        aria-hidden="true"
       >
-        <div className="flex flex-col items-center gap-4 pb-2">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-zinc-500/80 bg-zinc-900/90 text-zinc-400">
-            <LockIcon className="h-6 w-6" />
-          </div>
-          <p className="text-center text-sm font-medium text-white sm:text-base">
-            Subscribe to view full profile
-          </p>
+        <div className="flex flex-col items-center gap-3 rounded-2xl bg-black/60 px-6 py-5 backdrop-blur-sm shadow-xl pointer-events-auto">
+          <svg
+            className="h-12 w-12 text-white"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            aria-hidden
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+            />
+          </svg>
+          <span className="text-sm font-medium text-white drop-shadow-sm">
+            Subscribe to unlock
+          </span>
           <Link
             href={upgradeHref}
-            className="inline-flex items-center justify-center rounded-full bg-emerald-400 px-5 py-2.5 text-sm font-semibold uppercase tracking-[0.2em] text-emerald-950 transition hover:bg-emerald-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
+            className="rounded-xl bg-emerald-500 px-6 py-3 text-sm font-semibold text-emerald-950 shadow-lg transition hover:bg-emerald-400"
           >
             Upgrade Now
           </Link>
@@ -61,22 +73,3 @@ export const BlurGate = memo(function BlurGate({
     </div>
   );
 });
-
-function LockIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      strokeWidth={1.5}
-      aria-hidden="true"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"
-      />
-    </svg>
-  );
-}

@@ -7,7 +7,7 @@ import { ProfileAvatar } from "./ProfileAvatar";
 import { ButtonLink } from "./ui/Button";
 import { BlurGate } from "./BlurGate";
 import { ContactChip } from "./ContactChip";
-import { ProtectedEscortImage } from "./ProtectedEscortImage";
+import { ProfileSlider } from "./ProfileSlider";
 
 const AUTO_PLAY_MS = 4000;
 
@@ -141,18 +141,35 @@ export const SpotlightCarousel = memo(function SpotlightCarousel({
           {profiles.map((profile) => (
             <div
               key={profile.id}
-              className="relative min-w-0 flex-[0_0_100%] sm:flex-[0_0_50%] lg:flex-[0_0_33.333%]"
+              className="relative min-w-0 flex-[0_0_100%] sm:flex-[0_0_50%] lg:flex-[0_0_33.333%] xl:flex-[0_0_25%]"
             >
-              <article className="mx-2 flex flex-col overflow-hidden rounded-2xl border border-emerald-500/60 bg-zinc-950 shadow-[0_0_20px_rgba(16,185,129,0.15)] transition hover:-translate-y-0.5 hover:border-emerald-400/70 hover:shadow-[0_0_24px_rgba(16,185,129,0.2)] sm:rounded-3xl">
-                {/* Name, city, featured badge – always visible */}
-                <div className="border-b border-zinc-800 px-4 py-3 sm:px-6 sm:py-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex min-w-0 flex-1 items-center gap-3">
+              <article className="mx-1 flex flex-col overflow-hidden rounded-2xl border border-emerald-500/60 bg-zinc-950 shadow-[0_0_20px_rgba(16,185,129,0.15)] transition hover:-translate-y-0.5 hover:border-emerald-400/70 hover:shadow-[0_0_24px_rgba(16,185,129,0.2)] sm:rounded-3xl">
+                {/* Image first – full-size, dominant */}
+                <div className="relative flex-1 min-h-0 flex flex-col">
+                  <div className="relative w-full min-h-[200px] aspect-4/5 shrink-0 bg-zinc-900">
+                    <BlurGate
+                      isAllowed={viewerHasAccess}
+                      className="absolute inset-0"
+                      upgradeHref="/pricing"
+                    >
+                      <ProfileSlider
+                        images={profile.images}
+                        altPrefix={profile.displayName}
+                        autoPlayInterval={4000}
+                        allowFullQuality={viewerHasAccess}
+                        displayName={profile.displayName}
+                        escortId={profile.id}
+                        priority={selectedIndex === profiles.findIndex((p) => p.id === profile.id)}
+                        className="h-full w-full"
+                      />
+                    </BlurGate>
+                    {/* Avatar overlay – outside BlurGate, always sharp */}
+                    <div className="absolute left-4 top-4 z-10 flex items-center gap-3">
                       <div className="relative shrink-0">
                         <ProfileAvatar
                           src={profile.images[0]}
                           alt={profile.displayName}
-                          size={44}
+                          size={48}
                           greenRing
                           className="shrink-0"
                         />
@@ -161,58 +178,41 @@ export const SpotlightCarousel = memo(function SpotlightCarousel({
                         </span>
                       </div>
                       <div className="min-w-0">
-                        <h3 className="text-lg font-semibold text-white truncate">
+                        <h3 className="text-base font-semibold text-white truncate drop-shadow-sm">
                           {profile.displayName}
                         </h3>
                         <p className="text-xs text-zinc-500">{profile.city}</p>
                       </div>
+                      <span className="shrink-0 rounded-full bg-black/70 px-3 py-1 text-xs uppercase tracking-[0.2em] text-emerald-300">
+                        Featured
+                      </span>
                     </div>
-                    <span className="shrink-0 rounded-full bg-black/70 px-3 py-1 text-xs uppercase tracking-[0.2em] text-emerald-300">
-                      Featured
-                    </span>
-                  </div>
-                </div>
-
-                {/* Image, bio – behind BlurGate when no subscription */}
-                <BlurGate
-                  isAllowed={viewerHasAccess}
-                  className="relative flex-1"
-                  upgradeHref="/pricing"
-                >
-                  <div className="relative w-full aspect-[4/5]">
-                    {profile.images[0] ? (
-                      <ProtectedEscortImage
-                        src={profile.images[0]}
-                        alt={profile.displayName}
-                        fill
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        className="object-cover"
-                        placeholder="blur"
-                        blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R+IRjWjBqO6O2mhP//Z"
-                        allowFullQuality={viewerHasAccess}
-                        displayName={profile.displayName}
-                        escortId={profile.id}
-                        showWarningOverlay
-                        priority={selectedIndex === profiles.findIndex(p => p.id === profile.id)}
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-linear-to-br from-zinc-900 via-black to-emerald-950/60 text-xs uppercase tracking-[0.3em] text-zinc-500">
-                        No image
-                      </div>
-                    )}
+                    <div
+                      className="pointer-events-none absolute inset-x-0 bottom-0 top-0 bg-gradient-to-t from-black/5 to-transparent"
+                      aria-hidden
+                    />
                   </div>
                   <div className="flex flex-1 flex-col gap-3 p-4 sm:p-6">
                     <p className="text-sm text-zinc-400">
                       {profile.bio ?? "Premium spotlight profile."}
                     </p>
                   </div>
-                </BlurGate>
+                </div>
 
                 {/* Action buttons and admin contact */}
                 <div className="flex flex-col gap-2 border-t border-zinc-800 p-4 sm:p-6">
                   <ButtonLink href={`/profiles/${profile.id}`} className="w-full" variant="outline">
                     View profile
                   </ButtonLink>
+                  {viewerHasAccess && (
+                    <ButtonLink
+                      href={`/profiles/${profile.id}/availability`}
+                      variant="outline"
+                      className="w-full"
+                    >
+                      Availability & Booking
+                    </ButtonLink>
+                  )}
 
                   {/* Admin Contact Buttons */}
                   <div className="mt-2 flex items-center justify-center pt-2 border-t border-zinc-800/50">

@@ -6,7 +6,7 @@ import { ContactChip } from "@/app/_components/ContactChip";
 import { OnlineBadge } from "@/app/_components/OnlineBadge";
 import { PlanBadge } from "@/app/_components/PlanBadge";
 import { ProfileAvatar } from "@/app/_components/ProfileAvatar";
-import { ProtectedEscortImage } from "@/app/_components/ProtectedEscortImage";
+import { ProfileSlider } from "@/app/_components/ProfileSlider";
 
 function escortCardClassName(planId: PlanId): string {
   const base =
@@ -30,21 +30,38 @@ type GridViewProps = {
 
 export function GridView({ escorts, viewerHasAccess }: GridViewProps) {
   return (
-    <div className="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {escorts.map((escort, idx) => (
         <article
           key={escort.id}
           className={escortCardClassName(escort.planId)}
         >
-          {/* Name, city, plan badge – always visible */}
-          <div className="border-b border-zinc-800 px-4 py-3 sm:px-6 sm:py-4">
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex min-w-0 flex-1 items-center gap-3">
+          {/* Image first – full-size, dominant */}
+          <div className="relative flex-1 min-h-0 flex flex-col">
+            <div className="relative w-full min-h-[200px] aspect-4/5 shrink-0 bg-zinc-900">
+              <BlurGate
+                isAllowed={viewerHasAccess}
+                className="absolute inset-0"
+                upgradeHref="/pricing"
+              >
+                <ProfileSlider
+                  images={escort.images}
+                  altPrefix={escort.displayName}
+                  autoPlayInterval={4000}
+                  allowFullQuality={viewerHasAccess}
+                  displayName={escort.displayName}
+                  escortId={escort.id}
+                  priority={idx === 0}
+                  className="h-full w-full"
+                />
+              </BlurGate>
+              {/* Avatar overlay – outside BlurGate, always sharp */}
+              <div className="absolute left-4 top-4 z-10 flex items-center gap-3">
                 <div className="relative shrink-0">
                   <ProfileAvatar
                     src={escort.images[0]}
                     alt={escort.displayName}
-                    size={44}
+                    size={48}
                     greenRing
                     className="shrink-0"
                   />
@@ -53,62 +70,42 @@ export function GridView({ escorts, viewerHasAccess }: GridViewProps) {
                   </span>
                 </div>
                 <div className="min-w-0">
-                  <h3 className="text-lg font-semibold text-white truncate">
+                  <h3 className="text-base font-semibold text-white truncate drop-shadow-sm">
                     {escort.displayName}
                   </h3>
                   <p className="text-xs text-zinc-500">{escort.city}</p>
                 </div>
+                <PlanBadge planId={escort.planId} showFeatured />
               </div>
-              <PlanBadge planId={escort.planId} showFeatured />
-            </div>
-          </div>
-
-          {/* Image, bio – behind BlurGate when no subscription */}
-          <BlurGate
-            isAllowed={viewerHasAccess}
-            className="relative flex-1"
-            upgradeHref="/pricing"
-          >
-            <div className="relative w-full aspect-[4/5]">
-              {escort.images[0] ? (
-                <ProtectedEscortImage
-                  src={escort.images[0]}
-                  alt={escort.displayName}
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 33vw"
-                  className="object-cover"
-                  placeholder="blur"
-                  blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R+IRjWjBqO6O2mhP//Z"
-                  allowFullQuality={viewerHasAccess}
-                  displayName={escort.displayName}
-                  escortId={escort.id}
-                  showWarningOverlay
-                  priority={idx === 0}
-                />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center bg-linear-to-br from-zinc-900 via-black to-emerald-950/60 text-xs uppercase tracking-[0.3em] text-zinc-500">
-                  No image
-                </div>
-              )}
+              <div
+                className="pointer-events-none absolute inset-x-0 bottom-0 top-0 bg-gradient-to-t from-black/5 to-transparent"
+                aria-hidden
+              />
             </div>
             <div className="flex flex-1 flex-col gap-3 p-4 sm:p-6">
               <p className="text-sm text-zinc-400">
                 {escort.bio ?? "Premium experience with verified photos."}
               </p>
             </div>
-          </BlurGate>
+          </div>
 
           <div className="flex flex-col gap-2 border-t border-zinc-800 p-4 sm:p-6">
-            <ButtonLink href="/pricing" className="w-full" variant="outline">
+            <ButtonLink
+              href={`/profiles/${escort.id}`}
+              className="w-full"
+              variant="outline"
+            >
               View profile
             </ButtonLink>
-            <ButtonLink
-              href={`/profiles/${escort.id}/availability`}
-              variant="outline"
-              className="w-full"
-            >
-              Availability & Booking
-            </ButtonLink>
+            {viewerHasAccess && (
+              <ButtonLink
+                href={`/profiles/${escort.id}/availability`}
+                variant="outline"
+                className="w-full"
+              >
+                Availability & Booking
+              </ButtonLink>
+            )}
 
             {/* Admin Contact Buttons */}
             <div className="mt-2 flex items-center justify-center pt-2 border-t border-zinc-800/50">
