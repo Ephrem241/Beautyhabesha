@@ -3,6 +3,9 @@
 import "dotenv/config";
 import { defineConfig } from "prisma/config";
 
+// Fallback URL for build-time generation when DATABASE_URL is not available
+const DATABASE_URL = process.env["DATABASE_URL"] || "postgresql://user:password@localhost:5432/dbname";
+
 export default defineConfig({
   schema: "prisma/schema.prisma",
   migrations: {
@@ -10,6 +13,6 @@ export default defineConfig({
     seed: "tsx prisma/seed.ts",
   },
   datasource: {
-    url: process.env["DATABASE_URL"],
+    url: DATABASE_URL,
   },
 });
