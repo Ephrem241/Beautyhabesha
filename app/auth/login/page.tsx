@@ -36,14 +36,17 @@ function LoginForm() {
       const result = await signIn("credentials", {
         username: username.trim().toLowerCase(),
         password,
-        callbackUrl: postLoginUrl,
-        redirect: true,
+        redirect: false,
       });
 
-      // Only runs when sign-in fails (success triggers NextAuth redirect)
       if (result?.error) {
         setErrorMessage("Invalid username or password");
         setIsLoading(false);
+      } else {
+        // Delayed redirect so the session cookie is persisted before the next request
+        setTimeout(() => {
+          window.location.href = postLoginUrl;
+        }, 200);
       }
     } catch {
       setErrorMessage("An error occurred. Please try again.");
