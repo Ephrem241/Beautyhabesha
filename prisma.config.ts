@@ -3,8 +3,14 @@
 import "dotenv/config";
 import { defineConfig } from "prisma/config";
 
-// Fallback URL for build-time generation when DATABASE_URL is not available
-const DATABASE_URL = process.env["DATABASE_URL"] || "postgresql://user:password@localhost:5432/dbname";
+// Fallback URL for build-time generation only
+// At runtime, DATABASE_URL MUST be set in environment variables
+const DATABASE_URL = process.env["DATABASE_URL"] || "postgresql://placeholder:placeholder@localhost:5432/placeholder";
+
+if (!process.env["DATABASE_URL"]) {
+  console.warn("⚠️  DATABASE_URL not found in environment variables. Using placeholder for build-time generation.");
+  console.warn("⚠️  Make sure DATABASE_URL is set in Vercel environment variables for runtime!");
+}
 
 export default defineConfig({
   schema: "prisma/schema.prisma",
