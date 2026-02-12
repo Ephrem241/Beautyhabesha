@@ -32,5 +32,5 @@ export default async function PostLoginPage({ searchParams }: PostLoginPageProps
     redirect(safeCallback);
   }
 
-  redirect(getRoleDefaultRedirect(session.user.role));
+  redirect(getRoleDefaultRedirect(session.user.role ?? "user"));
 }

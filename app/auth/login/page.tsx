@@ -32,20 +32,18 @@ function LoginForm() {
     setErrorMessage("");
 
     try {
+      const postLoginUrl = `/auth/post-login?callbackUrl=${encodeURIComponent(callbackUrl)}`;
       const result = await signIn("credentials", {
         username: username.trim().toLowerCase(),
         password,
-        redirect: false,
+        callbackUrl: postLoginUrl,
+        redirect: true,
       });
 
+      // Only runs when sign-in fails (success triggers NextAuth redirect)
       if (result?.error) {
         setErrorMessage("Invalid username or password");
         setIsLoading(false);
-      } else {
-        // Use a server-side redirect step to avoid client-side session timing races.
-        // This guarantees role-based redirect once auth cookie is set.
-        const next = `/auth/post-login?callbackUrl=${encodeURIComponent(callbackUrl)}`;
-        window.location.href = next;
       }
     } catch {
       setErrorMessage("An error occurred. Please try again.");
