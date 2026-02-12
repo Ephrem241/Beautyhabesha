@@ -8,16 +8,16 @@ import { getBookingsForUser, getBookingsForEscort } from "@/lib/booking";
 import { prisma } from "@/lib/db";
 import { getRenewalDashboardData } from "@/app/dashboard/actions";
 import { AutoRenewSection } from "@/app/dashboard/_components/AutoRenewSection";
-import { MyBookingsSection } from "@/app/dashboard/_components/MyBookingsSection";
+import { EscortActivityPing } from "@/app/dashboard/_components/EscortActivityPing";
 import { EscortBookingsSection } from "@/app/dashboard/_components/EscortBookingsSection";
-import { SuccessBanner } from "@/app/dashboard/_components/SuccessBanner";
+import { MyBookingsSection } from "@/app/dashboard/_components/MyBookingsSection";
 import { PendingApprovalBanner } from "@/app/dashboard/_components/PendingApprovalBanner";
+import { SuccessBanner } from "@/app/dashboard/_components/SuccessBanner";
 
 type DashboardPageProps = {
   searchParams: Promise<{
     payment?: string;
     profile?: string;
-    subscription?: string;
   }>;
 };
 
@@ -30,9 +30,8 @@ export default async function DashboardPage({
   const params = await searchParams;
   const showSuccess = params.payment === "success";
   const showProfileUpdated = params.profile === "updated";
-  const showSubscriptionPending = params.subscription === "pending";
   const session = await getAuthSession();
-  const role = session?.user?.role;
+  const role: "admin" | "escort" | "user" | undefined = session?.user?.role;
   const userId = session?.user?.id ?? null;
   if (userId) await checkUserNotBanned(userId);
 
@@ -64,6 +63,7 @@ export default async function DashboardPage({
 
   return (
     <main className="min-h-screen bg-black px-4 py-12 text-white sm:px-6 sm:py-16">
+      <EscortActivityPing isEscort={role === "escort"} />
       <div className="mx-auto max-w-3xl">
         {showSuccess ? (
           <SuccessBanner message="Payment proof submitted. We will review and activate your plan soon." />
@@ -79,11 +79,6 @@ export default async function DashboardPage({
             Profile updated successfully.
           </div>
         ) : null}
-        {showSubscriptionPending ? (
-          <div className="mt-4 rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm text-amber-200">
-            Subscription status: Pending Approval.
-          </div>
-        ) : null}
         <h1 className="mt-6 text-xl font-semibold sm:text-2xl">Dashboard</h1>
         <p className="mt-2 text-sm text-zinc-400">
           Manage your profile, listings, and subscription status here.
@@ -96,7 +91,7 @@ export default async function DashboardPage({
           >
             View plans
           </Link>
-          {role !== "admin" ? (
+          {session?.user?.role !== "admin" ? (
             <Link
               href="/support"
               className="rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-4 text-sm text-zinc-200 transition hover:border-emerald-400 hover:text-emerald-300"
@@ -158,7 +153,7 @@ export default async function DashboardPage({
               <EscortBookingsSection bookings={escortBookings} />
             </div>
           ) : null}
-          {role === "admin" ? (
+          {session?.user?.role === "admin" ? (
             <>
               <Link
                 href="/dashboard/admin/bookings"
@@ -191,7 +186,7 @@ export default async function DashboardPage({
                 Manage models
               </Link>
               <Link
-                href="/admin/chats"
+                href="/dashboard/admin/chats"
                 className="rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-4 text-sm text-zinc-200 transition hover:border-emerald-400 hover:text-emerald-300"
               >
                 Support chats

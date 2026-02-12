@@ -71,6 +71,23 @@ export async function getRenewalDashboardData(
   };
 }
 
+export async function updateEscortLastActive(): Promise<{ ok: boolean }> {
+  const session = await getAuthSession();
+  if (!session?.user?.id || session.user.role !== "escort") {
+    return { ok: false };
+  }
+
+  try {
+    await prisma.escortProfile.updateMany({
+      where: { userId: session.user.id },
+      data: { lastActiveAt: new Date() },
+    });
+    return { ok: true };
+  } catch {
+    return { ok: false };
+  }
+}
+
 export async function setAutoRenew(
   enabled: boolean
 ): Promise<SetAutoRenewResult> {

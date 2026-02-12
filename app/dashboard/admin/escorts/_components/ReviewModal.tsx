@@ -7,6 +7,7 @@ import {
   approveEscort,
   rejectEscort,
   suspendEscort,
+  deleteEscortProfile,
   getEscortDetails,
   boostEscortRanking,
   setRankingSuspended,
@@ -36,6 +37,7 @@ export default function ReviewModal({ escort, onClose }: ReviewModalProps) {
   const [loading, setLoading] = useState(true);
   const [actionPending, startActionTransition] = useTransition();
   const [actionStatus, setActionStatus] = useState<EscortActionResult | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
     async function fetchDetails() {
@@ -69,6 +71,20 @@ export default function ReviewModal({ escort, onClose }: ReviewModalProps) {
 
       setActionStatus(result);
       if (result.ok) refreshDetails();
+    });
+  };
+
+  const handleDelete = async () => {
+    startActionTransition(async () => {
+      const formData = new FormData();
+      formData.append("escortId", escort.id);
+      const result = await deleteEscortProfile({ ok: false }, formData);
+      setActionStatus(result);
+      if (result.ok) {
+        setShowDeleteConfirm(false);
+        onClose();
+        window.location.reload();
+      }
     });
   };
 
@@ -303,6 +319,36 @@ export default function ReviewModal({ escort, onClose }: ReviewModalProps) {
             >
               {actionPending ? "Processing..." : "Suspend"}
             </button>
+            {showDeleteConfirm ? (
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-sm text-amber-300">Delete profile permanently?</span>
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  disabled={actionPending}
+                  className="rounded-lg border border-red-600 bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+                >
+                  {actionPending ? "Deleting…" : "Confirm delete"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowDeleteConfirm(false)}
+                  disabled={actionPending}
+                  className="rounded-lg border border-zinc-600 bg-zinc-800 px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700 disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowDeleteConfirm(true)}
+                disabled={actionPending}
+                className="rounded-lg border border-red-500/50 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-300 hover:bg-red-500/20 disabled:opacity-50"
+              >
+                Delete profile
+              </button>
+            )}
           </div>
 
           <section className="mt-8 border-t border-zinc-800 pt-6">

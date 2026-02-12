@@ -14,5 +14,6 @@ export function mapPublicEscortToProfile(escort: PublicEscort): Profile {
         : escort.planId === "Platinum"
           ? "platinum"
           : null,
+    lastActiveAt: escort.lastActiveAt ?? undefined,
   };
 }

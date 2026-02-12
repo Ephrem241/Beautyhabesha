@@ -2,13 +2,14 @@
 
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
-import Image from "next/image";
+import { OnlineBadge } from "./OnlineBadge";
 import { ProfileAvatar } from "./ProfileAvatar";
 import { ButtonLink } from "./ui/Button";
+import { BlurGate } from "./BlurGate";
+import { ContactChip } from "./ContactChip";
+import { ProtectedEscortImage } from "./ProtectedEscortImage";
 
 const AUTO_PLAY_MS = 4000;
-const BLUR_PLACEHOLDER =
-  "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R+IRjWjBqO6O2mhP//Z";
 
 type SpotlightProfile = {
   id: string;
@@ -16,15 +17,18 @@ type SpotlightProfile = {
   city: string | null;
   bio: string | null;
   images: string[];
+  lastActiveAt?: Date | null;
 };
 
 type SpotlightCarouselProps = {
   profiles: SpotlightProfile[];
+  viewerHasAccess: boolean;
   intervalMs?: number;
 };
 
 export const SpotlightCarousel = memo(function SpotlightCarousel({
   profiles,
+  viewerHasAccess,
   intervalMs = AUTO_PLAY_MS,
 }: SpotlightCarouselProps) {
   const [emblaRef, emblaApi] = useEmblaCarousel({
@@ -37,6 +41,28 @@ export const SpotlightCarousel = memo(function SpotlightCarousel({
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const autoPlayRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const touchResumeRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const TOUCH_RESUME_DELAY_MS = 300;
+
+  const handleTouchStart = useCallback(() => {
+    if (touchResumeRef.current) {
+      clearTimeout(touchResumeRef.current);
+      touchResumeRef.current = null;
+    }
+    setIsPaused(true);
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    if (touchResumeRef.current) {
+      clearTimeout(touchResumeRef.current);
+      touchResumeRef.current = null;
+    }
+    touchResumeRef.current = setTimeout(() => {
+      touchResumeRef.current = null;
+      setIsPaused(false);
+    }, TOUCH_RESUME_DELAY_MS);
+  }, []);
 
   const scrollTo = useCallback(
     (index: number) => {
@@ -66,12 +92,23 @@ export const SpotlightCarousel = memo(function SpotlightCarousel({
 
   useEffect(() => {
     if (!emblaApi) return;
-    onSelect();
+    // Defer initial sync to avoid synchronous setState in effect (react-hooks/set-state-in-effect)
+    const sync = () => queueMicrotask(onSelect);
     emblaApi.on("select", onSelect);
+    sync();
     return () => {
       emblaApi.off("select", onSelect);
     };
   }, [emblaApi, onSelect]);
+
+  useEffect(() => {
+    return () => {
+      if (touchResumeRef.current) {
+        clearTimeout(touchResumeRef.current);
+        touchResumeRef.current = null;
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (!emblaApi || profiles.length <= 1) return;
@@ -96,8 +133,8 @@ export const SpotlightCarousel = memo(function SpotlightCarousel({
       className="relative overflow-hidden rounded-2xl sm:rounded-3xl"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
-      onTouchStart={() => setIsPaused(true)}
-      onTouchEnd={() => setIsPaused(false)}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
     >
       <div ref={emblaRef} className="overflow-hidden">
         <div className="flex">
@@ -106,60 +143,81 @@ export const SpotlightCarousel = memo(function SpotlightCarousel({
               key={profile.id}
               className="relative min-w-0 flex-[0_0_100%] sm:flex-[0_0_50%] lg:flex-[0_0_33.333%]"
             >
-              <article className="mx-2 overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950 transition hover:-translate-y-0.5 hover:border-emerald-500/60 sm:rounded-3xl">
-                <div className="relative w-full aspect-[4/5]">
-                  {profile.images[0] ? (
-                    <div className="relative h-full w-full">
-                      <Image
+              <article className="mx-2 flex flex-col overflow-hidden rounded-2xl border border-emerald-500/60 bg-zinc-950 shadow-[0_0_20px_rgba(16,185,129,0.15)] transition hover:-translate-y-0.5 hover:border-emerald-400/70 hover:shadow-[0_0_24px_rgba(16,185,129,0.2)] sm:rounded-3xl">
+                {/* Name, city, featured badge – always visible */}
+                <div className="border-b border-zinc-800 px-4 py-3 sm:px-6 sm:py-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex min-w-0 flex-1 items-center gap-3">
+                      <div className="relative shrink-0">
+                        <ProfileAvatar
+                          src={profile.images[0]}
+                          alt={profile.displayName}
+                          size={44}
+                          greenRing
+                          className="shrink-0"
+                        />
+                        <span className="absolute -bottom-0.5 -right-0.5">
+                          <OnlineBadge lastActiveAt={profile.lastActiveAt} />
+                        </span>
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="text-lg font-semibold text-white truncate">
+                          {profile.displayName}
+                        </h3>
+                        <p className="text-xs text-zinc-500">{profile.city}</p>
+                      </div>
+                    </div>
+                    <span className="shrink-0 rounded-full bg-black/70 px-3 py-1 text-xs uppercase tracking-[0.2em] text-emerald-300">
+                      Featured
+                    </span>
+                  </div>
+                </div>
+
+                {/* Image, bio – behind BlurGate when no subscription */}
+                <BlurGate
+                  isAllowed={viewerHasAccess}
+                  className="relative flex-1"
+                  upgradeHref="/pricing"
+                >
+                  <div className="relative w-full aspect-[4/5]">
+                    {profile.images[0] ? (
+                      <ProtectedEscortImage
                         src={profile.images[0]}
                         alt={profile.displayName}
                         fill
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        className="object-cover will-change-transform"
-                        style={{
-                          transform: "scale(1.05)",
-                          filter: "blur(8px)",
-                        }}
+                        className="object-cover"
                         placeholder="blur"
-                        blurDataURL={BLUR_PLACEHOLDER}
+                        blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R+IRjWjBqO6O2mhP//Z"
+                        allowFullQuality={viewerHasAccess}
+                        displayName={profile.displayName}
+                        escortId={profile.id}
+                        showWarningOverlay
                         priority={selectedIndex === profiles.findIndex(p => p.id === profile.id)}
                       />
-                      <div className="absolute inset-0 bg-black/20" />
-                    </div>
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-linear-to-br from-zinc-900 via-black to-emerald-950/60 text-xs uppercase tracking-[0.3em] text-zinc-500">
-                      No image
-                    </div>
-                  )}
-                  <span className="absolute left-4 top-4 rounded-full bg-black/70 px-3 py-1 text-xs uppercase tracking-[0.2em] text-emerald-300">
-                    Featured
-                  </span>
-                </div>
-                <div className="p-4 sm:p-5">
-                  <div className="flex items-center gap-3">
-                    <ProfileAvatar
-                      src={profile.images[0]}
-                      alt={profile.displayName}
-                      size={44}
-                      className="shrink-0"
-                    />
-                    <div className="min-w-0">
-                      <h3 className="text-lg font-semibold text-white truncate">
-                        {profile.displayName}
-                      </h3>
-                      <p className="text-xs text-zinc-500">{profile.city}</p>
-                    </div>
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center bg-linear-to-br from-zinc-900 via-black to-emerald-950/60 text-xs uppercase tracking-[0.3em] text-zinc-500">
+                        No image
+                      </div>
+                    )}
                   </div>
-                  <p className="mt-3 text-sm text-zinc-400 line-clamp-2">
-                    {profile.bio ?? "Premium spotlight profile."}
-                  </p>
-                  <ButtonLink
-                    href={`/profiles/${profile.id}`}
-                    variant="ghost"
-                    className="mt-4"
-                  >
+                  <div className="flex flex-1 flex-col gap-3 p-4 sm:p-6">
+                    <p className="text-sm text-zinc-400">
+                      {profile.bio ?? "Premium spotlight profile."}
+                    </p>
+                  </div>
+                </BlurGate>
+
+                {/* Action buttons and admin contact */}
+                <div className="flex flex-col gap-2 border-t border-zinc-800 p-4 sm:p-6">
+                  <ButtonLink href={`/profiles/${profile.id}`} className="w-full" variant="outline">
                     View profile
                   </ButtonLink>
+
+                  {/* Admin Contact Buttons */}
+                  <div className="mt-2 flex items-center justify-center pt-2 border-t border-zinc-800/50">
+                    <ContactChip variant="compact" label="Contact admin:" />
+                  </div>
                 </div>
               </article>
             </div>

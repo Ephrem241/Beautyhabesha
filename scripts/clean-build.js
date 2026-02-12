@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-
+/* eslint-disable @typescript-eslint/no-require-imports */
 /**
  * Clean build artifacts and rebuild
  * 
@@ -40,7 +40,7 @@ function runCommand(command, description) {
       env: { ...process.env, FORCE_COLOR: '1' }
     });
     console.log(`✅ ${description} complete`);
-  } catch (error) {
+  } catch (_err) {
     console.error(`❌ ${description} failed`);
     process.exit(1);
   }

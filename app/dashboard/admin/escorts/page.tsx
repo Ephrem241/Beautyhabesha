@@ -117,6 +117,36 @@ export default async function AdminEscortsPage({ searchParams }: Props) {
         <div className="mt-6 sm:mt-8">
           <EscortsTable escorts={formattedEscorts} />
         </div>
+
+        <div className="mt-6 flex flex-wrap items-center gap-3 text-sm">
+          {page > 1 && (
+            <Link
+              href={
+                showCreated
+                  ? `/dashboard/admin/escorts?created=1&username=${encodeURIComponent(createdUsername ?? "")}&page=${page - 1}&limit=${limit}`
+                  : `/dashboard/admin/escorts?page=${page - 1}&limit=${limit}`
+              }
+              className="rounded-lg border border-zinc-700 bg-zinc-900 px-4 py-2 text-zinc-300 transition hover:border-emerald-500 hover:text-emerald-300"
+            >
+              ← Previous
+            </Link>
+          )}
+          {escorts.length === limit && (
+            <Link
+              href={
+                showCreated
+                  ? `/dashboard/admin/escorts?created=1&username=${encodeURIComponent(createdUsername ?? "")}&page=${page + 1}&limit=${limit}`
+                  : `/dashboard/admin/escorts?page=${page + 1}&limit=${limit}`
+              }
+              className="rounded-lg border border-emerald-500/50 bg-emerald-500/10 px-4 py-2 text-emerald-300 transition hover:bg-emerald-500/20"
+            >
+              Next page →
+            </Link>
+          )}
+          {page > 1 && escorts.length < limit && (
+            <span className="text-zinc-500">Page {page}</span>
+          )}
+        </div>
       </div>
     </main>
   );

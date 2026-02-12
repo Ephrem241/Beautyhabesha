@@ -167,7 +167,7 @@ export const HeroTextCarousel = memo(function HeroTextCarousel() {
           {slides.map((slide, index) => (
             <div
               key={slide.id}
-              className="relative min-w-0 flex-[0_0_100%] px-5 py-14 sm:px-8 sm:py-20 md:px-12 md:py-24"
+              className="relative min-w-0 flex-[0_0_100%] px-5 py-8 sm:px-8 sm:py-10 md:px-12 md:py-12"
               role="group"
               aria-roledescription="slide"
               aria-label={`Slide ${index + 1} of ${slides.length}`}
@@ -211,7 +211,7 @@ export const HeroTextCarousel = memo(function HeroTextCarousel() {
       </div>
 
       <div
-        className="flex justify-center gap-2 pb-6 pt-2 sm:pb-8 sm:pt-4"
+        className="flex justify-center gap-2 pb-4 pt-2 sm:pb-5 sm:pt-3"
         role="tablist"
         aria-label="Carousel slide indicators"
       >

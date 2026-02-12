@@ -146,6 +146,7 @@ export default async function PaymentInstructionsSlugPage({
           <UploadProofForm
             planSlug={selectedPlan.slug}
             planId={selectedPlan.id}
+            paymentAccounts={paymentAccounts as { id: string }[]}
           />
           {!session?.user && (
             <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-center sm:gap-3">

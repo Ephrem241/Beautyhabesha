@@ -34,7 +34,7 @@ export const PremiumProfileCard = memo(function PremiumProfileCard({
       <div
         className="absolute inset-0 transition-all duration-300 will-change-filter"
         style={{
-          filter: "blur(4px) brightness(0.75)",
+          filter: "blur(2px) brightness(0.85)",
         }}
       >
         {children}

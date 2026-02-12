@@ -9,7 +9,6 @@ import {
 } from "@/lib/ranking";
 import { getGraceCutoff } from "@/lib/subscription-grace";
 import {
-  expireStaleSubscriptions,
   getActiveSubscriptionsForUsers,
   getPlanPriorityMap,
   resolvePlanAccess,
@@ -37,6 +36,7 @@ export type PublicEscort = {
   planPriority: number;
   canShowContact: boolean;
   createdAt: Date;
+  lastActiveAt?: Date | null;
 };
 
 /** Returns all images for every escort - blur and carousel apply to Platinum, VIP, and Normal alike. */
@@ -45,8 +45,6 @@ function limitImagesForPlan(_planId: PlanId, images: string[]): string[] {
 }
 
 export async function getPublicEscorts(): Promise<PublicEscort[]> {
-  await expireStaleSubscriptions();
-
   const profiles = await prisma.escortProfile.findMany({
     where: { status: "approved" },
     select: {
@@ -61,6 +59,7 @@ export async function getPublicEscorts(): Promise<PublicEscort[]> {
       whatsapp: true,
       userId: true,
       createdAt: true,
+      lastActiveAt: true,
     },
   });
   const userIds = profiles.map((profile) => profile.userId);
@@ -70,7 +69,7 @@ export async function getPublicEscorts(): Promise<PublicEscort[]> {
   const escorts = profiles.map((profile) => {
     const planId =
       activeSubscriptions.get(profile.userId)?.planId ?? ("Normal" as PlanId);
-    const access = resolvePlanAccess(planId, planMap, fallbackMap);
+    const access = resolvePlanAccess(planId, planMap, _fallbackMap);
     const allImages = extractImageUrls(profile.images);
     const limitedImages = limitImagesForPlan(access.planId, allImages);
 
@@ -93,6 +92,7 @@ export async function getPublicEscorts(): Promise<PublicEscort[]> {
       planPriority: access.priority,
       canShowContact: access.canShowContact,
       createdAt: profile.createdAt,
+      lastActiveAt: profile.lastActiveAt ?? undefined,
     };
   });
 
@@ -112,8 +112,6 @@ export type GetEscortsOptions = {
 export async function getPublicEscortsOptimized(
   options?: GetEscortsOptions
 ): Promise<PublicEscort[]> {
-  await expireStaleSubscriptions();
-
   const viewerUserId = options?.viewerUserId ?? null;
   const viewerHasAccess = await getViewerHasActiveSubscription(viewerUserId);
 
@@ -204,9 +202,8 @@ export async function getPublicEscortsOptimized(
 
   const sorted = sortByRanking(escorts);
   return sorted.map(
-    ({ rankingPriority, lastActiveAt, completenessScore, displayPlanId, ...rest }) => {
+    ({ rankingPriority, completenessScore, displayPlanId, ...rest }) => {
       void rankingPriority;
-      void lastActiveAt;
       void completenessScore;
       void displayPlanId;
       return rest;
@@ -258,7 +255,6 @@ export async function getBrowseProfilesFiltered(
   options: GetEscortsOptions & { filters: import("@/lib/browse-filters").BrowseFilters }
 ): Promise<PublicEscort[]> {
   const { buildBrowseWhere } = await import("@/lib/browse-filters");
-  await expireStaleSubscriptions();
 
   const viewerUserId = options.viewerUserId ?? null;
   const viewerHasAccess = await getViewerHasActiveSubscription(viewerUserId);
@@ -346,11 +342,15 @@ export async function getBrowseProfilesFiltered(
   return sortByRanking(escorts).map(
     ({
       rankingPriority: _rp,
-      lastActiveAt: _la,
       completenessScore: _cs,
       displayPlanId: _dp,
       ...rest
-    }) => rest
+    }) => {
+      void _rp;
+      void _cs;
+      void _dp;
+      return rest;
+    }
   );
 }
 
@@ -372,7 +372,6 @@ export async function getBrowseProfilesCursor(
   const take = Math.min(options?.take ?? 50, 100);
   const cursor = options?.cursor ?? undefined;
   const { buildBrowseWhere, countActiveFilters } = await import("@/lib/browse-filters");
-  await expireStaleSubscriptions();
 
   const viewerUserId = options?.viewerUserId ?? null;
   const viewerHasAccess = await getViewerHasActiveSubscription(viewerUserId);
@@ -405,7 +404,7 @@ export async function getBrowseProfilesCursor(
     cursor: cursor ? { id: cursor } : undefined,
   });
 
-  const { planMap, fallbackMap } = await getPlanPriorityMap();
+  const { planMap, fallbackMap: _fallbackMap } = await getPlanPriorityMap();
   type WithRanking = PublicEscort & RankedEscortPayload;
 
   const escorts: WithRanking[] = profiles.map((profile) => {
@@ -466,11 +465,15 @@ export async function getBrowseProfilesCursor(
   const stripped = sorted.map(
     ({
       rankingPriority: _rp,
-      lastActiveAt: _la,
       completenessScore: _cs,
       displayPlanId: _dp,
       ...rest
-    }) => rest
+    }) => {
+      void _rp;
+      void _cs;
+      void _dp;
+      return rest;
+    }
   );
   return cursorPageResult(stripped, take);
 }
@@ -520,8 +523,6 @@ export async function getPublicEscortById(
   options?: GetEscortByIdOptions
 ): Promise<PublicEscort | null> {
   try {
-    await expireStaleSubscriptions();
-
     const viewerUserId = options?.viewerUserId ?? null;
     const viewerHasAccess = await getViewerHasActiveSubscription(viewerUserId);
 
@@ -568,6 +569,7 @@ export async function getPublicEscortById(
       planPriority: access.priority,
       canShowContact: access.canShowContact,
       createdAt: profile.createdAt,
+      lastActiveAt: profile.lastActiveAt ?? undefined,
     };
   } catch (error) {
     console.error("Error fetching escort profile:", error);

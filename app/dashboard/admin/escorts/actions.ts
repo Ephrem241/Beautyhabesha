@@ -326,3 +326,39 @@ export async function suspendEscort(
     return { ok: false, error: "Failed to suspend escort." };
   }
 }
+
+export async function deleteEscortProfile(
+  _prevState: EscortActionResult,
+  formData: FormData
+): Promise<EscortActionResult> {
+  await requireAdmin();
+
+  const parsed = escortActionSchema.safeParse({
+    escortId: formData.get("escortId"),
+  });
+
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid request." };
+  }
+
+  try {
+    const profile = await prisma.escortProfile.findUnique({
+      where: { id: parsed.data.escortId },
+      select: { userId: true },
+    });
+    if (!profile) {
+      return { ok: false, error: "Profile not found." };
+    }
+
+    await prisma.$transaction([
+      prisma.escortProfile.delete({ where: { id: parsed.data.escortId } }),
+      prisma.user.update({
+        where: { id: profile.userId },
+        data: { role: "user" },
+      }),
+    ]);
+    return { ok: true };
+  } catch {
+    return { ok: false, error: "Failed to delete profile." };
+  }
+}

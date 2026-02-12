@@ -30,8 +30,6 @@ pool.on("error", (err) => {
 // Create adapter with the pool
 const adapter = new PrismaPg(pool);
 
-const SLOW_QUERY_MS = 200;
-
 const basePrisma = new PrismaClient({
   adapter,
   log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
@@ -52,7 +50,7 @@ const TRANSIENT_ERROR_MESSAGES = [
 const prismaWithRetry = basePrisma.$extends({
   name: "retry-logic",
   query: {
-    async $allOperations({ model, operation, args, query }) {
+    async $allOperations({ model: _model, operation: _operation, args, query }) {
       const maxAttempts = 5;
       let attempt = 0;
 

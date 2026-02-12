@@ -60,7 +60,7 @@ async function main() {
 
   // Create SubscriptionPlans (new subscription management)
   console.log("📦 Creating subscription plans...");
-  const normalPlan = await prisma.subscriptionPlan.create({
+  await prisma.subscriptionPlan.create({
     data: {
       name: "Normal",
       slug: "normal",

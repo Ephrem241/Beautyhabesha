@@ -54,6 +54,7 @@ export function CreateEscortForm({ createAction }: CreateEscortFormProps) {
     <form
       action={formAction}
       onSubmit={handleSubmit}
+      encType="multipart/form-data"
       className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4 sm:p-6"
     >
       {(state?.error || clientError) && (

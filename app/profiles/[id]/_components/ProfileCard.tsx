@@ -2,15 +2,17 @@
 
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
+import { OnlineBadge } from "@/app/_components/OnlineBadge";
 import { ProfileAvatar } from "@/app/_components/ProfileAvatar";
 
 type ProfileCardProps = {
   name: string;
   city?: string | null;
   imageUrl?: string | null;
+  lastActiveAt?: Date | null;
 };
 
-export function ProfileCard({ name, city, imageUrl }: ProfileCardProps) {
+export function ProfileCard({ name, city, imageUrl, lastActiveAt }: ProfileCardProps) {
   const router = useRouter();
 
   return (
@@ -41,19 +43,24 @@ export function ProfileCard({ name, city, imageUrl }: ProfileCardProps) {
         </svg>
       </button>
 
-      <ProfileAvatar
-        src={imageUrl}
-        alt={name}
-        size={40}
-        greenRing
-        className="shrink-0"
-      />
+      <div className="relative shrink-0">
+        <ProfileAvatar
+          src={imageUrl}
+          alt={name}
+          size={40}
+          greenRing
+          className="shrink-0"
+        />
+        <span className="absolute -bottom-0.5 -right-0.5">
+          <OnlineBadge lastActiveAt={lastActiveAt} />
+        </span>
+      </div>
 
       <div className="min-w-0 flex-1">
         <h1 className="truncate text-base font-semibold text-white">{name}</h1>
-        {city && (
+        {city ? (
           <p className="truncate text-xs text-zinc-500">{city}</p>
-        )}
+        ) : null}
       </div>
     </motion.header>
   );

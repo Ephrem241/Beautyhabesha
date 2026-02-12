@@ -6,6 +6,7 @@ import Image from "next/image";
 import { motion, useMotionValue, useTransform, animate, AnimatePresence } from "framer-motion";
 import type { Profile } from "@/app/_components/swipe/types";
 import type { SwipeOutcome } from "@/app/_components/swipe/SwipeCard";
+import { OnlineBadge } from "@/app/_components/OnlineBadge";
 import { ProfileAvatar } from "@/app/_components/ProfileAvatar";
 import { BLUR_PLACEHOLDER } from "@/lib/image-utils";
 
@@ -153,13 +154,18 @@ export function ProfileSwipeCard({
           />
 
           <header className="absolute left-4 top-4 z-10 flex items-center gap-3">
-            <div className="overflow-hidden rounded-full border-2 border-emerald-500">
-              <ProfileAvatar
-                src={avatarSrc}
-                alt={profile.name}
-                size={48}
-                className="block"
-              />
+            <div className="relative">
+              <div className="overflow-hidden rounded-full border-2 border-emerald-500">
+                <ProfileAvatar
+                  src={avatarSrc}
+                  alt={profile.name}
+                  size={48}
+                  className="block"
+                />
+              </div>
+              <span className="absolute -bottom-0.5 -right-0.5">
+                <OnlineBadge lastActiveAt={profile.lastActiveAt} />
+              </span>
             </div>
             <h2 className="text-xl font-semibold text-white drop-shadow-sm">
               {profile.name}

@@ -96,6 +96,10 @@ export async function createAvailability(
       isBooked: false,
     },
   });
+  await prisma.escortProfile.update({
+    where: { id: escortId },
+    data: { lastActiveAt: new Date() },
+  });
   return { ok: true };
 }
 
@@ -144,6 +148,10 @@ export async function updateAvailability(
       mode: parsed.data.mode as "online" | "in_person",
     },
   });
+  await prisma.escortProfile.update({
+    where: { id: existing.escortId },
+    data: { lastActiveAt: new Date() },
+  });
   return { ok: true };
 }
 
@@ -170,6 +178,10 @@ export async function deleteAvailability(
 
   await prisma.availability.delete({
     where: { id: parsed.data.id },
+  });
+  await prisma.escortProfile.update({
+    where: { id: existing.escortId },
+    data: { lastActiveAt: new Date() },
   });
   return { ok: true };
 }

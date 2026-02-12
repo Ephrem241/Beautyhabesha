@@ -45,6 +45,7 @@ export function FilterBar({
       if ("minAge" in updates) apply("minAge", updates.minAge);
       if ("maxAge" in updates) apply("maxAge", updates.maxAge);
       if ("available" in updates) apply("available", updates.available);
+      if ("online" in updates) apply("online", updates.online);
       if ("search" in updates) apply("search", updates.search);
       router.push(`${pathname}?${next.toString()}`, { scroll: false });
     },
@@ -150,6 +151,18 @@ export function FilterBar({
               className="h-4 w-4 rounded border-zinc-600 accent-emerald-500"
             />
             <span className="text-sm text-zinc-300">Available now</span>
+          </label>
+
+          <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-zinc-700 bg-zinc-900/80 px-3 py-2">
+            <input
+              type="checkbox"
+              checked={filters.online === true}
+              onChange={(e) =>
+                updateParams({ online: e.target.checked ? true : undefined })
+              }
+              className="h-4 w-4 rounded border-zinc-600 accent-emerald-500"
+            />
+            <span className="text-sm text-zinc-300">Online now</span>
           </label>
         </div>
 

@@ -7,6 +7,7 @@ import {
   forceRenewSubscription,
   banUser,
   unbanUser,
+  deleteUser,
 } from "../actions";
 
 type User = {
@@ -29,6 +30,7 @@ type UsersTableProps = {
 export default function UsersTable({ users }: UsersTableProps) {
   const [isPending, startTransition] = useTransition();
   const [status, setStatus] = useState<{ ok: boolean; error?: string } | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
 
   async function handleRoleChange(userId: string, newRole: "admin" | "escort" | "user") {
     startTransition(async () => {
@@ -79,6 +81,19 @@ export default function UsersTable({ users }: UsersTableProps) {
       const result = await unbanUser({ ok: false }, formData);
       setStatus(result);
       if (result.ok) window.location.reload();
+    });
+  }
+
+  async function handleDelete(userId: string) {
+    startTransition(async () => {
+      const formData = new FormData();
+      formData.append("userId", userId);
+      const result = await deleteUser({ ok: false }, formData);
+      setStatus(result);
+      if (result.ok) {
+        setDeleteTarget(null);
+        window.location.reload();
+      }
     });
   }
 
@@ -238,6 +253,35 @@ export default function UsersTable({ users }: UsersTableProps) {
                         Ban
                       </button>
                     )}
+                    {deleteTarget === user.id ? (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(user.id)}
+                          disabled={isPending}
+                          className="rounded-lg border border-red-600 bg-red-600 px-2 py-1 text-xs text-white hover:bg-red-700 disabled:opacity-50"
+                        >
+                          {isPending ? "Deleting…" : "Confirm delete"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setDeleteTarget(null)}
+                          disabled={isPending}
+                          className="rounded-lg border border-zinc-600 bg-zinc-800 px-2 py-1 text-xs text-zinc-300 disabled:opacity-50"
+                        >
+                          Cancel
+                        </button>
+                      </>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setDeleteTarget(user.id)}
+                        disabled={isPending}
+                        className="rounded-lg border border-zinc-600 bg-zinc-800 px-2 py-1 text-xs text-zinc-300 hover:bg-zinc-700 disabled:opacity-50"
+                      >
+                        Delete
+                      </button>
+                    )}
                     </div>
                   </td>
                 </tr>
@@ -316,6 +360,35 @@ export default function UsersTable({ users }: UsersTableProps) {
                     className="rounded-lg border border-red-500/50 bg-red-500/10 px-2 py-1 text-xs text-red-300"
                   >
                     Ban
+                  </button>
+                )}
+                {deleteTarget === user.id ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(user.id)}
+                      disabled={isPending}
+                      className="rounded-lg border border-red-600 bg-red-600 px-2 py-1 text-xs text-white disabled:opacity-50"
+                    >
+                      {isPending ? "Deleting…" : "Confirm delete"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDeleteTarget(null)}
+                      disabled={isPending}
+                      className="rounded-lg border border-zinc-600 bg-zinc-800 px-2 py-1 text-xs text-zinc-300"
+                    >
+                      Cancel
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setDeleteTarget(user.id)}
+                    disabled={isPending}
+                    className="rounded-lg border border-zinc-600 bg-zinc-800 px-2 py-1 text-xs text-zinc-300"
+                  >
+                    Delete
                   </button>
                 )}
               </div>

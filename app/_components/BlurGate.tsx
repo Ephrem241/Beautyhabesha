@@ -32,29 +32,31 @@ export const BlurGate = memo(function BlurGate({
       <div
         className="select-none transition-all duration-300 will-change-filter"
         style={{
-          filter: "blur(4px) brightness(0.75)",
+          filter: "blur(2px) brightness(0.85)",
         }}
         aria-hidden="true"
       >
         {children}
       </div>
       <div
-        className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-linear-to-b from-black/20 via-black/10 to-black/20 px-4 py-6"
+        className="absolute inset-0 flex flex-col items-center justify-end bg-linear-to-t from-black/70 via-black/30 to-transparent px-4 py-6"
         role="region"
         aria-label="Subscription required"
       >
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-zinc-500/80 bg-zinc-900/90 text-zinc-400">
-          <LockIcon className="h-6 w-6" />
+        <div className="flex flex-col items-center gap-4 pb-2">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-zinc-500/80 bg-zinc-900/90 text-zinc-400">
+            <LockIcon className="h-6 w-6" />
+          </div>
+          <p className="text-center text-sm font-medium text-white sm:text-base">
+            Subscribe to view full profile
+          </p>
+          <Link
+            href={upgradeHref}
+            className="inline-flex items-center justify-center rounded-full bg-emerald-400 px-5 py-2.5 text-sm font-semibold uppercase tracking-[0.2em] text-emerald-950 transition hover:bg-emerald-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
+          >
+            Upgrade Now
+          </Link>
         </div>
-        <p className="text-center text-sm font-medium text-white sm:text-base">
-          Subscribe to view full profile
-        </p>
-        <Link
-          href={upgradeHref}
-          className="inline-flex items-center justify-center rounded-full bg-emerald-400 px-5 py-2.5 text-sm font-semibold uppercase tracking-[0.2em] text-emerald-950 transition hover:bg-emerald-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
-        >
-          Upgrade Now
-        </Link>
       </div>
     </div>
   );

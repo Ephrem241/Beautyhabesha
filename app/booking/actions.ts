@@ -28,12 +28,13 @@ export async function createBooking(
   _prevState: BookingActionResult,
   formData: FormData
 ): Promise<BookingActionResult> {
-  const session = await getAuthSession();
-  if (!session?.user?.id) {
-    return { ok: false, error: "You must be signed in to book." };
-  }
+  try {
+    const session = await getAuthSession();
+    if (!session?.user?.id) {
+      return { ok: false, error: "You must be signed in to book." };
+    }
 
-  // Rate limiting: max 10 bookings per hour
+    // Rate limiting: max 10 bookings per hour
   const rateLimitResult = rateLimitCheck(`booking-create:${session.user.id}`, {
     max: 10,
     windowMs: 60 * 60 * 1000, // 1 hour
@@ -107,7 +108,11 @@ export async function createBooking(
     slot
   );
 
-  return { ok: true, bookingId: booking.id };
+    return { ok: true, bookingId: booking.id };
+  } catch (err) {
+    console.error("[createBooking] Error:", err);
+    return { ok: false, error: "Something went wrong. Please try again." };
+  }
 }
 
 const MAX_RECEIPT_BYTES = 5 * 1024 * 1024;
@@ -122,12 +127,13 @@ export async function uploadDeposit(
   _prevState: BookingActionResult,
   formData: FormData
 ): Promise<BookingActionResult> {
-  const session = await getAuthSession();
-  if (!session?.user?.id) {
-    return { ok: false, error: "You must be signed in." };
-  }
+  try {
+    const session = await getAuthSession();
+    if (!session?.user?.id) {
+      return { ok: false, error: "You must be signed in." };
+    }
 
-  const receiptFile = formData.get("receipt") as File | null;
+    const receiptFile = formData.get("receipt") as File | null;
   if (!receiptFile || !(receiptFile instanceof File) || !receiptFile.type.startsWith("image/")) {
     return { ok: false, error: "Please upload an image receipt." };
   }
@@ -184,7 +190,11 @@ export async function uploadDeposit(
     booking.id
   );
 
-  return { ok: true, bookingId: booking.id };
+    return { ok: true, bookingId: booking.id };
+  } catch (err) {
+    console.error("[uploadDeposit] Error:", err);
+    return { ok: false, error: "Something went wrong. Please try again." };
+  }
 }
 
 export async function escortAcceptBooking(bookingId: string): Promise<BookingActionResult> {

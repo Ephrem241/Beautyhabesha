@@ -6,6 +6,7 @@ import { submitPaymentProof, type UploadProofState } from "../actions";
 type UploadProofFormProps = {
   planSlug: string;
   planId: string;
+  paymentAccounts: { id: string }[];
 };
 
 const initialState: UploadProofState = {};
@@ -13,6 +14,7 @@ const initialState: UploadProofState = {};
 export function UploadProofForm({
   planSlug,
   planId,
+  paymentAccounts: _paymentAccounts,
 }: UploadProofFormProps) {
   const [state, formAction] = useActionState(submitPaymentProof, initialState);
 
@@ -63,7 +65,7 @@ export function UploadProofForm({
       <label className="mt-6 block text-sm font-semibold text-zinc-200">
         Upload receipt
       </label>
-      <p className="mt-1 text-xs text-zinc-500">JPG or PNG. Max 5MB.</p>
+      <p className="mt-1 text-xs text-zinc-500">JPG, PNG, GIF, or WebP. Max 5MB.</p>
       <input
         type="file"
         name="proof"

@@ -1,10 +1,12 @@
 import type { Prisma } from "@prisma/client";
+import { ONLINE_THRESHOLD_MINUTES } from "@/lib/online-status";
 
 export type BrowseFilters = {
   city?: string;
   minAge?: number;
   maxAge?: number;
   available?: boolean;
+  online?: boolean;
   search?: string;
 };
 
@@ -24,6 +26,13 @@ export function buildBrowseWhere(
 
   if (filters.available === true) {
     where.available = true;
+  }
+
+  if (filters.online === true) {
+    const cutoff = new Date(
+      Date.now() - ONLINE_THRESHOLD_MINUTES * 60 * 1000
+    );
+    where.lastActiveAt = { gte: cutoff };
   }
 
   if (filters.search?.trim()) {
@@ -51,6 +60,7 @@ export function countActiveFilters(f: BrowseFilters): number {
   if (f.minAge != null) n++;
   if (f.maxAge != null) n++;
   if (f.available === true) n++;
+  if (f.online === true) n++;
   if (f.search?.trim()) n++;
   return n;
 }

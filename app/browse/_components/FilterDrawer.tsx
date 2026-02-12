@@ -148,6 +148,20 @@ export function FilterDrawer({
                 />
                 <span className="text-sm text-zinc-300">Available now</span>
               </label>
+
+              <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-3">
+                <input
+                  type="checkbox"
+                  checked={filters.online === true}
+                  onChange={(e) =>
+                    onUpdate({
+                      online: e.target.checked ? true : undefined,
+                    })
+                  }
+                  className="h-4 w-4 rounded border-zinc-600 accent-emerald-500"
+                />
+                <span className="text-sm text-zinc-300">Online now</span>
+              </label>
             </div>
 
             <div className="flex gap-3 border-t border-zinc-800 p-4">

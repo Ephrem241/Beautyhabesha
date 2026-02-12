@@ -13,6 +13,10 @@ const formSchema = z.object({
   subscriptionId: z.string().min(1),
 });
 
+const rejectSchema = formSchema.extend({
+  reason: z.string().max(500).optional().or(z.literal("")),
+});
+
 async function requireAdmin() {
   const session = await getAuthSession();
   if (!session?.user || session.user.role !== "admin") {
@@ -136,8 +140,9 @@ export async function approveSubscription(formData: FormData) {
 export async function rejectSubscription(formData: FormData) {
   await requireAdmin();
 
-  const result = formSchema.safeParse({
+  const result = rejectSchema.safeParse({
     subscriptionId: formData.get("subscriptionId"),
+    reason: formData.get("reason"),
   });
 
   if (!result.success) {
@@ -163,7 +168,10 @@ export async function rejectSubscription(formData: FormData) {
 
       const updated = await tx.subscription.update({
         where: { id: result.data.subscriptionId },
-        data: { status: "rejected" },
+        data: {
+          status: "rejected",
+          rejectionReason: result.data.reason?.trim() || null,
+        },
       });
 
       return {

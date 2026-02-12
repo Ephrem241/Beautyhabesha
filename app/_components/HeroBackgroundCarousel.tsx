@@ -76,13 +76,14 @@ export const HeroBackgroundCarousel = memo(function HeroBackgroundCarousel({
               className="object-cover will-change-transform"
               style={{
                 transform: "scale(1.1)",
-                filter: "blur(40px)",
-                opacity: 0.8,
+                filter: "blur(14px)",
+                opacity: 0.9,
               }}
               sizes="100vw"
               placeholder="blur"
               blurDataURL={BLUR_PLACEHOLDER}
               unoptimized={src.startsWith("data:")}
+              priority={i === 0}
             />
           </div>
         ))}

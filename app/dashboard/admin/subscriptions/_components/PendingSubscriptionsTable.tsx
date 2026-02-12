@@ -1,3 +1,6 @@
+"use client";
+
+import { useState, useTransition } from "react";
 import Image from "next/image";
 
 import { approveSubscription, rejectSubscription } from "../actions";
@@ -27,6 +30,24 @@ const actionButtonStyles =
 export default function PendingSubscriptionsTable({
   subscriptions,
 }: PendingSubscriptionsTableProps) {
+  const [rejectId, setRejectId] = useState<string | null>(null);
+  const [rejectReason, setRejectReason] = useState("");
+  const [pending, startTransition] = useTransition();
+
+  const handleReject = (subscriptionId: string) => {
+    if (rejectId !== subscriptionId) {
+      setRejectId(subscriptionId);
+      setRejectReason("");
+      return;
+    }
+    startTransition(async () => {
+      const formData = new FormData();
+      formData.set("subscriptionId", subscriptionId);
+      formData.set("reason", rejectReason);
+      await rejectSubscription(formData);
+    });
+  };
+
   if (subscriptions.length === 0) {
     return (
       <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6 text-sm text-zinc-400">
@@ -105,24 +126,50 @@ export default function PendingSubscriptionsTable({
                       />
                       <button
                         type="submit"
-                        className={`${actionButtonStyles} bg-emerald-400 text-emerald-950 hover:bg-emerald-300 focus-visible:outline-emerald-400`}
+                        disabled={pending}
+                        className={`${actionButtonStyles} bg-emerald-400 text-emerald-950 hover:bg-emerald-300 focus-visible:outline-emerald-400 disabled:opacity-50`}
                       >
                         Approve
                       </button>
                     </form>
-                    <form action={rejectSubscription}>
-                      <input
-                        type="hidden"
-                        name="subscriptionId"
-                        value={subscription._id}
-                      />
+                    {rejectId === subscription._id ? (
+                      <div className="flex flex-col gap-2">
+                        <input
+                          type="text"
+                          placeholder="Rejection reason (optional)"
+                          value={rejectReason}
+                          onChange={(e) => setRejectReason(e.target.value)}
+                          className="rounded border border-zinc-600 bg-zinc-800 px-2 py-1 text-sm text-zinc-200 placeholder-zinc-500"
+                        />
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleReject(subscription._id)}
+                            disabled={pending}
+                            className={`${actionButtonStyles} bg-red-600 text-white hover:bg-red-700 disabled:opacity-50`}
+                          >
+                            {pending ? "Processing…" : "Confirm reject"}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setRejectId(null)}
+                            disabled={pending}
+                            className={`${actionButtonStyles} bg-zinc-700 text-zinc-200 hover:bg-zinc-600 disabled:opacity-50`}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
                       <button
-                        type="submit"
-                        className={`${actionButtonStyles} bg-zinc-900 text-zinc-200 hover:bg-zinc-800 focus-visible:outline-zinc-500`}
+                        type="button"
+                        onClick={() => handleReject(subscription._id)}
+                        disabled={pending}
+                        className={`${actionButtonStyles} bg-zinc-900 text-zinc-200 hover:bg-zinc-800 focus-visible:outline-zinc-500 disabled:opacity-50`}
                       >
                         Reject
                       </button>
-                    </form>
+                    )}
                   </div>
                 </td>
               </tr>
@@ -169,7 +216,7 @@ export default function PendingSubscriptionsTable({
               </a>
             </div>
 
-            <div className="mt-4 flex items-center gap-2">
+            <div className="mt-4 flex flex-col gap-2">
               <form action={approveSubscription} className="flex-1">
                 <input
                   type="hidden"
@@ -178,24 +225,50 @@ export default function PendingSubscriptionsTable({
                 />
                 <button
                   type="submit"
-                  className={`${actionButtonStyles} w-full bg-emerald-400 text-emerald-950 hover:bg-emerald-300 focus-visible:outline-emerald-400`}
+                  disabled={pending}
+                  className={`${actionButtonStyles} w-full bg-emerald-400 text-emerald-950 hover:bg-emerald-300 focus-visible:outline-emerald-400 disabled:opacity-50`}
                 >
                   Approve
                 </button>
               </form>
-              <form action={rejectSubscription} className="flex-1">
-                <input
-                  type="hidden"
-                  name="subscriptionId"
-                  value={subscription._id}
-                />
+              {rejectId === subscription._id ? (
+                <>
+                  <input
+                    type="text"
+                    placeholder="Rejection reason (optional)"
+                    value={rejectReason}
+                    onChange={(e) => setRejectReason(e.target.value)}
+                    className="rounded border border-zinc-600 bg-zinc-800 px-3 py-2 text-sm text-zinc-200 placeholder-zinc-500"
+                  />
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleReject(subscription._id)}
+                      disabled={pending}
+                      className={`${actionButtonStyles} flex-1 bg-red-600 text-white hover:bg-red-700 disabled:opacity-50`}
+                    >
+                      {pending ? "Processing…" : "Confirm reject"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setRejectId(null)}
+                      disabled={pending}
+                      className={`${actionButtonStyles} flex-1 bg-zinc-700 text-zinc-200 hover:bg-zinc-600 disabled:opacity-50`}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </>
+              ) : (
                 <button
-                  type="submit"
-                  className={`${actionButtonStyles} w-full bg-zinc-900 text-zinc-200 hover:bg-zinc-800 focus-visible:outline-zinc-500`}
+                  type="button"
+                  onClick={() => handleReject(subscription._id)}
+                  disabled={pending}
+                  className={`${actionButtonStyles} w-full bg-zinc-900 text-zinc-200 hover:bg-zinc-800 focus-visible:outline-zinc-500 disabled:opacity-50`}
                 >
                   Reject
                 </button>
-              </form>
+              )}
             </div>
           </div>
         ))}

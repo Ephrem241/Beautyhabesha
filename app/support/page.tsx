@@ -18,7 +18,7 @@ export default async function SupportPage() {
   }
 
   if (role === "admin") {
-    redirect("/admin/chats");
+    redirect("/dashboard/admin/chats");
   }
 
   return (

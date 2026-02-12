@@ -199,3 +199,43 @@ export async function unbanUser(
     return { ok: false, error: "Failed to unban user." };
   }
 }
+
+export async function deleteUser(
+  _prevState: UserActionResult,
+  formData: FormData
+): Promise<UserActionResult> {
+  const session = await requireAdmin();
+
+  const parsed = userIdSchema.safeParse({
+    userId: formData.get("userId"),
+  });
+
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid request." };
+  }
+
+  if (session.user.id === parsed.data.userId) {
+    return { ok: false, error: "You cannot delete your own account." };
+  }
+
+  const targetUser = await prisma.user.findUnique({
+    where: { id: parsed.data.userId },
+  });
+  if (!targetUser) {
+    return { ok: false, error: "User not found." };
+  }
+
+  if (targetUser.role === "admin") {
+    const adminCount = await prisma.user.count({ where: { role: "admin" } });
+    if (adminCount <= 1) {
+      return { ok: false, error: "Cannot delete the last admin." };
+    }
+  }
+
+  try {
+    await prisma.user.delete({ where: { id: parsed.data.userId } });
+    return { ok: true };
+  } catch {
+    return { ok: false, error: "Failed to delete user." };
+  }
+}

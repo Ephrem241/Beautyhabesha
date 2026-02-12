@@ -53,7 +53,7 @@ export default function SiteFooter() {
               Pricing
             </Link>
             <Link href="/escorts" className="w-fit transition hover:text-emerald-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald-400">
-              Escorts
+              Models
             </Link>
             <Link href="/terms" className="w-fit transition hover:text-emerald-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald-400">
               Terms

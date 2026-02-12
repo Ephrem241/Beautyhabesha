@@ -2,6 +2,13 @@ import { PLAN_CATALOG, type PlanId } from "@/lib/plans";
 import { prisma } from "@/lib/db";
 import { getGraceCutoff } from "@/lib/subscription-grace";
 
+/**
+ * Dual plan system: Legacy `Plan` table is used for priority mapping (planMap).
+ * New `SubscriptionPlan` table is used for pricing and display (/pricing).
+ * Subscription.planId stores plan name; Subscription.subscriptionPlanId is optional FK.
+ * Plan deprecation pending full migration.
+ */
+
 export type PlanAccess = {
   planId: PlanId;
   priority: number;
@@ -70,8 +77,7 @@ export async function getActiveSubscriptionsForUsers(userIds: string[]) {
 }
 
 export async function getUserPlanAccess(userId: string): Promise<PlanAccess> {
-  await expireStaleSubscriptions();
-
+  // Expiration handled by cron (api/cron/expire-subscriptions). Do not call expireStaleSubscriptions here.
   const now = new Date();
   const graceCutoff = getGraceCutoff(now);
   const subscription = await prisma.subscription.findFirst({

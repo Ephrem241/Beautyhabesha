@@ -68,10 +68,10 @@ export function AdminChatDashboard({ userId }: { userId: string }) {
                               isActive ? "text-emerald-300" : "text-white"
                             }`}
                           >
-                            {room.userName || "Anonymous"}
+                            {room.user.username || room.user.name || "Anonymous"}
                           </p>
                           <p className="mt-1 truncate text-xs text-zinc-500">
-                            {room.lastMessage || "No messages yet"}
+                            {room.lastMessage?.text || "No messages yet"}
                           </p>
                         </div>
                         {hasUnread && (
@@ -99,14 +99,14 @@ export function AdminChatDashboard({ userId }: { userId: string }) {
               <div className="flex shrink-0 items-center justify-between border-b border-zinc-800 px-4 py-3">
                 <div>
                   <h2 className="text-sm font-semibold text-white">
-                    {currentRoom.userName || "Anonymous"}
+                    {currentRoom.user.username || currentRoom.user.name || "Anonymous"}
                   </h2>
                   <p className="text-xs text-zinc-500">
-                    {currentRoom.userEmail || "No email"}
+                    {currentRoom.user.email || "No email"}
                   </p>
                 </div>
                 <button
-                  onClick={() => setResolved(roomId, !currentRoom.resolved)}
+                  onClick={() => setResolved(!currentRoom.resolved)}
                   className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
                     currentRoom.resolved
                       ? "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"
@@ -117,10 +117,8 @@ export function AdminChatDashboard({ userId }: { userId: string }) {
                 </button>
               </div>
               <SupportChatPanel
-                roomId={roomId}
-                messages={chat.messages}
-                onSend={chat.sendMessage}
-                loading={chat.loading}
+                chat={chat}
+                isAdmin={true}
               />
             </>
           ) : (

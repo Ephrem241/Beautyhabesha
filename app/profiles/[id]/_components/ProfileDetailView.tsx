@@ -19,15 +19,17 @@ export function ProfileDetailView({
   hasActiveSubscription,
   upgradeHref,
 }: ProfileDetailViewProps) {
-  const canShowContact = hasActiveSubscription && profile.canShowContact;
+  // Contact button redirects to admin, so only viewer subscription matters
+  const canShowContact = hasActiveSubscription;
 
   return (
-    <div className="relative min-h-screen bg-black pb-[76px] md:pb-[84px]">
+    <div className="relative min-h-screen bg-black pb-[88px] md:pb-[96px]">
       {/* Sticky header */}
       <ProfileCard
         name={profile.displayName}
         city={profile.city}
         imageUrl={profile.images[0]}
+        lastActiveAt={profile.lastActiveAt}
       />
 
       {/* Main hero – centered premium card */}
@@ -39,11 +41,11 @@ export function ProfileDetailView({
       >
         <div
           className={`flex justify-center ${
-            !canShowContact ? "select-none" : ""
+            !hasActiveSubscription ? "select-none" : ""
           }`}
         >
           <PremiumProfileCard
-            isLocked={!canShowContact}
+            isLocked={!hasActiveSubscription}
             upgradeHref={upgradeHref}
             variant="centered"
             className="w-full"
@@ -55,7 +57,7 @@ export function ProfileDetailView({
                 autoPlayInterval={3000}
                 priority
                 className="h-full rounded-3xl"
-                allowFullQuality={canShowContact}
+                allowFullQuality={hasActiveSubscription}
                 displayName={profile.displayName}
               />
             </div>
@@ -95,10 +97,9 @@ export function ProfileDetailView({
       {/* Sticky bottom CTA */}
       <ContactButton
         profileId={profile.id}
-        displayName={profile.displayName}
-        telegram={profile.contact?.telegram}
-        phone={profile.contact?.phone}
         disabled={!canShowContact}
+        upgradeHref={upgradeHref}
+        displayName={profile.displayName}
       />
     </div>
   );

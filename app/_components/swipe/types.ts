@@ -7,4 +7,6 @@ export type Profile = {
   images?: string[];
   isPremium?: boolean;
   subscription?: "vip" | "platinum" | null;
+  /** Used for online badge. */
+  lastActiveAt?: Date | null;
 };

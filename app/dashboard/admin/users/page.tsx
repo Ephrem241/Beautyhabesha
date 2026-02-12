@@ -31,13 +31,18 @@ async function requireAdmin() {
   }
 }
 
-export default async function AdminUsersPage() {
+type PageProps = { searchParams: Promise<{ cursor?: string }> };
+
+export default async function AdminUsersPage({ searchParams }: PageProps) {
   // Opt into dynamic rendering for admin dashboard
   unstable_noStore();
 
   await requireAdmin();
 
-  const { items: users } = await listUsersCursor({ take: 50 });
+  const params = await searchParams;
+  const cursor = params.cursor ?? undefined;
+
+  const { items: users, nextCursor } = await listUsersCursor({ cursor, take: 50 });
 
   const formattedUsers = users.map((user: UserRow) => ({
     id: user.id,
@@ -66,6 +71,28 @@ export default async function AdminUsersPage() {
         </header>
 
         <UsersTable users={formattedUsers} />
+
+        <div className="mt-6 flex flex-wrap items-center gap-3 text-sm">
+          {cursor && (
+            <a
+              href="/dashboard/admin/users"
+              className="rounded-lg border border-zinc-700 bg-zinc-900 px-4 py-2 text-zinc-300 transition hover:border-emerald-500 hover:text-emerald-300"
+            >
+              ← Back to first
+            </a>
+          )}
+          {nextCursor && (
+            <a
+              href={`/dashboard/admin/users?cursor=${encodeURIComponent(nextCursor)}`}
+              className="rounded-lg border border-emerald-500/50 bg-emerald-500/10 px-4 py-2 text-emerald-300 transition hover:bg-emerald-500/20"
+            >
+              Next page →
+            </a>
+          )}
+          {!cursor && !nextCursor && users.length > 0 && (
+            <span className="text-zinc-500">Showing first {users.length} users</span>
+          )}
+        </div>
       </div>
     </main>
   );

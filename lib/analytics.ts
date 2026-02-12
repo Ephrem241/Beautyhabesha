@@ -5,13 +5,13 @@
  * - reportEvent: custom events (e.g. click, conversion)
  */
 
-export function reportPageView(url: string, title?: string): void {
+export function reportPageView(_url: string, _title?: string): void {
   if (typeof window === "undefined") return;
   // Skip logging in dev to keep console clean
   // Example: window.gtag?.("config", "G-XXX", { page_path: url, page_title: title });
 }
 
-export function reportWebVital(metric: {
+export function reportWebVital(_metric: {
   name: string;
   value: number;
   id: string;
@@ -24,8 +24,8 @@ export function reportWebVital(metric: {
 }
 
 export function reportEvent(
-  name: string,
-  params?: Record<string, string | number | boolean>
+  _name: string,
+  _params?: Record<string, string | number | boolean>
 ): void {
   if (typeof window === "undefined") return;
   // Skip logging in dev to keep console clean

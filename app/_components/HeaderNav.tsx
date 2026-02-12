@@ -56,9 +56,6 @@ export default function HeaderNav({ isLoggedIn, role }: HeaderNavProps) {
       <Link href="/escorts" className={linkClass} onClick={closeMenu}>
         Models
       </Link>
-      <Link href="/browse" className={linkClass} onClick={closeMenu}>
-        Swipe
-      </Link>
       {isLoggedIn ? (
         <Link href="/dashboard" className={linkClass} onClick={closeMenu}>
           Dashboard
@@ -153,13 +150,6 @@ export default function HeaderNav({ isLoggedIn, role }: HeaderNavProps) {
                 onClick={closeMenu}
               >
                 Models
-              </Link>
-              <Link
-                href="/browse"
-                className="rounded-xl px-4 py-3 text-left text-zinc-200 transition hover:bg-zinc-800 hover:text-emerald-300 active:bg-zinc-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
-                onClick={closeMenu}
-              >
-                Swipe
               </Link>
               {isLoggedIn ? (
                 <Link

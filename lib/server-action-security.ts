@@ -67,7 +67,7 @@ export function createSecureAction<TInput, TOutput>(
       if (!result.success) {
         return {
           success: false,
-          error: `Invalid input: ${result.error.errors.map((e) => e.message).join(", ")}`,
+          error: `Invalid input: ${result.error.issues.map((e: z.ZodIssue) => e.message).join(", ")}`,
         };
       }
 
