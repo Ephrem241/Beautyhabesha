@@ -13,32 +13,6 @@ function safeCallbackUrl(value: string | null): string {
   return "/dashboard";
 }
 
-/**
- * Get role-based redirect URL
- * - Admin → /dashboard/admin
- * - Escort → /dashboard (escort-specific content)
- * - User → /dashboard
- */
-function getRoleBasedRedirect(role: string | undefined, callbackUrl: string): string {
-  // Respect explicit callback (e.g. user was trying to access /dashboard/admin/users)
-  if (callbackUrl !== "/dashboard" && callbackUrl !== "/") {
-    return callbackUrl;
-  }
-
-  // Admin users go to admin dashboard
-  if (role === "admin") {
-    return "/dashboard/admin";
-  }
-
-  // Escort users go to dashboard (shows escort bookings, profile, etc.)
-  if (role === "escort") {
-    return "/dashboard";
-  }
-
-  // Regular users go to dashboard
-  return "/dashboard";
-}
-
 function LoginForm() {
   const searchParams = useSearchParams();
   const callbackUrl = safeCallbackUrl(searchParams.get("callbackUrl"));
@@ -68,20 +42,10 @@ function LoginForm() {
         setErrorMessage("Invalid username or password");
         setIsLoading(false);
       } else {
-        // Fetch session to get user role (retry if needed - cookie may not be ready immediately)
-        let session: { user?: { role?: string } } | null = null;
-        for (let attempt = 0; attempt < 3; attempt++) {
-          const response = await fetch("/api/auth/session");
-          session = await response.json();
-          if (session?.user?.role) break;
-          await new Promise((r) => setTimeout(r, 150));
-        }
-
-        // Determine redirect URL based on user role
-        const redirectUrl = getRoleBasedRedirect(session?.user?.role, callbackUrl);
-
-        // Full page redirect so the session is applied and dashboard loads correctly
-        window.location.href = redirectUrl;
+        // Use a server-side redirect step to avoid client-side session timing races.
+        // This guarantees role-based redirect once auth cookie is set.
+        const next = `/auth/post-login?callbackUrl=${encodeURIComponent(callbackUrl)}`;
+        window.location.href = next;
       }
     } catch {
       setErrorMessage("An error occurred. Please try again.");
