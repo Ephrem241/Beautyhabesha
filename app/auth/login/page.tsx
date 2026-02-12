@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import { useState, Suspense } from "react";
 
@@ -10,6 +10,26 @@ function safeCallbackUrl(value: string | null): string {
   if (!value || typeof value !== "string") return "/dashboard";
   const path = value.trim();
   if (path.startsWith("/") && !path.startsWith("//")) return path;
+  return "/dashboard";
+}
+
+/**
+ * Get role-based redirect URL
+ * Admin users go directly to /dashboard/admin
+ * Regular users and escorts go to /dashboard
+ */
+function getRoleBasedRedirect(role: string | undefined, callbackUrl: string): string {
+  // If there's a specific callback URL that's not the default dashboard, use it
+  if (callbackUrl !== "/dashboard") {
+    return callbackUrl;
+  }
+
+  // Admin users go directly to admin dashboard
+  if (role === "admin") {
+    return "/dashboard/admin";
+  }
+
+  // Everyone else goes to regular dashboard
   return "/dashboard";
 }
 
@@ -42,8 +62,15 @@ function LoginForm() {
         setErrorMessage("Invalid username or password");
         setIsLoading(false);
       } else {
+        // Fetch the session to get user role
+        const response = await fetch("/api/auth/session");
+        const session = await response.json();
+
+        // Determine redirect URL based on user role
+        const redirectUrl = getRoleBasedRedirect(session?.user?.role, callbackUrl);
+
         // Full page redirect so the session is applied and dashboard loads correctly
-        window.location.href = callbackUrl;
+        window.location.href = redirectUrl;
       }
     } catch {
       setErrorMessage("An error occurred. Please try again.");
