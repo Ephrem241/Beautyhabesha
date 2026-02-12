@@ -51,6 +51,7 @@ export function ProfileDetailView({
             className="w-full"
           >
             <div className="relative h-full w-full">
+              {/* Paid subscribers see all model images here in full quality; free users see blurred/watermarked. */}
               <ImageCarousel
                 images={profile.images}
                 altPrefix={profile.displayName}

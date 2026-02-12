@@ -24,11 +24,14 @@ export async function getViewerHasActiveSubscription(
 
   if (activeSubscription) return true;
 
-  // Fallback: User.subscriptionStatus (kept in sync on approval/expiry)
+  // Fallback: User.subscriptionStatus (kept in sync on approval/expiry).
+  // Require endDate within grace so fallback matches Subscription logic.
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { subscriptionStatus: true },
+    select: { subscriptionStatus: true, subscriptionEndDate: true },
   });
 
-  return user?.subscriptionStatus === "active";
+  if (user?.subscriptionStatus !== "active") return false;
+  if (user.subscriptionEndDate == null) return true;
+  return user.subscriptionEndDate.getTime() >= graceCutoff.getTime();
 }

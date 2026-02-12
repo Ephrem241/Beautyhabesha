@@ -27,6 +27,11 @@ async function requireAdmin() {
   }
 }
 
+/**
+ * Approve a payment record (used when users upload payment proof).
+ * Upload flow creates only a Payment; this creates the Subscription and updates
+ * User so the payer gets viewer access and can see all model images.
+ */
 export async function approvePaymentRecord(
   _prevState: PaymentActionResult,
   formData: FormData
