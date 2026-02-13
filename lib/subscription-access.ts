@@ -3,10 +3,8 @@ import { prisma } from "@/lib/db";
 import { getGraceCutoff } from "@/lib/subscription-grace";
 
 /**
- * Dual plan system: Legacy `Plan` table is used for priority mapping (planMap).
- * New `SubscriptionPlan` table is used for pricing and display (/pricing).
- * Subscription.planId stores plan name; Subscription.subscriptionPlanId is optional FK.
- * Plan deprecation pending full migration.
+ * Plan system uses SubscriptionPlan for priority mapping and feature resolution.
+ * Fallback to PLAN_CATALOG for plans not yet in the database.
  */
 
 export type PlanAccess = {
@@ -29,12 +27,16 @@ export async function expireStaleSubscriptions() {
 }
 
 export async function getPlanPriorityMap() {
-  const planDocs = await prisma.plan.findMany();
+  const planDocs = await prisma.subscriptionPlan.findMany({
+    where: { deletedAt: null },
+    select: { name: true, price: true },
+  });
   const planMap = new Map(
-    planDocs.map((plan) => [
-      plan.name,
-      { priority: plan.priority, price: plan.price },
-    ])
+    planDocs.map((plan) => {
+      const catalogPlan = PLAN_CATALOG.find((c) => c.name === plan.name);
+      const priority = catalogPlan?.priority ?? 1;
+      return [plan.name, { priority, price: plan.price }];
+    })
   );
   const fallbackMap = new Map(
     PLAN_CATALOG.map((plan) => [

@@ -93,6 +93,7 @@ export default async function EscortDetailPage({ params }: EscortDetailPageProps
               alt={escort.displayName}
               size={56}
               greenRing
+              blurWhenLocked={!viewerHasAccess}
               className="shrink-0"
             />
             <div className="min-w-0">

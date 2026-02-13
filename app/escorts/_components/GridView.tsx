@@ -55,7 +55,7 @@ export function GridView({ escorts, viewerHasAccess }: GridViewProps) {
                   className="h-full w-full"
                 />
               </BlurGate>
-              {/* Avatar overlay – outside BlurGate, always sharp */}
+              {/* Avatar overlay – blurred when viewer has no subscription */}
               <div className="absolute left-4 top-4 z-10 flex items-center gap-3">
                 <div className="relative shrink-0">
                   <ProfileAvatar
@@ -63,6 +63,7 @@ export function GridView({ escorts, viewerHasAccess }: GridViewProps) {
                     alt={escort.displayName}
                     size={48}
                     greenRing
+                    blurWhenLocked={!viewerHasAccess}
                     className="shrink-0"
                   />
                   <span className="absolute -bottom-0.5 -right-0.5">

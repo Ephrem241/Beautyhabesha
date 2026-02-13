@@ -75,7 +75,9 @@ export function getPlanById(planId?: string | null) {
 }
 
 export async function getEffectivePlanCatalog(): Promise<PlanDetails[]> {
-  const dbPlans = await prisma.plan.findMany();
+  const dbPlans = await prisma.subscriptionPlan.findMany({
+    where: { deletedAt: null },
+  });
   const map = new Map(dbPlans.map((plan) => [plan.name, plan]));
 
   return PLAN_CATALOG.map((base) => {
@@ -84,7 +86,6 @@ export async function getEffectivePlanCatalog(): Promise<PlanDetails[]> {
 
     const priceEtb = override.price;
     const durationDays = override.durationDays;
-    const priority = override.priority ?? base.priority;
 
     const priceLabel =
       priceEtb === 0 ? "Free" : `ETB ${priceEtb.toLocaleString("en-ET")}`;
@@ -95,7 +96,6 @@ export async function getEffectivePlanCatalog(): Promise<PlanDetails[]> {
       ...base,
       priceEtb,
       durationDays,
-      priority,
       priceLabel,
       durationLabel,
     };

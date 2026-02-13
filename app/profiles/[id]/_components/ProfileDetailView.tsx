@@ -30,6 +30,7 @@ export function ProfileDetailView({
         city={profile.city}
         imageUrl={profile.images[0]}
         lastActiveAt={profile.lastActiveAt}
+        blurAvatar={!hasActiveSubscription}
       />
 
       {/* Main hero – centered premium card */}

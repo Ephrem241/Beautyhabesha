@@ -5,6 +5,7 @@ import { ButtonLink } from "@/app/_components/ui/Button";
 import { HeroTextCarousel } from "@/app/_components/HeroTextCarousel";
 import { HeroBackgroundCarousel } from "@/app/_components/HeroBackgroundCarousel";
 import { SpotlightCarousel } from "@/app/_components/SpotlightCarousel";
+import { ModelsByPlanSection } from "@/app/_components/ModelsByPlanSection";
 
 export async function HeroAndSpotlightSection() {
   const session = await getAuthSession();
@@ -67,6 +68,8 @@ export async function HeroAndSpotlightSection() {
           />
         </div>
       </section>
+
+      <ModelsByPlanSection />
     </>
   );
 }

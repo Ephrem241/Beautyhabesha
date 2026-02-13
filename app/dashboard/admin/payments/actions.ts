@@ -77,6 +77,7 @@ export async function approvePayment(
 
     let durationDays = 30;
     let planName = subscription.planId;
+    let resolvedPlanId: string | null = subscription.subscriptionPlanId;
     if (subscription.subscriptionPlanId) {
       const sp = await tx.subscriptionPlan.findUnique({
         where: { id: subscription.subscriptionPlanId },
@@ -86,11 +87,17 @@ export async function approvePayment(
         planName = sp.name;
       }
     } else {
-      const planDoc = await tx.plan.findUnique({
-        where: { name: subscription.planId },
+      const sp = await tx.subscriptionPlan.findFirst({
+        where: { name: subscription.planId, deletedAt: null },
       });
-      const fallbackPlan = getPlanById(subscription.planId);
-      durationDays = planDoc?.durationDays ?? fallbackPlan?.durationDays ?? 30;
+      if (sp) {
+        durationDays = sp.durationDays;
+        planName = sp.name;
+        resolvedPlanId = sp.id;
+      } else {
+        const fallbackPlan = getPlanById(subscription.planId);
+        durationDays = fallbackPlan?.durationDays ?? 30;
+      }
     }
 
     const startDate = new Date();
@@ -118,6 +125,7 @@ export async function approvePayment(
         endDate,
         approvedAt: new Date(),
         rejectionReason: null,
+        ...(resolvedPlanId && { subscriptionPlanId: resolvedPlanId }),
       },
     });
 
@@ -128,7 +136,7 @@ export async function approvePayment(
         subscriptionEndDate: endDate,
         subscriptionStatus: "active",
         currentPlan: planName,
-        subscriptionPlanId: subscription.subscriptionPlanId,
+        subscriptionPlanId: resolvedPlanId,
       },
     });
 

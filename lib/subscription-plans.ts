@@ -84,6 +84,16 @@ export async function getSubscriptionPlanById(
   return row && !row.deletedAt ? rowToDoc(row) : null;
 }
 
+/** Look up plan by name (e.g. "VIP", "Platinum") for legacy planId resolution. */
+export async function getSubscriptionPlanByName(
+  name: string
+): Promise<SubscriptionPlanDoc | null> {
+  const row = await prisma.subscriptionPlan.findFirst({
+    where: { name, deletedAt: null },
+  });
+  return row ? rowToDoc(row) : null;
+}
+
 /** For admin: list all plans including inactive, excluding soft-deleted. */
 export async function getAllSubscriptionPlansForAdmin(): Promise<
   SubscriptionPlanDoc[]

@@ -18,10 +18,6 @@ export const PremiumProfileCard = memo(function PremiumProfileCard({
   className = "",
   variant = "default",
 }: PremiumProfileCardProps) {
-  if (!isLocked) {
-    return <>{children}</>;
-  }
-
   const wrapperClass =
     variant === "centered"
       ? "mx-auto max-w-md aspect-[4/5] overflow-hidden rounded-3xl shadow-2xl"
@@ -31,15 +27,23 @@ export const PremiumProfileCard = memo(function PremiumProfileCard({
     <div
       className={`relative ${wrapperClass} ${className}`.trim()}
     >
-      <div
-        className="absolute inset-0 overflow-hidden transition-all duration-300 will-change-filter"
-        style={{
-          filter: "blur(2px) brightness(0.85)",
-        }}
-      >
-        {children}
-      </div>
-      <LockOverlay upgradeHref={upgradeHref} />
+      {isLocked ? (
+        <>
+          <div
+            className="absolute inset-0 overflow-hidden transition-all duration-300 will-change-filter"
+            style={{
+              filter: "blur(2px) brightness(0.85)",
+            }}
+          >
+            {children}
+          </div>
+          <LockOverlay upgradeHref={upgradeHref} />
+        </>
+      ) : (
+        <div className="absolute inset-0 overflow-hidden rounded-3xl">
+          {children}
+        </div>
+      )}
     </div>
   );
 });

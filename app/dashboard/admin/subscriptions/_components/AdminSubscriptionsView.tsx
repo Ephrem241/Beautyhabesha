@@ -1,13 +1,8 @@
 import { prisma } from "@/lib/db";
 import { PLAN_CATALOG } from "@/lib/plans";
+import { getAllSubscriptionPlansForAdmin } from "@/lib/subscription-plans";
 
 import PendingSubscriptionsTable from "./PendingSubscriptionsTable";
-
-type PlanDoc = {
-  name: string;
-  price: number;
-  durationDays: number;
-};
 
 type PlanInfo = {
   price: number;
@@ -60,9 +55,9 @@ export default async function AdminSubscriptionsView({
     },
   });
 
-  const planDocs = await prisma.plan.findMany();
+  const planDocs = await getAllSubscriptionPlansForAdmin();
   const planMap = new Map<string, PlanInfo>(
-    planDocs.map((plan: PlanDoc) => [
+    planDocs.map((plan) => [
       plan.name,
       { price: plan.price, durationDays: plan.durationDays },
     ])

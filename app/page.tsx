@@ -39,6 +39,19 @@ function HomeLoadingFallback() {
           <SpotlightSkeleton />
         </div>
       </section>
+
+      <section className="mt-12 sm:mt-16">
+        <div className="flex items-center justify-between">
+          <div className="h-4 w-40 rounded-full bg-zinc-800/60" />
+          <div className="h-3 w-28 rounded-full bg-zinc-800/60" />
+        </div>
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <SpotlightSkeleton />
+          <SpotlightSkeleton />
+          <SpotlightSkeleton />
+          <SpotlightSkeleton />
+        </div>
+      </section>
     </>
   );
 }

@@ -226,6 +226,23 @@ export async function getFeaturedEscorts(
   return escorts.filter((escort) => escort.planId === "Platinum").slice(0, limit);
 }
 
+export type EscortsByPlan = {
+  platinum: PublicEscort[];
+  vip: PublicEscort[];
+  normal: PublicEscort[];
+};
+
+export async function getEscortsGroupedByPlan(
+  options?: GetEscortsOptions & { limitPerPlan?: number }
+): Promise<EscortsByPlan> {
+  const limitPerPlan = options?.limitPerPlan ?? 8;
+  const escorts = await getPublicEscortsOptimized(options);
+  const platinum = escorts.filter((e) => e.planId === "Platinum").slice(0, limitPerPlan);
+  const vip = escorts.filter((e) => e.planId === "VIP").slice(0, limitPerPlan);
+  const normal = escorts.filter((e) => e.planId === "Normal").slice(0, limitPerPlan);
+  return { platinum, vip, normal };
+}
+
 /** Search approved profiles by displayName, city, or bio (case-insensitive). Returns up to 50. */
 export async function searchProfiles(
   query: string,

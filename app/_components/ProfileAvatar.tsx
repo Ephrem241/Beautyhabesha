@@ -12,6 +12,8 @@ type ProfileAvatarProps = {
   fallback?: string;
   /** Show vibrant green border ring (model listing style). */
   greenRing?: boolean;
+  /** Apply blur filter when viewer has no subscription (matches BlurGate). */
+  blurWhenLocked?: boolean;
   className?: string;
 };
 
@@ -21,6 +23,7 @@ export function ProfileAvatar({
   size = 40,
   fallback,
   greenRing = false,
+  blurWhenLocked = false,
   className = "",
 }: ProfileAvatarProps) {
   const initial = (fallback ?? alt.slice(0, 1)).toUpperCase() || "?";
@@ -42,10 +45,24 @@ export function ProfileAvatar({
         style={{ width: size, height: size, minWidth: size, minHeight: size }}
       />
     );
+    const content = blurWhenLocked ? (
+      <div
+        className="overflow-hidden rounded-full"
+        style={{
+          width: size,
+          height: size,
+          filter: "blur(8px) brightness(0.50)",
+        }}
+      >
+        {img}
+      </div>
+    ) : (
+      img
+    );
     if (greenRing) {
-      return <span className={ringClass}>{img}</span>;
+      return <span className={ringClass}>{content}</span>;
     }
-    return img;
+    return content;
   }
 
   return (

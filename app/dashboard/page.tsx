@@ -18,6 +18,7 @@ type DashboardPageProps = {
   searchParams: Promise<{
     payment?: string;
     profile?: string;
+    pending?: string;
   }>;
 };
 
@@ -30,6 +31,7 @@ export default async function DashboardPage({
   const params = await searchParams;
   const showSuccess = params.payment === "success";
   const showProfileUpdated = params.profile === "updated";
+  const showPendingDuplicate = params.pending === "already_submitted";
   const session = await getAuthSession();
   const role: "admin" | "escort" | "user" | undefined = session?.user?.role;
   const userId = session?.user?.id ?? null;
@@ -68,7 +70,12 @@ export default async function DashboardPage({
         {showSuccess ? (
           <SuccessBanner message="Payment proof submitted. We will review and activate your plan soon." />
         ) : null}
-        {pendingPayment && !showSuccess ? (
+        {showPendingDuplicate && pendingPayment ? (
+          <div className="rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm text-amber-200">
+            You already submitted a payment proof for {pendingPayment.plan.name}. Please wait for our review—no need to submit again.
+          </div>
+        ) : null}
+        {pendingPayment && !showSuccess && !showPendingDuplicate ? (
           <PendingApprovalBanner
             planName={pendingPayment.plan.name}
             planSlug={pendingPayment.plan.slug}

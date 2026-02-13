@@ -89,7 +89,7 @@ export async function submitPaymentProof(
       },
     });
     if (existingPending) {
-      redirect("/dashboard");
+      redirect("/dashboard?pending=already_submitted");
     }
 
     const uploadResult = await uploadImage(proof, {

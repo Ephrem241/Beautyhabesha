@@ -10,9 +10,11 @@ type ProfileCardProps = {
   city?: string | null;
   imageUrl?: string | null;
   lastActiveAt?: Date | null;
+  /** Blur avatar when viewer has no subscription. */
+  blurAvatar?: boolean;
 };
 
-export function ProfileCard({ name, city, imageUrl, lastActiveAt }: ProfileCardProps) {
+export function ProfileCard({ name, city, imageUrl, lastActiveAt, blurAvatar = false }: ProfileCardProps) {
   const router = useRouter();
 
   return (
@@ -49,6 +51,7 @@ export function ProfileCard({ name, city, imageUrl, lastActiveAt }: ProfileCardP
           alt={name}
           size={40}
           greenRing
+          blurWhenLocked={blurAvatar}
           className="shrink-0"
         />
         <span className="absolute -bottom-0.5 -right-0.5">

@@ -170,6 +170,7 @@ export function ProfileSwipeCard({
                   src={avatarSrc}
                   alt={profile.name}
                   size={48}
+                  blurWhenLocked={!viewerHasAccess}
                   className="block"
                 />
               </div>
