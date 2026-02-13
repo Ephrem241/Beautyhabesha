@@ -59,7 +59,7 @@ function HomeLoadingFallback() {
 export default function Home() {
   return (
     <div className="min-h-screen bg-black px-4 pb-16 pt-12 text-white sm:px-6 sm:pb-20 sm:pt-16">
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto w-full max-w-6xl xl:max-w-7xl">
         <Suspense fallback={<HomeLoadingFallback />}>
           <HeroAndSpotlightSection />
         </Suspense>

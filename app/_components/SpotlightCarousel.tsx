@@ -194,8 +194,8 @@ export const SpotlightCarousel = memo(function SpotlightCarousel({
                     />
                   </div>
                   <div className="flex flex-1 flex-col gap-3 p-4 sm:p-6">
-                    <p className="text-sm text-zinc-400">
-                      {profile.bio ?? "Premium spotlight profile."}
+                    <p className="line-clamp-2 text-sm text-zinc-400">
+                      {profile.bio?.trim() || "No bio yet"}
                     </p>
                   </div>
                 </div>

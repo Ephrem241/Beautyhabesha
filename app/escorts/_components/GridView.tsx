@@ -30,11 +30,11 @@ type GridViewProps = {
 
 export function GridView({ escorts, viewerHasAccess }: GridViewProps) {
   return (
-    <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
       {escorts.map((escort, idx) => (
         <article
           key={escort.id}
-          className={escortCardClassName(escort.planId)}
+          className={`min-w-0 ${escortCardClassName(escort.planId)}`}
         >
           {/* Image first – full-size, dominant */}
           <div className="relative flex-1 min-h-0 flex flex-col">
@@ -84,8 +84,8 @@ export function GridView({ escorts, viewerHasAccess }: GridViewProps) {
               />
             </div>
             <div className="flex flex-1 flex-col gap-3 p-4 sm:p-6">
-              <p className="text-sm text-zinc-400">
-                {escort.bio ?? "Premium experience with verified photos."}
+              <p className="line-clamp-3 text-sm text-zinc-400">
+                {escort.bio?.trim() || "No bio yet"}
               </p>
             </div>
           </div>

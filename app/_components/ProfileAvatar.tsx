@@ -51,7 +51,7 @@ export function ProfileAvatar({
         style={{
           width: size,
           height: size,
-          filter: "blur(8px) brightness(0.50)",
+          filter: "blur(2px) brightness(0.85)",
         }}
       >
         {img}

@@ -22,6 +22,7 @@ const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
 const createSchema = z.object({
   name: z.string().min(2).max(100),
   displayName: z.string().min(2).max(60).optional(),
+  bio: z.string().max(500).optional().or(z.literal("")),
 });
 
 export type CreateEscortResult = {
@@ -46,6 +47,7 @@ export async function createEscortByAdmin(
   const parsed = createSchema.safeParse({
     name: formData.get("name"),
     displayName: formData.get("displayName") || undefined,
+    bio: formData.get("bio") || undefined,
   });
 
   if (!parsed.success) {
@@ -113,6 +115,7 @@ export async function createEscortByAdmin(
       data: {
         userId: user.id,
         displayName,
+        bio: parsed.data.bio?.trim() || null,
         images: uploadedImages as unknown as object,
         status: "approved",
         approvedAt: new Date(),

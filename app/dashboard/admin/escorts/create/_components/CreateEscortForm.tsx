@@ -90,6 +90,17 @@ export function CreateEscortForm({ createAction }: CreateEscortFormProps) {
           />
         </label>
         <label className="block">
+          <span className="text-sm font-medium text-zinc-200">Bio</span>
+          <span className="text-zinc-500"> (optional, max 500 chars)</span>
+          <textarea
+            name="bio"
+            maxLength={500}
+            rows={3}
+            placeholder="Short bio for the model profile"
+            className="mt-2 w-full rounded-xl border border-zinc-800 bg-black px-4 py-3 text-sm text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+          />
+        </label>
+        <label className="block">
           <span className="text-sm font-medium text-zinc-200">
             Images <span className="text-amber-400">*</span> (min 3, max 12)
           </span>

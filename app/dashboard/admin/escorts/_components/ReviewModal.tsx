@@ -9,6 +9,7 @@ import {
   suspendEscort,
   deleteEscortProfile,
   getEscortDetails,
+  updateEscortBio,
   boostEscortRanking,
   setRankingSuspended,
   setManualPlan,
@@ -38,11 +39,13 @@ export default function ReviewModal({ escort, onClose }: ReviewModalProps) {
   const [actionPending, startActionTransition] = useTransition();
   const [actionStatus, setActionStatus] = useState<EscortActionResult | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [bioEdit, setBioEdit] = useState<string>("");
 
   useEffect(() => {
     async function fetchDetails() {
       const data = await getEscortDetails(escort.id);
       setDetails(data);
+      setBioEdit(data?.bio ?? "");
       setLoading(false);
     }
     fetchDetails();
@@ -51,7 +54,19 @@ export default function ReviewModal({ escort, onClose }: ReviewModalProps) {
   const refreshDetails = () => {
     getEscortDetails(escort.id).then((data) => {
       setDetails(data);
+      setBioEdit(data?.bio ?? "");
       setActionStatus(null);
+    });
+  };
+
+  const handleBioSave = async () => {
+    startActionTransition(async () => {
+      const formData = new FormData();
+      formData.append("escortId", escort.id);
+      formData.append("bio", bioEdit);
+      const result = await updateEscortBio({ ok: false }, formData);
+      setActionStatus(result);
+      if (result.ok) refreshDetails();
     });
   };
 
@@ -199,8 +214,25 @@ export default function ReviewModal({ escort, onClose }: ReviewModalProps) {
                   <span className="text-zinc-200">{details.city || "Not specified"}</span>
                 </div>
                 <div>
-                  <span className="font-medium text-zinc-300">Bio:</span>{" "}
-                  <span className="text-zinc-200">{details.bio || "No bio"}</span>
+                  <span className="font-medium text-zinc-300">Bio</span>
+                  <span className="text-zinc-500"> (optional, max 500 chars)</span>
+                  <textarea
+                    value={bioEdit}
+                    onChange={(e) => setBioEdit(e.target.value)}
+                    maxLength={500}
+                    rows={3}
+                    placeholder="Short bio for the model profile"
+                    className="mt-1 w-full rounded-lg border border-zinc-700 bg-black px-3 py-2 text-sm text-zinc-200 placeholder-zinc-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                  />
+                  <p className="mt-0.5 text-xs text-zinc-500">{bioEdit.length}/500</p>
+                  <button
+                    type="button"
+                    onClick={handleBioSave}
+                    disabled={actionPending || bioEdit === (details.bio ?? "")}
+                    className="mt-2 rounded-lg border border-zinc-600 bg-zinc-800 px-3 py-1.5 text-sm font-medium text-zinc-200 hover:bg-zinc-700 disabled:opacity-50"
+                  >
+                    {actionPending ? "Saving…" : "Save bio"}
+                  </button>
                 </div>
                 <div>
                   <span className="font-medium text-zinc-300">Phone:</span>{" "}

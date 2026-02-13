@@ -10,7 +10,7 @@ export async function ModelsByPlanSection() {
   const viewerHasAccess = await getViewerHasActiveSubscription(viewerUserId);
   const { platinum, vip, normal } = await getEscortsGroupedByPlan({
     viewerUserId,
-    limitPerPlan: 8,
+    limitPerPlan: 4,
   });
 
   const hasAny = platinum.length > 0 || vip.length > 0 || normal.length > 0;

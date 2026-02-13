@@ -96,6 +96,36 @@ export async function getEscortDetails(escortId: string): Promise<EscortDetails 
   }
 }
 
+const updateBioSchema = escortActionSchema.extend({
+  bio: z.string().max(500).optional().or(z.literal("")),
+});
+
+export async function updateEscortBio(
+  _prevState: EscortActionResult,
+  formData: FormData
+): Promise<EscortActionResult> {
+  await requireAdmin();
+
+  const parsed = updateBioSchema.safeParse({
+    escortId: formData.get("escortId"),
+    bio: formData.get("bio") || undefined,
+  });
+
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid request. Bio max 500 chars." };
+  }
+
+  try {
+    await prisma.escortProfile.update({
+      where: { id: parsed.data.escortId },
+      data: { bio: parsed.data.bio?.trim() || null },
+    });
+    return { ok: true };
+  } catch {
+    return { ok: false, error: "Failed to update bio." };
+  }
+}
+
 const rankingActionSchema = z.object({
   escortId: z.string().min(1),
 });
