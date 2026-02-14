@@ -24,6 +24,7 @@
     "@prisma/adapter-pg": "^7.3.0",
     "@prisma/client": "^7.3.0",
     "@tanstack/react-virtual": "^3.13.0",
+    "@vercel/analytics": "^1.6.1",
     "bcrypt": "^6.0.0",
     "cloudinary": "^2.8.0",
     "embla-carousel-react": "^8.6.0",
