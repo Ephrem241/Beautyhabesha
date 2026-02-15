@@ -44,7 +44,10 @@ export function PremiumLockedCard({
     <div
       className={`relative overflow-hidden rounded-2xl shadow-2xl ${className}`.trim()}
     >
-      <div className="blur-md brightness-75 transition-all duration-300">
+      <div
+        className="transition-all duration-300"
+        style={{ filter: "blur(20px) brightness(0.40)" }}
+      >
         {children}
       </div>
       <div

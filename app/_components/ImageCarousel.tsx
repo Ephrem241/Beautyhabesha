@@ -20,6 +20,8 @@ type ImageCarouselProps = {
   displayName?: string;
   /** Escort ID for watermark fallback. */
   escortId?: string;
+  /** When provided and allowFullQuality, image click opens this callback with current index. */
+  onImageClick?: (index: number) => void;
 };
 
 export const ImageCarousel = memo(function ImageCarousel({
@@ -32,6 +34,7 @@ export const ImageCarousel = memo(function ImageCarousel({
   allowFullQuality = true,
   displayName,
   escortId,
+  onImageClick,
 }: ImageCarouselProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -110,7 +113,22 @@ export const ImageCarousel = memo(function ImageCarousel({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
-            className="absolute inset-0"
+            className={`absolute inset-0 ${allowFullQuality ? "select-none [&_img]:pointer-events-none [&_img]:select-none [&_img]:drag-none" : ""} ${onImageClick && allowFullQuality ? "cursor-pointer" : ""}`.trim()}
+            onContextMenu={allowFullQuality ? (e) => e.preventDefault() : undefined}
+            onCopy={allowFullQuality ? (e) => e.preventDefault() : undefined}
+            onClick={onImageClick && allowFullQuality ? () => onImageClick(activeIndex) : undefined}
+            role={onImageClick && allowFullQuality ? "button" : undefined}
+            tabIndex={onImageClick && allowFullQuality ? 0 : undefined}
+            onKeyDown={
+              onImageClick && allowFullQuality
+                ? (e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      onImageClick(activeIndex);
+                    }
+                  }
+                : undefined
+            }
           >
             <Image
               src={mainImage}
@@ -122,6 +140,7 @@ export const ImageCarousel = memo(function ImageCarousel({
               placeholder="blur"
               blurDataURL={BLUR_PLACEHOLDER}
               draggable={false}
+              onDragStart={allowFullQuality ? (e) => e.preventDefault() : undefined}
             />
           </motion.div>
         </AnimatePresence>

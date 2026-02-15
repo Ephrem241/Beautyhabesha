@@ -10,7 +10,7 @@ import { Breadcrumbs } from "@/app/_components/Breadcrumbs";
 import { TelegramButton } from "@/app/_components/TelegramButton";
 import { PlanBadge } from "@/app/_components/PlanBadge";
 import { ProfileAvatar } from "@/app/_components/ProfileAvatar";
-import { ProtectedEscortImage } from "@/app/_components/ProtectedEscortImage";
+import { EscortImageGallery } from "./_components/EscortImageGallery";
 import { BookButton } from "./_components/BookButton";
 import { ReportProfileButton } from "./_components/ReportProfileButton";
 
@@ -119,33 +119,12 @@ export default async function EscortDetailPage({ params }: EscortDetailPageProps
         >
           <div className="grid gap-6 lg:grid-cols-[2fr_1fr] lg:gap-8">
             <section className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4 sm:rounded-3xl sm:p-6">
-              <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
-                {escort.images.length > 0 ? (
-                  escort.images.map((image, idx) => (
-                    <div
-                      key={image}
-                      className="relative w-full aspect-[4/5] overflow-hidden rounded-2xl"
-                    >
-                      <ProtectedEscortImage
-                        src={image}
-                        alt={idx === 0 ? escort.displayName : `${escort.displayName} photo ${idx + 1}`}
-                        fill
-                        sizes="(max-width: 1024px) 100vw, 50vw"
-                        className="object-cover"
-                        allowFullQuality={viewerHasAccess}
-                        displayName={escort.displayName}
-                        escortId={escort.id}
-                        showWarningOverlay
-                        priority={idx === 0}
-                      />
-                    </div>
-                  ))
-                ) : (
-                  <div className="flex aspect-[4/5] w-full items-center justify-center rounded-2xl border border-dashed border-zinc-800 text-xs uppercase tracking-[0.3em] text-zinc-500">
-                    No images
-                  </div>
-                )}
-              </div>
+              <EscortImageGallery
+                images={escort.images}
+                displayName={escort.displayName}
+                escortId={escort.id}
+                viewerHasAccess={viewerHasAccess}
+              />
               <div className="mt-6">
                 <h2 className="text-lg font-semibold text-white">About</h2>
                 <p className="mt-2 text-sm text-zinc-400">

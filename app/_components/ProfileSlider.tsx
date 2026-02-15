@@ -111,7 +111,9 @@ export function ProfileSlider({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
-            className="absolute inset-0"
+            className={`absolute inset-0 ${allowFullQuality ? "select-none [&_img]:pointer-events-none [&_img]:select-none [&_img]:drag-none" : ""}`.trim()}
+            onContextMenu={allowFullQuality ? (e) => e.preventDefault() : undefined}
+            onCopy={allowFullQuality ? (e) => e.preventDefault() : undefined}
           >
             <Image
               src={mainImage}
@@ -123,6 +125,7 @@ export function ProfileSlider({
               placeholder="blur"
               blurDataURL={BLUR_PLACEHOLDER}
               draggable={false}
+              onDragStart={allowFullQuality ? (e) => e.preventDefault() : undefined}
             />
           </motion.div>
         </AnimatePresence>

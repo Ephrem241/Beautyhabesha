@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import type { PublicEscort } from "@/lib/escorts";
 
@@ -7,6 +8,7 @@ import { ProfileCard } from "./ProfileCard";
 import { ContactButton } from "./ContactButton";
 import { PremiumProfileCard } from "@/app/_components/PremiumProfileCard";
 import { ImageCarousel } from "@/app/_components/ImageCarousel";
+import { ProtectedImageLightbox } from "@/app/_components/ProtectedImageLightbox";
 
 type ProfileDetailViewProps = {
   profile: PublicEscort;
@@ -21,6 +23,7 @@ export function ProfileDetailView({
 }: ProfileDetailViewProps) {
   // Contact button redirects to admin, so only viewer subscription matters
   const canShowContact = hasActiveSubscription;
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   return (
     <div className="relative min-h-screen bg-black pb-[88px] md:pb-[96px]">
@@ -61,6 +64,11 @@ export function ProfileDetailView({
                 className="h-full rounded-3xl"
                 allowFullQuality={hasActiveSubscription}
                 displayName={profile.displayName}
+                onImageClick={
+                  hasActiveSubscription
+                    ? (index) => setLightboxIndex(index)
+                    : undefined
+                }
               />
             </div>
           </PremiumProfileCard>
@@ -94,6 +102,16 @@ export function ProfileDetailView({
             </div>
           )}
         </motion.section>
+      )}
+
+      {lightboxIndex !== null && hasActiveSubscription && (
+        <ProtectedImageLightbox
+          images={profile.images}
+          initialIndex={lightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+          altPrefix={profile.displayName}
+          allowFullQuality
+        />
       )}
 
       {/* Sticky bottom CTA */}

@@ -33,7 +33,7 @@ export const BlurGate = memo(function BlurGate({
       <div
         className="absolute inset-0 h-full w-full overflow-hidden select-none transition-all duration-300 will-change-filter"
         style={{
-          filter: "blur(8px) brightness(0.50)",
+          filter: "blur(20px) brightness(0.40)",
         }}
         aria-hidden="true"
       >
