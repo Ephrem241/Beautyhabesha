@@ -22,6 +22,16 @@ const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
 const createSchema = z.object({
   name: z.string().min(2).max(100),
   displayName: z.string().min(2).max(60).optional(),
+  city: z.string().max(60).optional().or(z.literal("")),
+  age: z.coerce.number().int().min(18).max(99).optional().nullable(),
+  available: z
+    .union([z.literal("on"), z.literal(undefined)])
+    .transform((v) => v === "on"),
+  setAsOnline: z
+    .union([z.literal("on"), z.literal(undefined)])
+    .transform((v) => v === "on"),
+  price: z.coerce.number().int().min(0).optional().nullable(),
+  description: z.string().max(2000).optional().or(z.literal("")),
   bio: z.string().max(500).optional().or(z.literal("")),
 });
 
@@ -47,6 +57,20 @@ export async function createEscortByAdmin(
   const parsed = createSchema.safeParse({
     name: formData.get("name"),
     displayName: formData.get("displayName") || undefined,
+    city: formData.get("city") || undefined,
+    age: (() => {
+    const v = formData.get("age");
+    const s = v != null ? String(v).trim() : "";
+    return s === "" ? undefined : v;
+  })(),
+    available: formData.get("available") ?? undefined,
+    setAsOnline: formData.get("setAsOnline") ?? undefined,
+    price: (() => {
+    const v = formData.get("price");
+    const s = v != null ? String(v).trim() : "";
+    return s === "" ? undefined : v;
+  })(),
+    description: formData.get("description") || undefined,
     bio: formData.get("bio") || undefined,
   });
 
@@ -105,6 +129,7 @@ export async function createEscortByAdmin(
       data: {
         username,
         name: parsed.data.name,
+        age: parsed.data.age ?? null,
         password: hashedPassword,
         role: "escort",
         currentPlan: "Normal",
@@ -116,6 +141,11 @@ export async function createEscortByAdmin(
         userId: user.id,
         displayName,
         bio: parsed.data.bio?.trim() || null,
+        city: parsed.data.city?.trim() || null,
+        available: parsed.data.available,
+        price: parsed.data.price ?? null,
+        description: parsed.data.description?.trim() || null,
+        lastActiveAt: parsed.data.setAsOnline ? new Date() : null,
         images: uploadedImages as unknown as object,
         status: "approved",
         approvedAt: new Date(),

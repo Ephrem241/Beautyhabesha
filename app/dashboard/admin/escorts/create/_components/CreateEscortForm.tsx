@@ -90,6 +90,80 @@ export function CreateEscortForm({ createAction }: CreateEscortFormProps) {
           />
         </label>
         <label className="block">
+          <span className="text-sm font-medium text-zinc-200">
+            Location / City <span className="text-zinc-500">(optional)</span>
+          </span>
+          <input
+            type="text"
+            name="city"
+            maxLength={60}
+            placeholder="e.g. Addis Ababa"
+            className="mt-2 w-full rounded-xl border border-zinc-800 bg-black px-4 py-3 text-sm text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+          />
+        </label>
+        <label className="block">
+          <span className="text-sm font-medium text-zinc-200">
+            Age <span className="text-zinc-500">(optional, 18–99)</span>
+          </span>
+          <input
+            type="number"
+            name="age"
+            min={18}
+            max={99}
+            placeholder="18"
+            className="mt-2 w-full rounded-xl border border-zinc-800 bg-black px-4 py-3 text-sm text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+          />
+        </label>
+        <div className="flex flex-wrap gap-6">
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              name="available"
+              defaultChecked
+              value="on"
+              className="h-4 w-4 rounded border-zinc-600 bg-black text-emerald-500 focus:ring-emerald-500"
+            />
+            <span className="text-sm font-medium text-zinc-200">
+              Available for bookings
+            </span>
+          </label>
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              name="setAsOnline"
+              value="on"
+              className="h-4 w-4 rounded border-zinc-600 bg-black text-emerald-500 focus:ring-emerald-500"
+            />
+            <span className="text-sm font-medium text-zinc-200">
+              Set as online
+            </span>
+          </label>
+        </div>
+        <label className="block">
+          <span className="text-sm font-medium text-zinc-200">
+            Price <span className="text-zinc-500">(optional)</span>
+          </span>
+          <input
+            type="number"
+            name="price"
+            min={0}
+            placeholder="0"
+            className="mt-2 w-full rounded-xl border border-zinc-800 bg-black px-4 py-3 text-sm text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+          />
+        </label>
+        <label className="block">
+          <span className="text-sm font-medium text-zinc-200">
+            Description <span className="text-zinc-500">(optional, max 2000 chars)</span>
+          </span>
+          <textarea
+            name="description"
+            maxLength={2000}
+            rows={4}
+            placeholder="Longer description for the model profile"
+            className="mt-2 w-full rounded-xl border border-zinc-800 bg-black px-4 py-3 text-sm text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+          />
+        </label>
+        <label className="block">
           <span className="text-sm font-medium text-zinc-200">Bio</span>
           <span className="text-zinc-500"> (optional, max 500 chars)</span>
           <textarea
