@@ -29,6 +29,7 @@ export default function AdminLayout({
             <Link href="/dashboard/admin/reports" className="hover:text-zinc-300">Reports</Link>
             <Link href="/dashboard/admin/chats" className="hover:text-zinc-300">Chats</Link>
             <Link href="/dashboard/admin/payment-accounts" className="hover:text-zinc-300">Payment Accounts</Link>
+            <Link href="/dashboard/admin/emails" className="hover:text-zinc-300">Emails</Link>
           </div>
         </div>
       </nav>

@@ -7,6 +7,11 @@ import { getAuthSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { getSubscriptionPlanBySlug } from "@/lib/subscription-plans";
 import { uploadImage, deleteImage } from "@/lib/cloudinary-utils";
+import {
+  sendPaymentPendingApproval,
+  sendAdminNewPaymentUploaded,
+  getAdminEmails,
+} from "@/lib/email";
 import type { PaymentMethod } from "@prisma/client";
 import { rateLimitCheck } from "@/lib/rate-limit";
 
@@ -107,8 +112,9 @@ export async function submitPaymentProof(
     }
 
     let uploadedPublicId: string | null = uploadResult.image.publicId;
+    let payment: { id: string };
     try {
-      await prisma.payment.create({
+      payment = await prisma.payment.create({
         data: {
           userId,
           planId: plan.id,
@@ -123,6 +129,31 @@ export async function submitPaymentProof(
       if (uploadedPublicId) {
         await deleteImage(uploadedPublicId).catch(console.error);
       }
+    }
+
+    // Notify user and admins (best-effort; do not fail redirect)
+    try {
+      const payingUser = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { email: true, name: true },
+      });
+      const userEmail = payingUser?.email?.trim();
+      if (userEmail) {
+        await sendPaymentPendingApproval(
+          userEmail,
+          payingUser?.name ?? "User"
+        ).catch((e) => console.error("[submitPaymentProof] User email failed:", e));
+      }
+      const adminEmails = await getAdminEmails();
+      await sendAdminNewPaymentUploaded(adminEmails, {
+        userName: payingUser?.name ?? undefined,
+        userEmail: payingUser?.email ?? undefined,
+        planName: plan.name,
+        amount: plan.price,
+        paymentId: payment.id,
+      }).catch((e) => console.error("[submitPaymentProof] Admin email failed:", e));
+    } catch (e) {
+      console.error("[submitPaymentProof] Notifications error:", e);
     }
 
     redirect("/dashboard?payment=success");

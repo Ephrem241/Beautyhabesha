@@ -4,6 +4,7 @@
  */
 
 import { Resend } from "resend";
+import { prisma } from "@/lib/db";
 
 export type EmailResult = { ok: boolean; error?: string };
 
@@ -56,6 +57,38 @@ async function sendViaResend(options: {
   }
 }
 
+/** Best-effort log to EmailLog; never throws. */
+export async function logEmail(
+  to: string,
+  subject: string,
+  type: string,
+  metadata?: object
+): Promise<void> {
+  try {
+    await prisma.emailLog.create({
+      data: { to, subject, type, metadata: metadata ?? undefined },
+    });
+  } catch (err) {
+    console.error("[email] EmailLog create failed:", err);
+  }
+}
+
+/** Resolve admin emails from ADMIN_EMAIL / ADMIN_EMAILS env or DB. */
+export async function getAdminEmails(): Promise<string[]> {
+  const fromEnv =
+    process.env.ADMIN_EMAILS?.trim() ||
+    process.env.ADMIN_EMAIL?.trim() ||
+    "";
+  if (fromEnv) {
+    return fromEnv.split(",").map((e) => e.trim()).filter(Boolean);
+  }
+  const users = await prisma.user.findMany({
+    where: { role: "admin" },
+    select: { email: true },
+  });
+  return users.map((u) => u.email).filter((e): e is string => e != null && e.trim() !== "");
+}
+
 // ----- Subscription / auto-renew -----
 
 export async function sendAutoRenewInitiated(
@@ -80,11 +113,66 @@ export async function sendPaymentPendingApproval(
   if (!getResendClient() && process.env.NODE_ENV === "development") {
     console.log("[email] Payment pending approval:", { to, displayName });
   }
-  return sendViaResend({
+  const subject = "Payment pending approval";
+  const result = await sendViaResend({
     to,
-    subject: "Payment pending approval",
+    subject,
     text: `Hi ${displayName},\n\nYour payment has been received and is pending approval. We will notify you once it is processed.`,
   });
+  if (result.ok) {
+    await logEmail(to, subject, "payment_upload_user", { displayName });
+  }
+  return result;
+}
+
+export type AdminNewPaymentDetails = {
+  userName?: string;
+  userEmail?: string;
+  planName: string;
+  amount: number;
+  paymentId: string;
+};
+
+export async function sendAdminNewPaymentUploaded(
+  adminEmails: string[],
+  details: AdminNewPaymentDetails
+): Promise<EmailResult> {
+  const filtered = adminEmails.filter((e) => typeof e === "string" && e.trim().length > 0);
+  if (filtered.length === 0) {
+    return { ok: true };
+  }
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim() || "http://localhost:3000";
+  const paymentsUrl = `${siteUrl}/dashboard/admin/payments`;
+  const subject = "New payment proof uploaded";
+  const text = [
+    "A user has uploaded a new payment proof.",
+    "",
+    `User: ${details.userName ?? details.userEmail ?? "—"}`,
+    `Email: ${details.userEmail ?? "—"}`,
+    `Plan: ${details.planName}`,
+    `Amount: ${details.amount}`,
+    `Payment ID: ${details.paymentId}`,
+    "",
+    `Review and approve: ${paymentsUrl}`,
+  ].join("\n");
+  if (!getResendClient() && process.env.NODE_ENV === "development") {
+    console.log("[email] Admin new payment uploaded:", { to: filtered, ...details });
+  }
+  const result = await sendViaResend({
+    to: filtered,
+    subject,
+    text,
+  });
+  if (result.ok) {
+    await logEmail(filtered.join(", "), subject, "payment_upload_admin", {
+      paymentId: details.paymentId,
+      userName: details.userName,
+      userEmail: details.userEmail,
+      planName: details.planName,
+      amount: details.amount,
+    });
+  }
+  return result;
 }
 
 export async function sendRenewalSuccessful(

@@ -16,6 +16,7 @@ const ADMIN_SECTIONS = [
   { href: "/dashboard/admin/reports", label: "Profile Reports", description: "Review reports (fake, underage, abuse, scam)" },
   { href: "/dashboard/admin/consent", label: "Consent History", description: "View age and terms consent records" },
   { href: "/dashboard/admin/chats", label: "Support Chats", description: "Reply to user support messages" },
+  { href: "/dashboard/admin/emails", label: "Email log", description: "View sent notification emails (payment, booking, etc.)" },
 ];
 
 export default async function AdminDashboardPage() {

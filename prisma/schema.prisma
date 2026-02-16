@@ -403,3 +403,16 @@ model PaymentArchive {
   @@index([createdAt])
   @@map("payment_archives")
 }
+
+model EmailLog {
+  id        String   @id @default(cuid())
+  to        String   // comma-separated if multiple
+  subject   String
+  type      String   // e.g. payment_upload_user, payment_upload_admin, booking_request
+  metadata  Json?
+  sentAt    DateTime @default(now())
+
+  @@index([type])
+  @@index([sentAt(sort: Desc)])
+  @@map("email_logs")
+}
