@@ -7,6 +7,7 @@ import { AgeGate } from "./_components/AgeGate";
 import { WebVitalsClient } from "./_components/WebVitalsClient";
 import { ChatWidgetClient } from "./support/_components/ChatWidgetClient";
 import { getSiteUrl } from "@/lib/site-url";
+import { Analytics } from "@vercel/analytics/next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -85,6 +86,7 @@ export default function RootLayout({
             <ChatWidgetClient />
           </div>
         </AgeGate>
+        <Analytics />
       </body>
     </html>
   );
